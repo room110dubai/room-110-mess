@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room 110 Mess Portal</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Default Bootstrap Admin
+    const DEFAULT_USERS = [
+      { id: 'admin-1', name: 'Shyam', username: 'shyam', password: 'admin123', role: 'admin' }
+    ];
+
+    function App() {
+      const [currentUser, setCurrentUser] = useState(null);
+      const [users, setUsers] = useState(() => {
+        const saved = localStorage.getItem('room110_users');
+        return saved ? JSON.parse(saved) : DEFAULT_USERS;
+      });
+      const [expenses, setExpenses] = useState(() => {
+        const saved = localStorage.getItem('room110_expenses');
+        return saved ? JSON.parse(saved) : [];
+      });
+      const [apiUrl, setApiUrl] = useState(() => localStorage.getItem('room110_api_url') || '');
+      const [syncing, setSyncing] = useState(false);
+      const [error, setError] = useState('');
+      const [successMsg, setSuccessMsg] = useState('');
+
+      // Login inputs
+      const [loginId, setLoginId] = useState('');
+      const [loginPass, setLoginPass] = useState('');
+
+      // Active navigation tab
+      const [activeTab, setActiveTab] = useState('ledger');
+
+      // New Expense inputs
+      const [amount, setAmount] = useState('');
+      const [category, setCategory] = useState('Groceries');
+      const [description, setDescription] = useState('');
+      const [paidBy, setPaidBy] = useState('Shyam');
+      const [splitType, setSplitType] = useState('all');
+      const [selectedMembers, setSelectedMembers] = useState([]);
+
+      // New User inputs (Admin)
+      const [newUserName, setNewUserName] = useState('');
+      const [newUserId, setNewUserId] = useState('');
+      const [newUserPass, setNewUserPass] = useState('');
+      const [newUserRole, setNewUserRole] = useState('user');
+
+      // Save to LocalStorage automatically
+      useEffect(() => {
+        localStorage.setItem('room110_users', JSON.stringify(users));
+      }, [users]);
+
+      useEffect(() => {
+        localStorage.setItem('room110_expenses', JSON.stringify(expenses));
+      }, [expenses]);
+
+      // Fetch from Cloud API if configured
+      const fetchCloudData = async (customUrl = apiUrl) => {
+        if (!customUrl) return;
+        setSyncing(true);
+        setError('');
+        try {
+          const res = await fetch(customUrl);
+          const data = await res.json();
+          if (data.users && data.users.length > 0) setUsers(data.users);
+          if (data.expenses) setExpenses(data.expenses);
+          setSuccessMsg('Synced with Room 110 Cloud!');
+          setTimeout(() => setSuccessMsg(''), 2500);
+        } catch (err) {
+          setError('Cloud sync failed. Using local saved data.');
+        } finally {
+          setSyncing(false);
+        }
+      };
+
+      const pushCloudData = async (updatedUsers, updatedExpenses) => {
+        if (!apiUrl) return;
+        setSyncing(true);
+        try {
+          await fetch(apiUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ users: updatedUsers, expenses: updatedExpenses })
+          });
+        } catch (err) {
+          console.error('Cloud push error:', err);
+        } finally {
+          setSyncing(false);
+        }
+      };
+
+      useEffect(() => {
+        if (apiUrl) fetchCloudData(apiUrl);
+      }, []);
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        setError('');
+        const found = users.find(
+          u => u.username.toLowerCase() === loginId.trim().toLowerCase() && u.password === loginPass.trim()
+        );
+        if (found) {
+          setCurrentUser(found);
+          setPaidBy(found.name);
+          setSelectedMembers(users.map(u => u.name));
+          setLoginId('');
+          setLoginPass('');
+        } else {
+          setError('Invalid User ID or Password.');
+        }
+      };
+
+      const handleAddUser = (e) => {
+        e.preventDefault();
+        setError('');
+        if (!newUserName.trim() || !newUserId.trim() || !newUserPass.trim()) {
+          setError('Please fill in all fields.');
+          return;
+        }
+        if (users.some(u => u.username.toLowerCase() === newUserId.trim().toLowerCase())) {
+          setError('That User ID already exists!');
+          return;
+        }
+        const updatedUsers = [
+          ...users,
+          {
+            id: 'user-' + Date.now(),
+            name: newUserName.trim(),
+            username: newUserId.trim().toLowerCase(),
+            password: newUserPass.trim(),
+            role: newUserRole
+          }
+        ];
+        setUsers(updatedUsers);
+        pushCloudData(updatedUsers, expenses);
+        setNewUserName('');
+        setNewUserId('');
+        setNewUserPass('');
+        setSuccessMsg('Roommate added to Room 110!');
+        setTimeout(() => setSuccessMsg(''), 3000);
+      };
+
+      const handleDeleteUser = (id) => {
+        if (users.length <= 1) {
+          setError('Cannot delete the last admin account.');
+          return;
+        }
+        if (confirm('Remove this roommate from Room 110?')) {
+          const updatedUsers = users.filter(u => u.id !== id);
+          setUsers(updatedUsers);
+          pushCloudData(updatedUsers, expenses);
+        }
+      };
+
+      const handleAddExpense = (e) => {
+        e.preventDefault();
+        setError('');
+        if (!amount || isNaN(amount) || Number(amount) <= 0) {
+          setError('Enter a valid amount in AED.');
+          return;
+        }
+        const allocated = splitType === 'all' ? users.map(u => u.name) : selectedMembers;
+        if (allocated.length === 0) {
+          setError('Select at least 1 member to split this expense.');
+          return;
+        }
+        const newExp = {
+          id: 'exp-' + Date.now(),
+          paidBy: paidBy || currentUser.name,
+          amount: Number(amount),
+          category,
+          description: description.trim() || category,
+          date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          splitType,
+          allocatedTo: allocated
+        };
+        const updatedExpenses = [newExp, ...expenses];
+        setExpenses(updatedExpenses);
+        pushCloudData(users, updatedExpenses);
+        setAmount('');
+        setDescription('');
+        setSuccessMsg('Expense saved to Room 110 Ledger!');
+        setTimeout(() => setSuccessMsg(''), 3000);
+        setActiveTab('ledger');
+      };
+
+      const handleDeleteExpense = (id) => {
+        if (confirm('Delete this expense entry?')) {
+          const updatedExpenses = expenses.filter(ex => ex.id !== id);
+          setExpenses(updatedExpenses);
+          pushCloudData(users, updatedExpenses);
+        }
+      };
+
+      const totalSpent = expenses.reduce((sum, ex) => sum + ex.amount, 0);
+
+      const memberStats = users.map(u => {
+        const paid = expenses.filter(ex => ex.paidBy === u.name).reduce((sum, ex) => sum + ex.amount, 0);
+        const consumed = expenses.reduce((sum, ex) => {
+          const alloc = Array.isArray(ex.allocatedTo) ? ex.allocatedTo : [];
+          return alloc.includes(u.name) ? sum + (ex.amount / alloc.length) : sum;
+        }, 0);
+        return {
+          name: u.name,
+          role: u.role,
+          paid,
+          consumed,
+          net: paid - consumed
+        };
+      });
+
+      const copyWhatsAppSummary = () => {
+        const lines = [
+          `*ROOM 110 MESS SUMMARY*`,
+          `Total Mess Spent: *AED ${totalSpent.toFixed(2)}*`,
+          `Members: *${users.length}*`,
+          `------------------------`,
+          ...memberStats.map(m => {
+            const status = m.net >= 0 ? `Gets +AED ${m.net.toFixed(2)}` : `Pays -AED ${Math.abs(m.net).toFixed(2)}`;
+            return `• *${m.name}*: Paid ${m.paid.toFixed(0)} | Share ${m.consumed.toFixed(1)} ➜ *${status}*`;
+          })
+        ];
+        navigator.clipboard.writeText(lines.join('\n'));
+        setSuccessMsg('WhatsApp Summary Copied!');
+        setTimeout(() => setSuccessMsg(''), 3000);
+      };
+
+      // LOGIN SCREEN
+      if (!currentUser) {
+        return (
+          <div className="min-h-screen flex items-center justify-center p-4 bg-slate-950">
+            <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-blue-600/20 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl font-bold border border-blue-500/30">
+                  <i className="fa-solid fa-door-open"></i>
+                </div>
+                <h1 className="text-2xl font-bold text-white">Room 110 Mess Portal</h1>
+                <p className="text-slate-400 text-sm mt-1">Shared Expense Splitter & Ledger</p>
+              </div>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm flex items-center gap-2">
+                  <i className="fa-solid fa-triangle-exclamation"></i>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">User ID</label>
+                  <input
+                    type="text"
+                    value={loginId}
+                    onChange={e => setLoginId(e.target.value)}
+                    placeholder="Enter User ID"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                  <input
+                    type="password"
+                    value={loginPass}
+                    onChange={e => setLoginPass(e.target.value)}
+                    placeholder="Enter Password"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+                >
+                  <i className="fa-solid fa-right-to-bracket"></i>
+                  <span>Sign In to Room 110</span>
+                </button>
+              </form>
+
+              <div className="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs">
+                <button
+                  type="button"
+                  onClick={() => { setLoginId('shyam'); setLoginPass('admin123'); }}
+                  className="text-blue-400 hover:underline flex items-center gap-1"
+                >
+                  <i className="fa-solid fa-key"></i> Fill Default Admin
+                </button>
+                {apiUrl && (
+                  <button
+                    type="button"
+                    onClick={() => fetchCloudData()}
+                    className="text-slate-400 hover:text-white flex items-center gap-1"
+                  >
+                    <i className={`fa-solid fa-rotate ${syncing ? 'fa-spin' : ''}`}></i> Sync Cloud
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // LOGGED-IN PORTAL
+      return (
+        <div className="min-h-screen pb-12">
+          <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+            <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-600/20 text-blue-400 rounded-xl flex items-center justify-center font-bold border border-blue-500/30">
+                  110
+                </div>
+                <div>
+                  <h1 className="font-bold text-white text-sm sm:text-base">Room 110 Mess</h1>
+                  <p className="text-xs text-slate-400">
+                    {currentUser.name} ({currentUser.role === 'admin' ? 'Admin' : 'Member'})
+                    {syncing && <span className="text-blue-400 ml-1">• Syncing...</span>}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={copyWhatsAppSummary}
+                  className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl border border-emerald-500/20 transition flex items-center gap-1.5"
+                >
+                  <i className="fa-brands fa-whatsapp"></i>
+                  <span className="hidden sm:inline">WhatsApp Report</span>
+                </button>
+                <button
+                  onClick={() => setCurrentUser(null)}
+                  className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-xl border border-red-500/20 transition flex items-center gap-1.5"
+                >
+                  <i className="fa-solid fa-power-off"></i>
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="max-w-4xl mx-auto px-4 pt-6 space-y-6">
+            {successMsg && (
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm flex items-center gap-2">
+                <i className="fa-solid fa-circle-check"></i>
+                <span>{successMsg}</span>
+              </div>
+            )}
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm flex items-center gap-2">
+                <i className="fa-solid fa-triangle-exclamation"></i>
+                <span>{error}</span>
+                <button onClick={() => setError('')} className="ml-auto text-xs underline">Dismiss</button>
+              </div>
+            )}
+
+            {/* Navigation */}
+            <div className="flex bg-slate-900 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto">
+              <button
+                onClick={() => setActiveTab('ledger')}
+                className={`flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${activeTab === 'ledger' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+              >
+                <i className="fa-solid fa-chart-pie"></i>
+                <span>Ledger</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('add')}
+                className={`flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${activeTab === 'add' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+              >
+                <i className="fa-solid fa-circle-plus"></i>
+                <span>Add Expense</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`flex-1 min-w-[100px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${activeTab === 'history' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+              >
+                <i className="fa-solid fa-receipt"></i>
+                <span>History ({expenses.length})</span>
+              </button>
+              {currentUser.role === 'admin' && (
+                <button
+                  onClick={() => setActiveTab('members')}
+                  className={`flex-1 min-w-[110px] py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 ${activeTab === 'members' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                >
+                  <i className="fa-solid fa-users-gear"></i>
+                  <span>Admin ({users.length})</span>
+                </button>
+              )}
+            </div>
+
+            {/* TAB 1: LEDGER */}
+            {activeTab === 'ledger' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                    <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Room 110 Total Mess Spent</p>
+                    <p className="text-3xl font-extrabold text-white mt-1">AED {totalSpent.toFixed(2)}</p>
+                    <p className="text-xs text-slate-500 mt-2">{users.length} Registered Roommates</p>
+                  </div>
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                    <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Average Per Member</p>
+                    <p className="text-3xl font-extrabold text-blue-400 mt-1">
+                      AED {users.length > 0 ? (totalSpent / users.length).toFixed(2) : '0.00'}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-2">Individual shares vary by allocation</p>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                  <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+                    <h2 className="font-bold text-white text-sm sm:text-base">Room 110 Member Balances</h2>
+                    <span className="text-xs text-slate-400">+ Gets Back / - Needs to Pay</span>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-950 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                          <th className="p-3.5">Member</th>
+                          <th className="p-3.5">Paid (AED)</th>
+                          <th className="p-3.5">Share (AED)</th>
+                          <th className="p-3.5 text-right">Net Balance</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800 text-sm">
+                        {memberStats.map((m, idx) => (
+                          <tr key={idx} className="hover:bg-slate-800/40">
+                            <td className="p-3.5 font-medium text-white flex items-center gap-2">
+                              <span>{m.name}</span>
+                              {m.role === 'admin' && <span className="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">Admin</span>}
+                            </td>
+                            <td className="p-3.5 text-slate-300 font-mono">{m.paid.toFixed(2)}</td>
+                            <td className="p-3.5 text-slate-300 font-mono">{m.consumed.toFixed(2)}</td>
+                            <td className={`p-3.5 text-right font-mono font-bold ${m.net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {m.net >= 0 ? `+${m.net.toFixed(2)}` : m.net.toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: ADD EXPENSE */}
+            {activeTab === 'add' && (
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                <h2 className="font-bold text-white text-base mb-4">Input Room 110 Mess Expense</h2>
+                <form onSubmit={handleAddExpense} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Amount (AED)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={amount}
+                        onChange={e => setAmount(e.target.value)}
+                        placeholder="e.g. 125.50"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Category</label>
+                      <select
+                        value={category}
+                        onChange={e => setCategory(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                      >
+                        <option value="Groceries">Groceries / Rice / Oil</option>
+                        <option value="Vegetables">Vegetables & Fruits</option>
+                        <option value="Meat/Chicken">Chicken / Meat / Fish</option>
+                        <option value="Gas/Water">Cooking Gas / Water</option>
+                        <option value="Cleaning">Cleaning & Kitchen Supplies</option>
+                        <option value="Other">Other Mess Items</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Paid By</label>
+                      <select
+                        value={paidBy}
+                        onChange={e => setPaidBy(e.target.value)}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                      >
+                        {users.map(u => (
+                          <option key={u.id} value={u.name}>{u.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Items Note</label>
+                      <input
+                        type="text"
+                        value={description}
+                        onChange={e => setDescription(e.target.value)}
+                        placeholder="e.g. Chicken, Milk & Onion"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Split Allocation</label>
+                    <div className="flex gap-4 mb-3">
+                      <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input
+                          type="radio"
+                          checked={splitType === 'all'}
+                          onChange={() => setSplitType('all')}
+                        />
+                        <span>All {users.length} Members</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input
+                          type="radio"
+                          checked={splitType === 'custom'}
+                          onChange={() => { setSplitType('custom'); setSelectedMembers(users.map(u => u.name)); }}
+                        />
+                        <span>Select Specific Members</span>
+                      </label>
+                    </div>
+
+                    {splitType === 'custom' && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800">
+                        {users.map(u => {
+                          const checked = selectedMembers.includes(u.name);
+                          return (
+                            <label key={u.id} className="flex items-center gap-2 p-2 rounded hover:bg-slate-800 cursor-pointer text-sm">
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={e => {
+                                  if (e.target.checked) setSelectedMembers([...selectedMembers, u.name]);
+                                  else setSelectedMembers(selectedMembers.filter(n => n !== u.name));
+                                }}
+                              />
+                              <span className="truncate">{u.name}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition"
+                  >
+                    Save Expense
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 3: HISTORY */}
+            {activeTab === 'history' && (
+              <div className="space-y-3">
+                {expenses.length === 0 ? (
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center text-slate-400">
+                    No expenses added yet.
+                  </div>
+                ) : (
+                  expenses.map(ex => (
+                    <div key={ex.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+                      <div>
+                        <span className="text-xs text-blue-400 font-semibold">{ex.category} • {ex.date}</span>
+                        <p className="font-semibold text-white">{ex.description}</p>
+                        <p className="text-xs text-slate-400">Paid by <strong>{ex.paidBy}</strong> • Split with {ex.allocatedTo.length} members</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono font-bold text-white">AED {ex.amount.toFixed(2)}</span>
+                        {currentUser.role === 'admin' && (
+                          <button onClick={() => handleDeleteExpense(ex.id)} className="text-slate-500 hover:text-red-400 p-2">
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* TAB 4: ADMIN PANEL */}
+            {activeTab === 'members' && currentUser.role === 'admin' && (
+              <div className="space-y-6">
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                  <h2 className="font-bold text-white text-base mb-4">Add Room 110 Member</h2>
+                  <form onSubmit={handleAddUser} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Full Name</label>
+                        <input
+                          type="text"
+                          value={newUserName}
+                          onChange={e => {
+                            setNewUserName(e.target.value);
+                            setNewUserId(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                          }}
+                          placeholder="e.g. Roommate Name"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">User ID</label>
+                        <input
+                          type="text"
+                          value={newUserId}
+                          onChange={e => setNewUserId(e.target.value)}
+                          placeholder="e.g. user1"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label>
+                        <input
+                          type="text"
+                          value={newUserPass}
+                          onChange={e => setNewUserPass(e.target.value)}
+                          placeholder="Set login password"
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase text-slate-400 mb-1">Role</label>
+                        <select
+                          value={newUserRole}
+                          onChange={e => setNewUserRole(e.target.value)}
+                          className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                        >
+                          <option value="user">User (View & Add Expenses Only)</option>
+                          <option value="admin">Admin (Full Control)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl">
+                      Create Member Account
+                    </button>
+                  </form>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden divide-y divide-slate-800">
+                  {users.map(u => (
+                    <div key={u.id} className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-white">{u.name}</p>
+                        <p className="text-xs text-slate-400 font-mono">ID: {u.username} • Pass: {u.password} • {u.role.toUpperCase()}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            const msg = `*Room 110 Mess Login*\nLink: ${window.location.href}\nUser ID: ${u.username}\nPassword: ${u.password}`;
+                            navigator.clipboard.writeText(msg);
+                            setSuccessMsg(`Copied login for ${u.name}!`);
+                            setTimeout(() => setSuccessMsg(''), 2500);
+                          }}
+                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-xl text-emerald-400 font-semibold"
+                        >
+                          Copy Login
+                        </button>
+                        {users.length > 1 && (
+                          <button onClick={() => handleDeleteUser(u.id)} className="text-slate-500 hover:text-red-400 p-2">
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Optional Cloud Sync Link */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3">
+                  <h3 className="font-bold text-white text-sm">Optional: Google Sheet Cloud Sync URL</h3>
+                  <p className="text-xs text-slate-400">Paste your Google Apps Script Web App URL here if you want all 13 phones to sync to one Google Sheet automatically.</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={apiUrl}
+                      onChange={e => {
+                        setApiUrl(e.target.value);
+                        localStorage.setItem('room110_api_url', e.target.value);
+                      }}
+                      placeholder="https://script.google.com/macros/s/.../exec"
+                      className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    />
+                    <button
+                      onClick={() => fetchCloudData(apiUrl)}
+                      className="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl"
+                    >
+                      Sync
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
