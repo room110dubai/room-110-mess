@@ -331,7 +331,7 @@ th{color:#111}
 
 <!-- MAIN DASHBOARD SCREEN -->
 <div id="appBox" class="hide" style="width:100%">
-  <!-- Top Bar: Room 110 Logo on Left & WhatsApp Logo Button on Right -->
+  <!-- Top Bar: Room 110 Logo on Left & WhatsApp Logo Button on Right (Only 1 Logout Button preserved in profile) -->
   <div class="top">
     <div>
       <svg class="top-logo" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
@@ -371,7 +371,7 @@ th{color:#111}
     <!-- TAB 1: HOME (Ledger & Overview) -->
     <div id="v1">
       <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-        <div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px;font-size:26px">₫ 0.00</h2></div>
+        <div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px;font-size:26px">AED 0.00</h2></div>
         <div style="text-align:right"><label style="margin:0">Members</label><h2 id="mcount" style="color:#1e3a8a;margin-top:4px;font-size:26px">0</h2></div>
       </div>
       <div class="card">
@@ -396,7 +396,7 @@ th{color:#111}
     <div id="v3" class="card hide">
       <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
       <form onsubmit="addEx(event)">
-        <label>Amount (₫)</label><input id="amt" type="number" step="0.01" placeholder="0.00" required>
+        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" placeholder="0.00" required>
         <label>Items / Category</label><input id="desc" placeholder="e.g. Groceries, Chicken, Gas" required>
         <label>Paid By</label><select id="pby"></select>
         <label>Split Between</label>
@@ -441,8 +441,9 @@ th{color:#111}
         <div class="prof-bal-box" style="background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
           <div>
             <div style="font-size:11px;color:#6b7280;font-weight:600">MY NET BALANCE</div>
-            <div id="profNet" style="font-size:20px;font-weight:800;margin-top:2px">₫ 0.00</div>
+            <div id="profNet" style="font-size:20px;font-weight:800;margin-top:2px">AED 0.00</div>
           </div>
+          <button class="btn btn-s" style="background:#dc2626" onclick="logout()">Logout</button>
         </div>
       </div>
 
@@ -841,8 +842,8 @@ function stats(){
   return {tot:tot,st:st};
 }
 function wa(){
-  var s=stats(),txt="*ROOM 110 MESS*\nTotal: ₫ "+s.tot.toFixed(2)+"\n----------------\n";
-  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"₫ "+Math.abs(m.net).toFixed(2)+"\n"});
+  var s=stats(),txt="*ROOM 110 MESS*\nTotal: AED "+s.tot.toFixed(2)+"\n----------------\n";
+  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"\n"});
   navigator.clipboard.writeText(txt);alert("WhatsApp Report Copied!");
 }
 function render(){
@@ -867,18 +868,18 @@ function render(){
   document.getElementById("profRole").innerText = cur.r === "admin" ? "Room 110 Admin" : "Room 110 Member";
 
   var s=stats();
-  document.getElementById("tot").innerText="₫ "+s.tot.toFixed(2);
+  document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
   document.getElementById("mcount").innerText=users.length;
   document.getElementById("tb").innerHTML=s.st.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
 
   var myStat = s.st.find(function(m){return m.name===cur.name}) || {net:0};
   var pNet = document.getElementById("profNet");
-  pNet.innerText = (myStat.net>=0?"+₫ ":"-₫ ") + Math.abs(myStat.net).toFixed(2);
+  pNet.innerText = (myStat.net>=0?"+AED ":"-AED ") + Math.abs(myStat.net).toFixed(2);
   pNet.className = myStat.net>=0 ? "g" : "r";
 
   document.getElementById("pby").innerHTML=users.map(function(u){return "<option value='"+u.name+"' "+(u.name==cur.name?"selected":"")+">"+u.name+"</option>"}).join("");
   document.getElementById("cbox").innerHTML=users.map(function(u){return "<label class='ck'><input type='checkbox' class='mck' value='"+u.name+"' checked><span>"+u.name+"</span></label>"}).join("");
-  document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>₫ "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses recorded yet. Tap (+) in the dock to add one!</div>";
+  document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses recorded yet. Tap (+) in the dock to add one!</div>";
 
   document.getElementById("chatList").innerHTML=msgs.map(function(m){
     var isMe = m.u === cur.name;
