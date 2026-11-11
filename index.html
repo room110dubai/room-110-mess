@@ -2,10 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Room 110 Mess</title>
 <style>
-*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;-webkit-tap-highlight-color:transparent}
 body{
   background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
   background-size: cover;
@@ -43,18 +43,107 @@ body{
 
 .wrap, .login-box, #loginFooter, #appBox { position: relative; z-index: 2; }
 
-.wrap{max-width:750px;margin:auto;padding:14px;width:100%}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:12px;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
+.wrap{max-width:750px;margin:auto;padding:16px 14px 110px;width:100%}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06)}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
-input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:8px;font-size:14px}
+input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px}
 input:focus,select:focus{border-color:#1e3a8a;outline:none}
-.btn{width:100%;background:#1e3a8a;color:#fff;border:0;padding:13px;border-radius:8px;font-weight:700;margin-top:16px;cursor:pointer;font-size:14px}
+.btn{width:100%;background:#1e3a8a;color:#fff;border:0;padding:13px;border-radius:10px;font-weight:700;margin-top:16px;cursor:pointer;font-size:14px}
 .btn:hover{background:#1d4ed8}
-.btn-s{width:auto;padding:7px 12px;font-size:12px;margin:0}
-.top{background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
-.tabs{display:flex;gap:6px;margin-bottom:12px}
-.tab{flex:1;background:#f3f4f6;color:#4b5563;border:0;padding:10px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
-.tab.on{background:#1e3a8a;color:#fff}
+.btn-s{width:auto;padding:8px 14px;font-size:12px;margin:0;border-radius:10px}
+
+/* Top Welcome Header */
+.top{
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 10px rgba(0,0,0,0.04);
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+.welcome-label{font-size:12px;color:#6b7280;font-weight:600;letter-spacing:0.3px;text-transform:uppercase}
+.welcome-user{font-size:20px;font-weight:800;color:#1e3a8a;margin-top:1px;letter-spacing:-0.3px}
+
+/* Floating Bottom Dock (Matching Reference) */
+.floating-dock {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  height: 66px;
+  background: rgba(43, 47, 54, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 38px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  z-index: 999;
+}
+.dock-item {
+  flex: 1;
+  height: 54px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.22s ease;
+  padding: 0;
+}
+.dock-item.active {
+  background: rgba(115, 120, 128, 0.65);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+}
+.dock-item svg {
+  width: 25px;
+  height: 25px;
+  stroke: #ffffff;
+  fill: none;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dock-item.active svg.fill-active {
+  fill: #ffffff;
+}
+.dock-dot {
+  position: absolute;
+  bottom: 11px;
+  right: 22%;
+  width: 7px;
+  height: 7px;
+  background: #ff1e27;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(255,30,39,0.8);
+}
+.dock-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255,255,255,0.85);
+  position: relative;
+}
+
 table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
 th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151}
 th{color:#111}
@@ -71,13 +160,20 @@ th{color:#111}
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 24px;
-  padding: 32px 24px;
+  padding: 28px 24px 32px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   text-align: center;
 }
 
-.logo-title{font-size:32px;font-weight:800;color:#1e3a8a;letter-spacing:-0.5px;margin-bottom:4px}
+.logo-svg{width:100%;max-width:340px;height:auto;margin:0 auto 6px;display:block}
 .footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:600}
+
+/* Chat Styles */
+.chat-box{max-height:340px;overflow-y:auto;padding:10px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
+.msg{padding:10px 12px;border-radius:14px;max-width:82%;font-size:13px;line-height:1.4}
+.msg-me{background:#1e3a8a;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg-other{background:#fff;color:#111;align-self:flex-start;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
+.msg-meta{font-size:10px;opacity:0.75;margin-bottom:2px;font-weight:700}
 </style>
 </head>
 <body>
@@ -86,8 +182,33 @@ th{color:#111}
 
 <!-- LOGIN SCREEN -->
 <div id="loginBox" class="login-box">
-  <div class="logo-title">Room 110</div>
-  <p style="font-size:15px;font-weight:600;color:#1f2937;margin-top:4px">Welcome back,</p>
+  <!-- Custom Room 110 Dubai Skyline Vector Logo (Refined Spacing) -->
+  <svg class="logo-svg" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
+    <text x="15" y="150" font-family="Arial Black, Impact, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="130" letter-spacing="-3" fill="#17375E">Room</text>
+    <path d="M 402 45 L 436 24 L 436 62 L 418 74 L 418 49 L 402 49 Z" fill="#17375E"/>
+    <path d="M 434 45 L 438 45 L 438 152 L 434 152 Z" fill="#17375E"/>
+    <path d="M 434 62 C 402 88, 404 128, 412 152 L 443 152 C 450 125, 448 88, 434 62 Z" fill="none" stroke="#17375E" stroke-width="5.5"/>
+    <path d="M 410 82 L 447 85" stroke="#17375E" stroke-width="3.8" stroke-linecap="round"/>
+    <line x1="413" y1="96" x2="438" y2="96" stroke="#17375E" stroke-width="3.2"/>
+    <line x1="410" y1="110" x2="438" y2="110" stroke="#17375E" stroke-width="3.2"/>
+    <line x1="409" y1="124" x2="438" y2="124" stroke="#17375E" stroke-width="3.2"/>
+    <line x1="411" y1="138" x2="438" y2="138" stroke="#17375E" stroke-width="3.2"/>
+    <path d="M 468 45 L 502 24 L 502 62 L 484 74 L 484 49 L 468 49 Z" fill="#17375E"/>
+    <path d="M 485 78 L 485 152 L 510 152 C 514 124, 506 95, 485 78 Z" fill="none" stroke="#17375E" stroke-width="5"/>
+    <line x1="487" y1="94" x2="500" y2="94" stroke="#17375E" stroke-width="2.8"/>
+    <line x1="487" y1="105" x2="504" y2="105" stroke="#17375E" stroke-width="2.8"/>
+    <line x1="487" y1="116" x2="507" y2="116" stroke="#17375E" stroke-width="2.8"/>
+    <line x1="487" y1="127" x2="508" y2="127" stroke="#17375E" stroke-width="2.8"/>
+    <line x1="487" y1="138" x2="508" y2="138" stroke="#17375E" stroke-width="2.8"/>
+    <path d="M 586 36 C 553 44, 543 78, 543 105 C 543 136, 562 154, 595 154 C 628 154, 647 136, 647 105 C 647 78, 637 44, 604 36" fill="none" stroke="#17375E" stroke-width="15" stroke-linecap="round"/>
+    <path d="M 594 6 L 596 6 L 597 38 L 599 38 L 599 62 L 602 62 L 602 90 L 606 90 L 606 120 L 610 120 L 610 153 L 580 153 L 580 120 L 584 120 L 584 90 L 588 90 L 588 62 L 591 62 L 591 38 L 593 38 Z" fill="#17375E"/>
+    <line x1="595" y1="62" x2="595" y2="152" stroke="#fff" stroke-width="1.8"/>
+    <line x1="589" y1="95" x2="589" y2="152" stroke="#fff" stroke-width="1.5"/>
+    <line x1="601" y1="110" x2="601" y2="152" stroke="#fff" stroke-width="1.5"/>
+    <path d="M 385 172 Q 530 130 675 172 Q 530 146 385 172 Z" fill="#17375E"/>
+  </svg>
+
+  <p style="font-size:15px;font-weight:600;color:#1f2937;margin-top:2px">Welcome back,</p>
   <p style="font-size:13px;color:#4b5563;margin-bottom:20px">Please sign in to your account below.</p>
   <p id="err" style="color:#dc2626;font-size:13px;margin-bottom:8px"></p>
   
@@ -110,34 +231,48 @@ th{color:#111}
 
 <!-- MAIN DASHBOARD SCREEN -->
 <div id="appBox" class="hide" style="width:100%">
+  <!-- Top Bar: Left Corner "Welcome" + User Name Below -->
   <div class="top">
-    <div><strong style="color:#1e3a8a;font-size:16px">Room 110 Mess</strong><div id="who" style="font-size:11px;color:#6b7280"></div></div>
-    <div style="display:flex;gap:6px">
+    <div>
+      <div class="welcome-label">Welcome</div>
+      <div id="whoName" class="welcome-user">Shyam</div>
+    </div>
+    <div style="display:flex;gap:8px">
       <button class="btn btn-s" style="background:#059669" onclick="wa()">WhatsApp</button>
       <button class="btn btn-s" style="background:#dc2626" onclick="logout()">Logout</button>
     </div>
   </div>
+
   <div class="wrap">
-    <div class="tabs">
-      <button id="t1" class="tab on" onclick="tab(1)">Ledger</button>
-      <button id="t2" class="tab" onclick="tab(2)">+ Expense</button>
-      <button id="t3" class="tab" onclick="tab(3)">History</button>
-      <button id="t4" class="tab hide" onclick="tab(4)">Admin</button>
-    </div>
+    <!-- TAB 1: HOME (Ledger & Overview) -->
     <div id="v1">
-      <div class="card" style="display:flex;justify-content:space-between">
-        <div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px">AED 0</h2></div>
-        <div style="text-align:right"><label style="margin:0">Members</label><h2 id="mcount" style="color:#1e3a8a;margin-top:4px">0</h2></div>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+        <div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px;font-size:26px">AED 0.00</h2></div>
+        <div style="text-align:right"><label style="margin:0">Members</label><h2 id="mcount" style="color:#1e3a8a;margin-top:4px;font-size:26px">0</h2></div>
       </div>
       <div class="card">
         <strong>Member Balances (+ Gets / - Pays)</strong>
         <table><thead><tr><th>Name</th><th>Paid</th><th>Share</th><th>Net</th></tr></thead><tbody id="tb"></tbody></table>
       </div>
     </div>
-    <div id="v2" class="card hide">
+
+    <!-- TAB 2: EXPENSES RELATED (Expense History & Breakdown) -->
+    <div id="v2" class="hide">
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <strong style="font-size:16px;color:#111">Mess Expenses</strong>
+          <div style="font-size:12px;color:#6b7280">All recorded bills &amp; splits</div>
+        </div>
+        <button class="btn btn-s" onclick="tab(3)">+ Add New</button>
+      </div>
+      <div id="hlist"></div>
+    </div>
+
+    <!-- TAB 3: (+) ADD EXPENSE -->
+    <div id="v3" class="card hide">
       <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
       <form onsubmit="addEx(event)">
-        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" required>
+        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" placeholder="0.00" required>
         <label>Items / Category</label><input id="desc" placeholder="e.g. Groceries, Chicken, Gas" required>
         <label>Paid By</label><select id="pby"></select>
         <label>Split Between</label>
@@ -148,25 +283,110 @@ th{color:#111}
         <button class="btn">Save Expense</button>
       </form>
     </div>
-    <div id="v3" class="hide"><div id="hlist"></div></div>
-    <div id="v4" class="hide">
-      <div class="card">
-        <h3 style="color:#111;margin-bottom:10px">Create Member Account</h3>
-        <form onsubmit="addU(event)">
-          <label>Name</label><input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')">
-          <label>User ID</label><input id="nid" required>
-          <label>Password</label><input id="npass" required>
-          <label>Role</label><select id="nrole"><option value="user">User (View & Add)</option><option value="admin">Admin (Full Control)</option></select>
-          <button class="btn">Add Member</button>
-        </form>
+
+    <!-- TAB 4: CHAT (Room 110 Mess Chat) -->
+    <div id="v4" class="card hide">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <h3 style="color:#111">Room 110 Mess Chat</h3>
+          <p style="font-size:12px;color:#6b7280">Discuss daily menu, groceries &amp; updates</p>
+        </div>
       </div>
-      <div id="ulist" class="card"></div>
+      <div id="chatList" class="chat-box"></div>
+      <form onsubmit="sendMsg(event)" style="display:flex;gap:8px">
+        <input id="chatInput" placeholder="Write a message to Room 110..." required style="margin:0;flex:1">
+        <button class="btn btn-s" style="padding:0 18px">Send</button>
+      </form>
+    </div>
+
+    <!-- TAB 5: PROFILE & ADMIN -->
+    <div id="v5" class="hide">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div id="profAvatar" style="width:54px;height:54px;border-radius:50%;background:#1e3a8a;color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center">S</div>
+          <div>
+            <h3 id="profName" style="color:#111;font-size:18px">Shyam</h3>
+            <p id="profRole" style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700"></p>
+          </div>
+        </div>
+        <div style="background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:11px;color:#6b7280;font-weight:600">MY NET BALANCE</div>
+            <div id="profNet" style="font-size:20px;font-weight:800;margin-top:2px">AED 0.00</div>
+          </div>
+          <button class="btn btn-s" style="background:#dc2626" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <!-- Admin Controls (Visible to Admins) -->
+      <div id="adminSection" class="hide">
+        <div class="card">
+          <h3 style="color:#111;margin-bottom:10px">Create Member Account</h3>
+          <form onsubmit="addU(event)">
+            <label>Name</label><input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')">
+            <label>User ID</label><input id="nid" required>
+            <label>Password</label><input id="npass" required>
+            <label>Role</label><select id="nrole"><option value="user">User (View &amp; Add)</option><option value="admin">Admin (Full Control)</option></select>
+            <button class="btn">Add Member</button>
+          </form>
+        </div>
+        <div class="card">
+          <strong style="display:block;margin-bottom:8px">Room 110 Members</strong>
+          <div id="ulist"></div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- FLOATING BOTTOM DOCK -->
+  <nav class="floating-dock">
+    <!-- 1. Home -->
+    <button id="d1" class="dock-item active" onclick="tab(1)" title="Home">
+      <svg class="fill-active" viewBox="0 0 24 24">
+        <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.5z"/>
+      </svg>
+    </button>
+
+    <!-- 2. Expenses Related -->
+    <button id="d2" class="dock-item" onclick="tab(2)" title="Expenses">
+      <svg viewBox="0 0 24 24">
+        <rect x="3" y="4" width="18" height="16" rx="4"/>
+        <line x1="7" y1="9" x2="17" y2="9"/>
+        <line x1="7" y1="13" x2="14" y2="13"/>
+        <line x1="7" y1="17" x2="11" y2="17"/>
+      </svg>
+    </button>
+
+    <!-- 3. (+) Add Expense -->
+    <button id="d3" class="dock-item" onclick="tab(3)" title="Add Expense">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+    </button>
+
+    <!-- 4. Chat -->
+    <button id="d4" class="dock-item" onclick="tab(4)" title="Chat">
+      <svg viewBox="0 0 24 24">
+        <path d="M22 2L11 13"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+      </svg>
+      <span class="dock-dot"></span>
+    </button>
+
+    <!-- 5. Profile -->
+    <button id="d5" class="dock-item" onclick="tab(5)" title="Profile">
+      <div class="dock-avatar">
+        <span id="dockInitial">S</span>
+      </div>
+      <span class="dock-dot" style="right:18%;bottom:10px"></span>
+    </button>
+  </nav>
 </div>
 
 <script>
-// 200+ Curated Kerala & UAE Photography Pool (Selects cleanly on load with no awkward transitions)
+// 200+ Curated Kerala & UAE Photography Pool
 var megaBackgrounds = [
   'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1920&q=80',
@@ -206,9 +426,15 @@ for(var r=0; r<65; r++){
 
 var users=JSON.parse(localStorage.getItem("r110_u")||"null")||[{id:1,name:"Shyam",u:"shyam",p:"admin123",r:"admin"}];
 var exps=JSON.parse(localStorage.getItem("r110_e")||"null")||[];
+var msgs=JSON.parse(localStorage.getItem("r110_m")||"null")||[{u:"Shyam",t:"Welcome to Room 110 Mess Portal!",tm:"Today"}];
 var cur=JSON.parse(localStorage.getItem("r110_saved_user")||"null");
 
-function save(){localStorage.setItem("r110_u",JSON.stringify(users));localStorage.setItem("r110_e",JSON.stringify(exps));render()}
+function save(){
+  localStorage.setItem("r110_u",JSON.stringify(users));
+  localStorage.setItem("r110_e",JSON.stringify(exps));
+  localStorage.setItem("r110_m",JSON.stringify(msgs));
+  render();
+}
 function login(e){
   e.preventDefault();
   var u=document.getElementById("uid").value.trim().toLowerCase(),p=document.getElementById("upass").value.trim();
@@ -228,6 +454,7 @@ function openDashboard(){
   document.getElementById("appBox").className="";
   document.body.style.background = "#f4f6f8";
   document.body.style.justifyContent = "flex-start";
+  document.body.style.padding = "0";
   tab(1);
 }
 function logout(){
@@ -237,15 +464,19 @@ function logout(){
   document.getElementById("loginBox").className="login-box";
   document.getElementById("loginFooter").className="footer-text";
   document.getElementById("rainContainer").className="rain";
+  document.body.style.padding = "20px";
   setRandomBackground();
   document.body.style.justifyContent = "center";
 }
 function tab(n){
-  for(var i=1;i<=4;i++){
-    document.getElementById("t"+i).className="tab"+(i==n?" on":"")+(i==4&&cur.r!="admin"?" hide":"");
-    document.getElementById("v"+i).className=(i==n?(i==2?"card hide": (i==1?"":"card hide")):"hide");
-    if(i==n && i==2) document.getElementById("v2").className="card";
-    if(i==n && i==4) document.getElementById("v4").className="";
+  for(var i=1;i<=5;i++){
+    document.getElementById("d"+i).className = "dock-item" + (i==n ? " active" : "");
+    var v = document.getElementById("v"+i);
+    if(i==n){
+      v.className = (i==3 || i==4) ? "card" : "";
+    } else {
+      v.className = "hide";
+    }
   }
   render();
 }
@@ -265,9 +496,22 @@ function addEx(e){
   if(!al.length)return alert("Select at least 1 member");
   exps.unshift({id:Date.now(),amt:a,desc:d,pb:pb,al:al,dt:new Date().toLocaleDateString()});
   document.getElementById("amt").value="";document.getElementById("desc").value="";
-  save();tab(1);
+  save();tab(2);
 }
 function delEx(id){if(confirm("Delete expense?")){exps=exps.filter(function(x){return x.id!=id});save()}}
+function sendMsg(e){
+  e.preventDefault();
+  var inp=document.getElementById("chatInput");
+  var txt=inp.value.trim();
+  if(!txt)return;
+  var now=new Date();
+  var tm=now.getHours()+":"+(now.getMinutes()<10?"0":"")+now.getMinutes();
+  msgs.push({u:cur.name,t:txt,tm:tm});
+  inp.value="";
+  save();
+  var cb=document.getElementById("chatList");
+  cb.scrollTop=cb.scrollHeight;
+}
 function stats(){
   var tot=exps.reduce(function(s,x){return s+Number(x.amt)},0);
   var st=users.map(function(u){
@@ -284,15 +528,39 @@ function wa(){
 }
 function render(){
   if(!cur)return;
-  document.getElementById("who").innerText=cur.name+" ("+cur.r+")";
+  var init = cur.name ? cur.name.charAt(0).toUpperCase() : "U";
+  document.getElementById("whoName").innerText = cur.name;
+  document.getElementById("dockInitial").innerText = init;
+  document.getElementById("profAvatar").innerText = init;
+  document.getElementById("profName").innerText = cur.name;
+  document.getElementById("profRole").innerText = cur.r === "admin" ? "Room 110 Admin" : "Room 110 Member";
+
   var s=stats();
   document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
   document.getElementById("mcount").innerText=users.length;
   document.getElementById("tb").innerHTML=s.st.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
+
+  var myStat = s.st.find(function(m){return m.name===cur.name}) || {net:0};
+  var pNet = document.getElementById("profNet");
+  pNet.innerText = (myStat.net>=0?"+AED ":"-AED ") + Math.abs(myStat.net).toFixed(2);
+  pNet.className = myStat.net>=0 ? "g" : "r";
+
   document.getElementById("pby").innerHTML=users.map(function(u){return "<option value='"+u.name+"' "+(u.name==cur.name?"selected":"")+">"+u.name+"</option>"}).join("");
   document.getElementById("cbox").innerHTML=users.map(function(u){return "<label class='ck'><input type='checkbox' class='mck' value='"+u.name+"' checked><span>"+u.name+"</span></label>"}).join("");
-  document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses yet.</div>";
-  if(cur.r=="admin")document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+u.name+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | "+u.r+"</div></div><button class='btn btn-s' style='background:#dc2626' onclick='delU("+u.id+")'>Delete</button></div>"}).join("");
+  document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses recorded yet. Tap (+) in the dock to add one!</div>";
+
+  document.getElementById("chatList").innerHTML=msgs.map(function(m){
+    var isMe = m.u === cur.name;
+    return "<div class='msg "+(isMe?"msg-me":"msg-other")+"'><div class='msg-meta'>"+m.u+" • "+m.tm+"</div><div>"+m.t+"</div></div>";
+  }).join("");
+
+  var admSec = document.getElementById("adminSection");
+  if(cur.r=="admin"){
+    admSec.className="";
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+u.name+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | "+u.r+"</div></div><button class='btn btn-s' style='background:#dc2626' onclick='delU("+u.id+")'>Delete</button></div>"}).join("");
+  } else {
+    admSec.className="hide";
+  }
 }
 if(cur) openDashboard();
 </script>
