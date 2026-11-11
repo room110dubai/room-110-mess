@@ -7,42 +7,39 @@
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0}
 body{
-  background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-  background-size: cover;
-  color:#111;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  position: relative;
-  overflow-x: hidden;
+background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+background-size: cover;
+color:#111;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+padding:20px;
+position: relative;
+overflow-x: hidden;
 }
-
-/* Rain Effect Overlay */
+/* Soft Rain Effect Overlay */
 .rain {
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none;
-  background-image: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.25));
-  z-index: 1;
+position: absolute;
+top: 0; left: 0; width: 100%; height: 100%;
+pointer-events: none;
+background-image: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.25));
+z-index: 1;
 }
 .drop {
-  position: absolute;
-  background: linear-gradient(transparent, rgba(255,255,255,0.7));
-  width: 1px;
-  height: 22px;
-  opacity: 0.7;
-  animation: fall linear infinite;
+position: absolute;
+background: linear-gradient(transparent, rgba(255,255,255,0.7));
+width: 1px;
+height: 22px;
+opacity: 0.7;
+animation: fall linear infinite;
 }
 @keyframes fall {
-  0% { transform: translateY(-20px); }
-  100% { transform: translateY(105vh); }
+0% { transform: translateY(-20px); }
+100% { transform: translateY(105vh); }
 }
-
 .wrap, .login-box, #loginFooter, #appBox { position: relative; z-index: 2; }
-
 .wrap{max-width:750px;margin:auto;padding:14px;width:100%}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:12px;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
@@ -61,221 +58,207 @@ th{color:#111}
 .g{color:#059669;font-weight:700}.r{color:#dc2626;font-weight:700}.hide{display:none!important}
 .cks{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f9fafb;padding:10px;border-radius:8px;margin-top:8px;border:1px solid #e5e7eb}
 .ck{display:flex;align-items:center;gap:6px;font-size:13px;color:#374151}.ck input{width:16px;height:16px}
-
 /* Apple Liquid Glass Technology */
 .login-box{
-  width:100%;
-  max-width:420px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 24px;
-  padding: 32px 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  text-align: center;
+width:100%;
+max-width:420px;
+background: rgba(255, 255, 255, 0.68);
+backdrop-filter: blur(24px);
+-webkit-backdrop-filter: blur(24px);
+border: 1px solid rgba(255, 255, 255, 0.5);
+border-radius: 24px;
+padding: 32px 24px;
+box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+text-align: center;
 }
-
 .logo-title{font-size:32px;font-weight:800;color:#1e3a8a;letter-spacing:-0.5px;margin-bottom:4px}
 .footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:600}
 </style>
 </head>
 <body>
-
 <div class="rain" id="rainContainer"></div>
-
 <!-- LOGIN SCREEN -->
 <div id="loginBox" class="login-box">
-  <div class="logo-title">Room 110</div>
-  <p style="font-size:15px;font-weight:600;color:#1f2937;margin-top:4px">Welcome back,</p>
-  <p style="font-size:13px;color:#4b5563;margin-bottom:20px">Please sign in to your account below.</p>
-  <p id="err" style="color:#dc2626;font-size:13px;margin-bottom:8px"></p>
-  
-  <form onsubmit="login(event)" style="text-align:left">
-    <label>User ID</label>
-    <input id="uid" required placeholder="Enter User ID">
-    
-    <label>Password</label>
-    <input id="upass" type="password" required placeholder="Enter Password">
-    
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0">
-      <input type="checkbox" id="keepMe" style="width:16px;height:16px;cursor:pointer">
-      <label for="keepMe" style="margin:0;cursor:pointer;font-weight:500;color:#374151">Keep me logged in</label>
-    </div>
-
-    <button class="btn">Login to Dashboard</button>
-  </form>
+<div class="logo-title">Room 110</div>
+<p style="font-size:15px;font-weight:600;color:#1f2937;margin-top:4px">Welcome back,</p>
+<p style="font-size:13px;color:#4b5563;margin-bottom:20px">Please sign in to your account below.</p>
+<p id="err" style="color:#dc2626;font-size:13px;margin-bottom:8px"></p>
+<form onsubmit="login(event)" style="text-align:left">
+<label>User ID</label>
+<input id="uid" required placeholder="Enter User ID">
+<label>Password</label>
+<input id="upass" type="password" required placeholder="Enter Password">
+<div style="display:flex;align-items:center;gap:8px;margin:14px 0">
+<input type="checkbox" id="keepMe" style="width:16px;height:16px;cursor:pointer">
+<label for="keepMe" style="margin:0;cursor:pointer;font-weight:500;color:#374151">Keep me logged in</label>
 </div>
-<div id="loginFooter" class="footer-text">Copyright &copy; Shyam Sathyan 2026</div>
-
+<button class="btn">Login to Dashboard</button>
+</form>
+</div>
+<div id="loginFooter" class="footer-text">Copyright © Shyam Sathyan 2026</div>
 <!-- MAIN DASHBOARD SCREEN -->
 <div id="appBox" class="hide" style="width:100%">
-  <div class="top">
-    <div><strong style="color:#1e3a8a;font-size:16px">Room 110 Mess</strong><div id="who" style="font-size:11px;color:#6b7280"></div></div>
-    <div style="display:flex;gap:6px">
-      <button class="btn btn-s" style="background:#059669" onclick="wa()">WhatsApp</button>
-      <button class="btn btn-s" style="background:#dc2626" onclick="logout()">Logout</button>
-    </div>
-  </div>
-  <div class="wrap">
-    <div class="tabs">
-      <button id="t1" class="tab on" onclick="tab(1)">Ledger</button>
-      <button id="t2" class="tab" onclick="tab(2)">+ Expense</button>
-      <button id="t3" class="tab" onclick="tab(3)">History</button>
-      <button id="t4" class="tab hide" onclick="tab(4)">Admin</button>
-    </div>
-    <div id="v1">
-      <div class="card" style="display:flex;justify-content:space-between">
-        <div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px">AED 0</h2></div>
-        <div style="text-align:right"><label style="margin:0">Members</label><h2 id="mcount" style="color:#1e3a8a;margin-top:4px">0</h2></div>
-      </div>
-      <div class="card">
-        <strong>Member Balances (+ Gets / - Pays)</strong>
-        <table><thead><tr><th>Name</th><th>Paid</th><th>Share</th><th>Net</th></tr></thead><tbody id="tb"></tbody></table>
-      </div>
-    </div>
-    <div id="v2" class="card hide">
-      <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
-      <form onsubmit="addEx(event)">
-        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" required>
-        <label>Items / Category</label><input id="desc" placeholder="e.g. Groceries, Chicken, Gas" required>
-        <label>Paid By</label><select id="pby"></select>
-        <label>Split Between</label>
-        <select id="stype" onchange="document.getElementById('cbox').className=this.value=='c'?'cks':'cks hide'">
-          <option value="a">All Room 110 Members</option><option value="c">Select Specific Members</option>
-        </select>
-        <div id="cbox" class="cks hide"></div>
-        <button class="btn">Save Expense</button>
-      </form>
-    </div>
-    <div id="v3" class="hide"><div id="hlist"></div></div>
-    <div id="v4" class="hide">
-      <div class="card">
-        <h3 style="color:#111;margin-bottom:10px">Create Member Account</h3>
-        <form onsubmit="addU(event)">
-          <label>Name</label><input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')">
-          <label>User ID</label><input id="nid" required>
-          <label>Password</label><input id="npass" required>
-          <label>Role</label><select id="nrole"><option value="user">User (View & Add)</option><option value="admin">Admin (Full Control)</option></select>
-          <button class="btn">Add Member</button>
-        </form>
-      </div>
-      <div id="ulist" class="card"></div>
-    </div>
-  </div>
+<div class="top">
+<div><strong style="color:#1e3a8a;font-size:16px">Room 110 Mess</strong><div id="who" style="font-size:11px;color:#6b7280"></div></div>
+<div style="display:flex;gap:6px">
+<button class="btn btn-s" style="background:#059669" onclick="wa()">WhatsApp</button>
+<button class="btn btn-s" style="background:#dc2626" onclick="logout()">Logout</button>
 </div>
-
+</div>
+<div class="wrap">
+<div class="tabs">
+<button id="t1" class="tab on" onclick="tab(1)">Ledger</button>
+<button id="t2" class="tab" onclick="tab(2)">+ Expense</button>
+<button id="t3" class="tab" onclick="tab(3)">History</button>
+<button id="t4" class="tab hide" onclick="tab(4)">Admin</button>
+</div>
+<div id="v1">
+<div class="card" style="display:flex;justify-content:space-between">
+<div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px">AED 0</h2></div>
+<div style="text-align:right"><label style="margin:0">Members</label><h2 id="mcount" style="color:#1e3a8a;margin-top:4px">0</h2></div>
+</div>
+<div class="card">
+<strong>Member Balances (+ Gets / - Pays)</strong>
+<table><thead><tr><th>Name</th><th>Paid</th><th>Share</th><th>Net</th></tr></thead><tbody id="tb"></tbody></table>
+</div>
+</div>
+<div id="v2" class="card hide">
+<h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
+<form onsubmit="addEx(event)">
+<label>Amount (AED)</label><input id="amt" type="number" step="0.01" required>
+<label>Items / Category</label><input id="desc" placeholder="e.g. Groceries, Chicken, Gas" required>
+<label>Paid By</label><select id="pby"></select>
+<label>Split Between</label>
+<select id="stype" onchange="document.getElementById('cbox').className=this.value=='c'?'cks':'cks hide'">
+<option value="a">All Room 110 Members</option><option value="c">Select Specific Members</option>
+</select>
+<div id="cbox" class="cks hide"></div>
+<button class="btn">Save Expense</button>
+</form>
+</div>
+<div id="v3" class="hide"><div id="hlist"></div></div>
+<div id="v4" class="hide">
+<div class="card">
+<h3 style="color:#111;margin-bottom:10px">Create Member Account</h3>
+<form onsubmit="addU(event)">
+<label>Name</label><input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')">
+<label>User ID</label><input id="nid" required>
+<label>Password</label><input id="npass" required>
+<label>Role</label><select id="nrole"><option value="user">User (View & Add)</option><option value="admin">Admin (Full Control)</option></select>
+<button class="btn">Add Member</button>
+</form>
+</div>
+<div id="ulist" class="card"></div>
+</div>
+</div>
+</div>
 <script>
-// 100+ Curated Kerala & UAE Photography Pool (Rotates/Selects randomly on load)
+// Expanded Background Pool spanning iconic Kerala and UAE photography
 var megaBackgrounds = [
-  'https://images.unsplash.com/photo-1512453979798-5ea266f8880c', 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944',
-  'https://images.unsplash.com/photo-1580674684081-7617fbf3d745', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2',
-  'https://images.unsplash.com/photo-1578895101408-1a364e49ee90', 'https://images.unsplash.com/photo-1544735716-392fe2489ffa',
-  'https://images.unsplash.com/photo-1596178065887-1198b6148b2b', 'https://images.unsplash.com/photo-1518684079-3c830dcef090',
-  'https://images.unsplash.com/photo-1544644181-1484b3fdfc62', 'https://images.unsplash.com/photo-1574873215043-44119461cb3b',
-  'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3', 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9'
+'https://images.unsplash.com/photo-1512453979798-5ea266f8880c', 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944',
+'https://images.unsplash.com/photo-1580674684081-7617fbf3d745', 'https://images.unsplash.com/photo-1593693397690-362cb9666fc2',
+'https://images.unsplash.com/photo-1578895101408-1a364e49ee90', 'https://images.unsplash.com/photo-1544735716-392fe2489ffa',
+'https://images.unsplash.com/photo-1596178065887-1198b6148b2b', 'https://images.unsplash.com/photo-1518684079-3c830dcef090',
+'https://images.unsplash.com/photo-1544644181-1484b3fdfc62', 'https://images.unsplash.com/photo-1574873215043-44119461cb3b',
+'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3', 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9'
 ];
-
 function setRandomBackground() {
-  var randomBg = megaBackgrounds[Math.floor(Math.random() * megaBackgrounds.length)] + '?auto=format&fit=crop&w=1920&q=80';
-  document.body.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('" + randomBg + "')";
+var randomBg = megaBackgrounds[Math.floor(Math.random() * megaBackgrounds.length)] + '?auto=format&fit=crop&w=1920&q=80';
+document.body.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('" + randomBg + "')";
 }
 setRandomBackground();
-
 // Generate Rain Drops
 var rainContainer = document.getElementById('rainContainer');
-for(var r=0; r<65; r++){
-  var drop = document.createElement('div');
-  drop.className = 'drop';
-  drop.style.left = Math.random() * 100 + '%';
-  drop.style.top = (Math.random() * -50) + 'px';
-  drop.style.animationDuration = (0.5 + Math.random() * 0.8) + 's';
-  drop.style.animationDelay = (Math.random() * 5) + 's';
-  rainContainer.appendChild(drop);
+for(var r=0; r<60; r++){
+var drop = document.createElement('div');
+drop.className = 'drop';
+drop.style.left = Math.random() * 100 + '%';
+drop.style.top = (Math.random() * -50) + 'px';
+drop.style.animationDuration = (0.5 + Math.random() * 0.8) + 's';
+drop.style.animationDelay = (Math.random() * 5) + 's';
+rainContainer.appendChild(drop);
 }
-
 var users=JSON.parse(localStorage.getItem("r110_u")||"null")||[{id:1,name:"Shyam",u:"shyam",p:"admin123",r:"admin"}];
 var exps=JSON.parse(localStorage.getItem("r110_e")||"null")||[];
 var cur=null;
-
 function save(){localStorage.setItem("r110_u",JSON.stringify(users));localStorage.setItem("r110_e",JSON.stringify(exps));render()}
 function login(e){
-  e.preventDefault();
-  var u=document.getElementById("uid").value.trim().toLowerCase(),p=document.getElementById("upass").value.trim();
-  cur=users.find(function(x){return x.u.toLowerCase()==u&&x.p==p});
-  if(cur){
-    document.getElementById("loginBox").className="hide";
-    document.getElementById("loginFooter").className="hide";
-    document.getElementById("rainContainer").className="hide";
-    document.getElementById("appBox").className="";
-    document.body.style.background = "#f4f6f8";
-    document.body.style.justifyContent = "flex-start";
-    tab(1);
-  }
-  else document.getElementById("err").innerText="Invalid User ID or Password";
+e.preventDefault();
+var u=document.getElementById("uid").value.trim().toLowerCase(),p=document.getElementById("upass").value.trim();
+cur=users.find(function(x){return x.u.toLowerCase()u&&x.pp});
+if(cur){
+document.getElementById("loginBox").className="hide";
+document.getElementById("loginFooter").className="hide";
+document.getElementById("rainContainer").className="hide";
+document.getElementById("appBox").className="";
+document.body.style.background = "#f4f6f8";
+document.body.style.justifyContent = "flex-start";
+tab(1);
+}
+else document.getElementById("err").innerText="Invalid User ID or Password";
 }
 function logout(){
-  cur=null;
-  document.getElementById("appBox").className="hide";
-  document.getElementById("loginBox").className="login-box";
-  document.getElementById("loginFooter").className="footer-text";
-  document.getElementById("rainContainer").className="rain";
-  setRandomBackground();
-  document.body.style.justifyContent = "center";
+cur=null;
+document.getElementById("appBox").className="hide";
+document.getElementById("loginBox").className="login-box";
+document.getElementById("loginFooter").className="footer-text";
+document.getElementById("rainContainer").className="rain";
+setRandomBackground();
+document.body.style.justifyContent = "center";
 }
 function tab(n){
-  for(var i=1;i<=4;i++){
-    document.getElementById("t"+i).className="tab"+(i==n?" on":"")+(i==4&&cur.r!="admin"?" hide":"");
-    document.getElementById("v"+i).className=(i==n?(i==2?"card hide": (i==1?"":"card hide")):"hide");
-    if(i==n && i==2) document.getElementById("v2").className="card";
-    if(i==n && i==4) document.getElementById("v4").className="";
-  }
-  render();
+for(var i=1;i<=4;i++){
+document.getElementById("t"+i).className="tab"+(in?" on":"")+(i4&&cur.r!="admin"?" hide":"");
+document.getElementById("v"+i).className=(in?(i2?"card hide": (i1?"":"card hide")):"hide");
+if(in && i2) document.getElementById("v2").className="card";
+if(in && i4) document.getElementById("v4").className="";
+}
+render();
 }
 function addU(e){
-  e.preventDefault();
-  var n=document.getElementById("nname").value.trim(),u=document.getElementById("nid").value.trim().toLowerCase(),p=document.getElementById("npass").value.trim(),r=document.getElementById("nrole").value;
-  if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
-  users.push({id:Date.now(),name:n,u:u,p:p,r:r});
-  document.getElementById("nname").value="";document.getElementById("nid").value="";document.getElementById("npass").value="";
-  save();
+e.preventDefault();
+var n=document.getElementById("nname").value.trim(),u=document.getElementById("nid").value.trim().toLowerCase(),p=document.getElementById("npass").value.trim(),r=document.getElementById("nrole").value;
+if(users.some(function(x){return x.uu}))return alert("User ID exists!");
+users.push({id:Date.now(),name:n,u:u,p:p,r:r});
+document.getElementById("nname").value="";document.getElementById("nid").value="";document.getElementById("npass").value="";
+save();
 }
 function delU(id){if(users.length>1&&confirm("Delete user?")){users=users.filter(function(x){return x.id!=id});save()}}
 function addEx(e){
-  e.preventDefault();
-  var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value.trim(),pb=document.getElementById("pby").value,st=document.getElementById("stype").value;
-  var al=st=="a"?users.map(function(x){return x.name}):Array.from(document.querySelectorAll(".mck:checked")).map(function(c){return c.value});
-  if(!al.length)return alert("Select at least 1 member");
-  exps.unshift({id:Date.now(),amt:a,desc:d,pb:pb,al:al,dt:new Date().toLocaleDateString()});
-  document.getElementById("amt").value="";document.getElementById("desc").value="";
-  save();tab(1);
+e.preventDefault();
+var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value.trim(),pb=document.getElementById("pby").value,st=document.getElementById("stype").value;
+var al=st=="a"?users.map(function(x){return x.name}):Array.from(document.querySelectorAll(".mck:checked")).map(function(c){return c.value});
+if(!al.length)return alert("Select at least 1 member");
+exps.unshift({id:Date.now(),amt:a,desc:d,pb:pb,al:al,dt:new Date().toLocaleDateString()});
+document.getElementById("amt").value="";document.getElementById("desc").value="";
+save();tab(1);
 }
 function delEx(id){if(confirm("Delete expense?")){exps=exps.filter(function(x){return x.id!=id});save()}}
 function stats(){
-  var tot=exps.reduce(function(s,x){return s+Number(x.amt)},0);
-  var st=users.map(function(u){
-    var pd=exps.filter(function(x){return x.pb==u.name}).reduce(function(s,x){return s+Number(x.amt)},0);
-    var sh=exps.reduce(function(s,x){return x.al.indexOf(u.name)>-1?s+(Number(x.amt)/x.al.length):s},0);
-    return {name:u.name,pd:pd,sh:sh,net:pd-sh};
-  });
-  return {tot:tot,st:st};
+var tot=exps.reduce(function(s,x){return s+Number(x.amt)},0);
+var st=users.map(function(u){
+var pd=exps.filter(function(x){return x.pbu.name}).reduce(function(s,x){return s+Number(x.amt)},0);
+var sh=exps.reduce(function(s,x){return x.al.indexOf(u.name)>-1?s+(Number(x.amt)/x.al.length):s},0);
+return {name:u.name,pd:pd,sh:sh,net:pd-sh};
+});
+return {tot:tot,st:st};
 }
 function wa(){
-  var s=stats(),txt="*ROOM 110 MESS*\nTotal: AED "+s.tot.toFixed(2)+"\n----------------\n";
-  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"\n"});
-  navigator.clipboard.writeText(txt);alert("WhatsApp Report Copied!");
+var s=stats(),txt="ROOM 110 MESS\nTotal: AED "+s.tot.toFixed(2)+"\n----------------\n";
+s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"\n"});
+navigator.clipboard.writeText(txt);alert("WhatsApp Report Copied!");
 }
 function render(){
-  if(!cur)return;
-  document.getElementById("who").innerText=cur.name+" ("+cur.r+")";
-  var s=stats();
-  document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
-  document.getElementById("mcount").innerText=users.length;
-  document.getElementById("tb").innerHTML=s.st.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
-  document.getElementById("pby").innerHTML=users.map(function(u){return "<option value='"+u.name+"' "+(u.name==cur.name?"selected":"")+">"+u.name+"</option>"}).join("");
-  document.getElementById("cbox").innerHTML=users.map(function(u){return "<label class='ck'><input type='checkbox' class='mck' value='"+u.name+"' checked><span>"+u.name+"</span></label>"}).join("");
-  document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses yet.</div>";
-  if(cur.r=="admin")document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+u.name+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | "+u.r+"</div></div><button class='btn btn-s' style='background:#dc2626' onclick='delU("+u.id+")'>Delete</button></div>"}).join("");
+if(!cur)return;
+document.getElementById("who").innerText=cur.name+" ("+cur.r+")";
+var s=stats();
+document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
+document.getElementById("mcount").innerText=users.length;
+document.getElementById("tb").innerHTML=s.st.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
+document.getElementById("pby").innerHTML=users.map(function(u){return "<option value='"+u.name+"' "+(u.namecur.name?"selected":"")+">"+u.name+"</option>"}).join("");
+document.getElementById("cbox").innerHTML=users.map(function(u){return "<label class='ck'><input type='checkbox' class='mck' value='"+u.name+"' checked><span>"+u.name+"</span></label>"}).join("");
+document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses yet.</div>";
+if(cur.r=="admin")document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+u.name+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | "+u.r+"</div></div><button class='btn btn-s' style='background:#dc2626' onclick='delU("+u.id+")'>Delete</button></div>"}).join("");
 }
 </script>
 </body>
