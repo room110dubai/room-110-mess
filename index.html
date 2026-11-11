@@ -18,6 +18,7 @@ body{
   padding:20px;
   position: relative;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Rain Effect Overlay */
@@ -43,18 +44,20 @@ body{
 
 .wrap, .login-box, #loginFooter, #appBox { position: relative; z-index: 2; }
 
-.wrap{max-width:750px;margin:auto;padding:16px 14px 110px;width:100%}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06)}
+.wrap{max-width:750px;margin:auto;padding:16px 14px 115px;width:100%}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06);transition:background 0.25s,border-color 0.25s}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
 input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px}
 input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn{width:100%;background:#1e3a8a;color:#fff;border:0;padding:13px;border-radius:10px;font-weight:700;margin-top:16px;cursor:pointer;font-size:14px}
 .btn:hover{background:#1d4ed8}
-.btn-s{width:auto;padding:8px 14px;font-size:12px;margin:0;border-radius:10px}
+.btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px}
 
 /* Top Welcome Header */
 .top{
-  background:#fff;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid #e5e7eb;
   padding:14px 18px;
   display:flex;
@@ -64,11 +67,12 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   position:sticky;
   top:0;
   z-index:20;
+  transition:background 0.25s,border-color 0.25s;
 }
 .welcome-label{font-size:12px;color:#6b7280;font-weight:600;letter-spacing:0.3px;text-transform:uppercase}
 .welcome-user{font-size:20px;font-weight:800;color:#1e3a8a;margin-top:1px;letter-spacing:-0.3px}
 
-/* Floating Bottom Dock (Matching Reference) */
+/* Adaptive Apple Liquid Glass Floating Bottom Dock (Light Mode Default) */
 .floating-dock {
   position: fixed;
   bottom: 20px;
@@ -77,23 +81,25 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   width: calc(100% - 32px);
   max-width: 400px;
   height: 66px;
-  background: rgba(43, 47, 54, 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(248, 250, 252, 0.52) 100%);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1.5px solid rgba(255, 255, 255, 0.88);
   border-radius: 38px;
   padding: 6px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14), inset 0 1px 2px rgba(255, 255, 255, 0.95);
   z-index: 999;
+  transition: all 0.25s ease;
 }
 .dock-item {
   flex: 1;
   height: 54px;
   border: none;
   background: transparent;
-  color: #ffffff;
+  color: #1e3a8a;
   border-radius: 28px;
   display: flex;
   align-items: center;
@@ -104,20 +110,21 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   padding: 0;
 }
 .dock-item.active {
-  background: rgba(115, 120, 128, 0.65);
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2);
+  background: rgba(30, 58, 138, 0.14);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), 0 2px 8px rgba(30, 58, 138, 0.08);
 }
 .dock-item svg {
   width: 25px;
   height: 25px;
-  stroke: #ffffff;
+  stroke: #1e3a8a;
   fill: none;
   stroke-width: 2.1;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: stroke 0.22s, fill 0.22s;
 }
 .dock-item.active svg.fill-active {
-  fill: #ffffff;
+  fill: #1e3a8a;
 }
 .dock-dot {
   position: absolute;
@@ -140,9 +147,62 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255,255,255,0.85);
+  border: 2px solid rgba(255,255,255,0.9);
+  box-shadow: 0 2px 6px rgba(30,58,138,0.25);
   position: relative;
 }
+
+/* Dark Page Mode + Dark Liquid Glass Floating Dock */
+body.dark-page {
+  background: #0b1120 !important;
+  color: #f8fafc;
+}
+body.dark-page .top {
+  background: rgba(15, 23, 42, 0.82);
+  border-bottom-color: #1e293b;
+}
+body.dark-page .welcome-label { color: #94a3b8; }
+body.dark-page .welcome-user { color: #60a5fa; }
+body.dark-page .card {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4);
+}
+body.dark-page h2, body.dark-page h3, body.dark-page strong, body.dark-page th {
+  color: #f8fafc !important;
+}
+body.dark-page td, body.dark-page label {
+  color: #cbd5e1;
+  border-bottom-color: #334155;
+}
+body.dark-page input, body.dark-page select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+body.dark-page .cks, body.dark-page .chat-box, body.dark-page .prof-bal-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+body.dark-page .ck { color: #cbd5e1; }
+body.dark-page .msg-other {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+body.dark-page .floating-dock {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.72) 0%, rgba(15, 23, 42, 0.58) 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+}
+body.dark-page .dock-item { color: #ffffff; }
+body.dark-page .dock-item.active {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.28);
+}
+body.dark-page .dock-item svg { stroke: #ffffff; }
+body.dark-page .dock-item.active svg.fill-active { fill: #ffffff; }
 
 table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
 th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151}
@@ -182,30 +242,38 @@ th{color:#111}
 
 <!-- LOGIN SCREEN -->
 <div id="loginBox" class="login-box">
-  <!-- Custom Room 110 Dubai Skyline Vector Logo (Refined Spacing) -->
+  <!-- Custom Room 110 Dubai Skyline Vector Logo (Exact #1e3a8a Button Color + Full 2nd '1' Fixed) -->
   <svg class="logo-svg" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
-    <text x="15" y="150" font-family="Arial Black, Impact, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="130" letter-spacing="-3" fill="#17375E">Room</text>
-    <path d="M 402 45 L 436 24 L 436 62 L 418 74 L 418 49 L 402 49 Z" fill="#17375E"/>
-    <path d="M 434 45 L 438 45 L 438 152 L 434 152 Z" fill="#17375E"/>
-    <path d="M 434 62 C 402 88, 404 128, 412 152 L 443 152 C 450 125, 448 88, 434 62 Z" fill="none" stroke="#17375E" stroke-width="5.5"/>
-    <path d="M 410 82 L 447 85" stroke="#17375E" stroke-width="3.8" stroke-linecap="round"/>
-    <line x1="413" y1="96" x2="438" y2="96" stroke="#17375E" stroke-width="3.2"/>
-    <line x1="410" y1="110" x2="438" y2="110" stroke="#17375E" stroke-width="3.2"/>
-    <line x1="409" y1="124" x2="438" y2="124" stroke="#17375E" stroke-width="3.2"/>
-    <line x1="411" y1="138" x2="438" y2="138" stroke="#17375E" stroke-width="3.2"/>
-    <path d="M 468 45 L 502 24 L 502 62 L 484 74 L 484 49 L 468 49 Z" fill="#17375E"/>
-    <path d="M 485 78 L 485 152 L 510 152 C 514 124, 506 95, 485 78 Z" fill="none" stroke="#17375E" stroke-width="5"/>
-    <line x1="487" y1="94" x2="500" y2="94" stroke="#17375E" stroke-width="2.8"/>
-    <line x1="487" y1="105" x2="504" y2="105" stroke="#17375E" stroke-width="2.8"/>
-    <line x1="487" y1="116" x2="507" y2="116" stroke="#17375E" stroke-width="2.8"/>
-    <line x1="487" y1="127" x2="508" y2="127" stroke="#17375E" stroke-width="2.8"/>
-    <line x1="487" y1="138" x2="508" y2="138" stroke="#17375E" stroke-width="2.8"/>
-    <path d="M 586 36 C 553 44, 543 78, 543 105 C 543 136, 562 154, 595 154 C 628 154, 647 136, 647 105 C 647 78, 637 44, 604 36" fill="none" stroke="#17375E" stroke-width="15" stroke-linecap="round"/>
-    <path d="M 594 6 L 596 6 L 597 38 L 599 38 L 599 62 L 602 62 L 602 90 L 606 90 L 606 120 L 610 120 L 610 153 L 580 153 L 580 120 L 584 120 L 584 90 L 588 90 L 588 62 L 591 62 L 591 38 L 593 38 Z" fill="#17375E"/>
-    <line x1="595" y1="62" x2="595" y2="152" stroke="#fff" stroke-width="1.8"/>
-    <line x1="589" y1="95" x2="589" y2="152" stroke="#fff" stroke-width="1.5"/>
-    <line x1="601" y1="110" x2="601" y2="152" stroke="#fff" stroke-width="1.5"/>
-    <path d="M 385 172 Q 530 130 675 172 Q 530 146 385 172 Z" fill="#17375E"/>
+    <!-- Bold "Room" Text in exact #1e3a8a -->
+    <text x="15" y="150" font-family="Arial Black, Impact, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="130" letter-spacing="-3" fill="#1e3a8a">Room</text>
+    
+    <!-- First "1" (Full Solid Stem + Top Flag + Burj Al Arab Sail) -->
+    <path d="M 402 45 L 438 24 L 438 152 L 424 152 L 424 49 L 402 49 Z" fill="#1e3a8a"/>
+    <path d="M 434 58 C 402 86, 404 128, 412 152 L 444 152 C 451 125, 449 86, 434 58 Z" fill="none" stroke="#1e3a8a" stroke-width="5.5"/>
+    <path d="M 409 80 L 448 83" stroke="#1e3a8a" stroke-width="3.8" stroke-linecap="round"/>
+    <line x1="412" y1="95" x2="438" y2="95" stroke="#1e3a8a" stroke-width="3.2"/>
+    <line x1="409" y1="109" x2="438" y2="109" stroke="#1e3a8a" stroke-width="3.2"/>
+    <line x1="408" y1="123" x2="438" y2="123" stroke="#1e3a8a" stroke-width="3.2"/>
+    <line x1="410" y1="137" x2="438" y2="137" stroke="#1e3a8a" stroke-width="3.2"/>
+
+    <!-- Second "1" (FIXED: Full Unbroken Solid Stem from Top y=24 to Bottom y=152 + Sail Tower) -->
+    <path d="M 468 45 L 504 24 L 504 152 L 490 152 L 490 49 L 468 49 Z" fill="#1e3a8a"/>
+    <path d="M 502 68 L 502 152 L 528 152 C 532 122, 524 88, 502 68 Z" fill="none" stroke="#1e3a8a" stroke-width="5"/>
+    <line x1="504" y1="88" x2="518" y2="88" stroke="#1e3a8a" stroke-width="2.8"/>
+    <line x1="504" y1="100" x2="522" y2="100" stroke="#1e3a8a" stroke-width="2.8"/>
+    <line x1="504" y1="112" x2="525" y2="112" stroke="#1e3a8a" stroke-width="2.8"/>
+    <line x1="504" y1="124" x2="526" y2="124" stroke="#1e3a8a" stroke-width="2.8"/>
+    <line x1="504" y1="136" x2="526" y2="136" stroke="#1e3a8a" stroke-width="2.8"/>
+
+    <!-- "0" Outer Ring + Burj Khalifa Spire in #1e3a8a -->
+    <path d="M 588 36 C 555 44, 545 78, 545 105 C 545 136, 564 154, 597 154 C 630 154, 649 136, 649 105 C 649 78, 639 44, 606 36" fill="none" stroke="#1e3a8a" stroke-width="15" stroke-linecap="round"/>
+    <path d="M 596 6 L 598 6 L 599 38 L 601 38 L 601 62 L 604 62 L 604 90 L 608 90 L 608 120 L 612 120 L 612 153 L 582 153 L 582 120 L 586 120 L 586 90 L 590 90 L 590 62 L 593 62 L 593 38 L 595 38 Z" fill="#1e3a8a"/>
+    <line x1="597" y1="62" x2="597" y2="152" stroke="#fff" stroke-width="1.8"/>
+    <line x1="591" y1="95" x2="591" y2="152" stroke="#fff" stroke-width="1.5"/>
+    <line x1="603" y1="110" x2="603" y2="152" stroke="#fff" stroke-width="1.5"/>
+
+    <!-- Sweeping Horizon Arc Under "110" -->
+    <path d="M 385 172 Q 532 130 678 172 Q 532 146 385 172 Z" fill="#1e3a8a"/>
   </svg>
 
   <p style="font-size:15px;font-weight:600;color:#1f2937;margin-top:2px">Welcome back,</p>
@@ -237,7 +305,8 @@ th{color:#111}
       <div class="welcome-label">Welcome</div>
       <div id="whoName" class="welcome-user">Shyam</div>
     </div>
-    <div style="display:flex;gap:8px">
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="themeBtn" class="btn btn-s" style="background:rgba(30,58,138,0.12);color:#1e3a8a;border:1px solid rgba(30,58,138,0.2)" onclick="toggleTheme()" title="Switch Light/Dark Page &amp; Liquid Glass Dock">Dark Glass</button>
       <button class="btn btn-s" style="background:#059669" onclick="wa()">WhatsApp</button>
       <button class="btn btn-s" style="background:#dc2626" onclick="logout()">Logout</button>
     </div>
@@ -309,7 +378,7 @@ th{color:#111}
             <p id="profRole" style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700"></p>
           </div>
         </div>
-        <div style="background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+        <div class="prof-bal-box" style="background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
           <div>
             <div style="font-size:11px;color:#6b7280;font-weight:600">MY NET BALANCE</div>
             <div id="profNet" style="font-size:20px;font-weight:800;margin-top:2px">AED 0.00</div>
@@ -338,7 +407,7 @@ th{color:#111}
     </div>
   </div>
 
-  <!-- FLOATING BOTTOM DOCK -->
+  <!-- FLOATING BOTTOM DOCK (Adaptive Liquid Glass) -->
   <nav class="floating-dock">
     <!-- 1. Home -->
     <button id="d1" class="dock-item active" onclick="tab(1)" title="Home">
@@ -428,6 +497,38 @@ var users=JSON.parse(localStorage.getItem("r110_u")||"null")||[{id:1,name:"Shyam
 var exps=JSON.parse(localStorage.getItem("r110_e")||"null")||[];
 var msgs=JSON.parse(localStorage.getItem("r110_m")||"null")||[{u:"Shyam",t:"Welcome to Room 110 Mess Portal!",tm:"Today"}];
 var cur=JSON.parse(localStorage.getItem("r110_saved_user")||"null");
+var isDarkPage = localStorage.getItem("r110_theme") === "dark";
+
+function applyTheme(){
+  var btn = document.getElementById("themeBtn");
+  if(!cur){
+    document.body.classList.remove("dark-page");
+    return;
+  }
+  if(isDarkPage){
+    document.body.classList.add("dark-page");
+    if(btn){
+      btn.innerText = "Light Glass";
+      btn.style.background = "rgba(96,165,250,0.18)";
+      btn.style.color = "#60a5fa";
+      btn.style.borderColor = "rgba(96,165,250,0.3)";
+    }
+  } else {
+    document.body.classList.remove("dark-page");
+    if(btn){
+      btn.innerText = "Dark Glass";
+      btn.style.background = "rgba(30,58,138,0.12)";
+      btn.style.color = "#1e3a8a";
+      btn.style.borderColor = "rgba(30,58,138,0.2)";
+    }
+  }
+}
+
+function toggleTheme(){
+  isDarkPage = !isDarkPage;
+  localStorage.setItem("r110_theme", isDarkPage ? "dark" : "light");
+  applyTheme();
+}
 
 function save(){
   localStorage.setItem("r110_u",JSON.stringify(users));
@@ -455,11 +556,13 @@ function openDashboard(){
   document.body.style.background = "#f4f6f8";
   document.body.style.justifyContent = "flex-start";
   document.body.style.padding = "0";
+  applyTheme();
   tab(1);
 }
 function logout(){
   cur=null;
   localStorage.removeItem("r110_saved_user");
+  document.body.classList.remove("dark-page");
   document.getElementById("appBox").className="hide";
   document.getElementById("loginBox").className="login-box";
   document.getElementById("loginFooter").className="footer-text";
