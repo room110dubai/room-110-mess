@@ -53,7 +53,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn:hover{background:#1d4ed8}
 .btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px}
 
-/* Top Bar with Logo on Left */
+/* Top Bar with Logo on Left + Welcome & User Name */
 .top{
   background:rgba(255,255,255,0.85);
   backdrop-filter:blur(16px);
@@ -69,7 +69,11 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   z-index:20;
   transition:background 0.25s,border-color 0.25s;
 }
-.top-logo { width: 130px; height: auto; display: block; }
+.top-left-box { display: flex; align-items: center; gap: 14px; }
+.top-logo { width: 110px; height: auto; display: block; }
+.welcome-container { display: flex; flex-direction: column; }
+.welcome-lbl { font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.welcome-usr { font-size: 15px; font-weight: 800; color: #1e3a8a; line-height: 1.2; }
 
 /* Floating Bottom Dock (Adaptive Light/Dark Liquid Glass) */
 .floating-dock {
@@ -162,6 +166,8 @@ body.dark-page .top {
   background: rgba(15, 23, 42, 0.82);
   border-bottom-color: #1e293b;
 }
+body.dark-page .welcome-lbl { color: #94a3b8; }
+body.dark-page .welcome-usr { color: #60a5fa; }
 body.dark-page .card {
   background: #1e293b;
   border-color: #334155;
@@ -285,26 +291,35 @@ th{color:#111}
 <!-- LOGIN SCREEN -->
 <div id="loginBox" class="login-box">
   <svg class="logo-svg" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
+    <!-- Bold "Room" Text -->
     <text x="15" y="150" font-family="Arial Black, Impact, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="130" letter-spacing="-3" fill="#1e3a8a">Room</text>
+    
+    <!-- First "1" (Bold 110) -->
     <path d="M 402 45 L 438 24 L 438 152 L 424 152 L 424 49 L 402 49 Z" fill="#1e3a8a"/>
-    <path d="M 434 58 C 402 86, 404 128, 412 152 L 444 152 C 451 125, 449 86, 434 58 Z" fill="none" stroke="#1e3a8a" stroke-width="5.5"/>
-    <path d="M 409 80 L 448 83" stroke="#1e3a8a" stroke-width="3.8" stroke-linecap="round"/>
-    <line x1="412" y1="95" x2="438" y2="95" stroke="#1e3a8a" stroke-width="3.2"/>
-    <line x1="409" y1="109" x2="438" y2="109" stroke="#1e3a8a" stroke-width="3.2"/>
-    <line x1="408" y1="123" x2="438" y2="123" stroke="#1e3a8a" stroke-width="3.2"/>
-    <line x1="410" y1="137" x2="438" y2="137" stroke="#1e3a8a" stroke-width="3.2"/>
+    <path d="M 434 58 C 402 86, 404 128, 412 152 L 444 152 C 451 125, 449 86, 434 58 Z" fill="none" stroke="#1e3a8a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M 409 80 L 448 83" stroke="#1e3a8a" stroke-width="4.5" stroke-linecap="round"/>
+    <line x1="412" y1="95" x2="438" y2="95" stroke="#1e3a8a" stroke-width="4"/>
+    <line x1="409" y1="109" x2="438" y2="109" stroke="#1e3a8a" stroke-width="4"/>
+    <line x1="408" y1="123" x2="438" y2="123" stroke="#1e3a8a" stroke-width="4"/>
+    <line x1="410" y1="137" x2="438" y2="137" stroke="#1e3a8a" stroke-width="4"/>
+
+    <!-- Second "1" (Bold 110) -->
     <path d="M 468 45 L 504 24 L 504 152 L 490 152 L 490 49 L 468 49 Z" fill="#1e3a8a"/>
-    <path d="M 502 68 L 502 152 L 528 152 C 532 122, 524 88, 502 68 Z" fill="none" stroke="#1e3a8a" stroke-width="5"/>
-    <line x1="504" y1="88" x2="518" y2="88" stroke="#1e3a8a" stroke-width="2.8"/>
-    <line x1="504" y1="100" x2="522" y2="100" stroke="#1e3a8a" stroke-width="2.8"/>
-    <line x1="504" y1="112" x2="525" y2="112" stroke="#1e3a8a" stroke-width="2.8"/>
-    <line x1="504" y1="124" x2="526" y2="124" stroke="#1e3a8a" stroke-width="2.8"/>
-    <line x1="504" y1="136" x2="526" y2="136" stroke="#1e3a8a" stroke-width="2.8"/>
-    <path d="M 588 36 C 555 44, 545 78, 545 105 C 545 136, 564 154, 597 154 C 630 154, 649 136, 649 105 C 649 78, 639 44, 606 36" fill="none" stroke="#1e3a8a" stroke-width="15" stroke-linecap="round"/>
+    <path d="M 502 68 L 502 152 L 528 152 C 532 122, 524 88, 502 68 Z" fill="none" stroke="#1e3a8a" stroke-width="6.5"/>
+    <line x1="504" y1="88" x2="518" y2="88" stroke="#1e3a8a" stroke-width="3.5"/>
+    <line x1="504" y1="100" x2="522" y2="100" stroke="#1e3a8a" stroke-width="3.5"/>
+    <line x1="504" y1="112" x2="525" y2="112" stroke="#1e3a8a" stroke-width="3.5"/>
+    <line x1="504" y1="124" x2="526" y2="124" stroke="#1e3a8a" stroke-width="3.5"/>
+    <line x1="504" y1="136" x2="526" y2="136" stroke="#1e3a8a" stroke-width="3.5"/>
+
+    <!-- "0" Outer Ring + Burj Khalifa Spire in #1e3a8a (Bold 110) -->
+    <path d="M 588 36 C 555 44, 545 78, 545 105 C 545 136, 564 154, 597 154 C 630 154, 649 136, 649 105 C 649 78, 639 44, 606 36" fill="none" stroke="#1e3a8a" stroke-width="16.5" stroke-linecap="round"/>
     <path d="M 596 6 L 598 6 L 599 38 L 601 38 L 601 62 L 604 62 L 604 90 L 608 90 L 608 120 L 612 120 L 612 153 L 582 153 L 582 120 L 586 120 L 586 90 L 590 90 L 590 62 L 593 62 L 593 38 L 595 38 Z" fill="#1e3a8a"/>
-    <line x1="597" y1="62" x2="597" y2="152" stroke="#fff" stroke-width="1.8"/>
-    <line x1="591" y1="95" x2="591" y2="152" stroke="#fff" stroke-width="1.5"/>
-    <line x1="603" y1="110" x2="603" y2="152" stroke="#fff" stroke-width="1.5"/>
+    <line x1="597" y1="62" x2="597" y2="152" stroke="#fff" stroke-width="2"/>
+    <line x1="591" y1="95" x2="591" y2="152" stroke="#fff" stroke-width="1.8"/>
+    <line x1="603" y1="110" x2="603" y2="152" stroke="#fff" stroke-width="1.8"/>
+
+    <!-- Sweeping Horizon Arc Under "110" -->
     <path d="M 385 172 Q 532 130 678 172 Q 532 146 385 172 Z" fill="#1e3a8a"/>
   </svg>
 
@@ -331,37 +346,60 @@ th{color:#111}
 
 <!-- MAIN DASHBOARD SCREEN -->
 <div id="appBox" class="hide" style="width:100%">
-  <!-- Top Bar: Room 110 Logo on Left & WhatsApp Logo Button on Right (Only 1 Logout Button preserved in profile) -->
+  <!-- Top Bar: Room 110 Logo on Left with Welcome & User Name below, WhatsApp + Logout Logo on Right -->
   <div class="top">
-    <div>
+    <div class="top-left-box">
       <svg class="top-logo" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
+        <!-- Bold "Room" Text -->
         <text x="15" y="150" font-family="Arial Black, Impact, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="900" font-size="130" letter-spacing="-3" fill="#1e3a8a">Room</text>
+        
+        <!-- First "1" (Bold 110) -->
         <path d="M 402 45 L 438 24 L 438 152 L 424 152 L 424 49 L 402 49 Z" fill="#1e3a8a"/>
-        <path d="M 434 58 C 402 86, 404 128, 412 152 L 444 152 C 451 125, 449 86, 434 58 Z" fill="none" stroke="#1e3a8a" stroke-width="5.5"/>
-        <path d="M 409 80 L 448 83" stroke="#1e3a8a" stroke-width="3.8" stroke-linecap="round"/>
-        <line x1="412" y1="95" x2="438" y2="95" stroke="#1e3a8a" stroke-width="3.2"/>
-        <line x1="409" y1="109" x2="438" y2="109" stroke="#1e3a8a" stroke-width="3.2"/>
-        <line x1="408" y1="123" x2="438" y2="123" stroke="#1e3a8a" stroke-width="3.2"/>
-        <line x1="410" y1="137" x2="438" y2="137" stroke="#1e3a8a" stroke-width="3.2"/>
+        <path d="M 434 58 C 402 86, 404 128, 412 152 L 444 152 C 451 125, 449 86, 434 58 Z" fill="none" stroke="#1e3a8a" stroke-width="7" stroke-linecap="round"/>
+        <path d="M 409 80 L 448 83" stroke="#1e3a8a" stroke-width="4.5" stroke-linecap="round"/>
+        <line x1="412" y1="95" x2="438" y2="95" stroke="#1e3a8a" stroke-width="4"/>
+        <line x1="409" y1="109" x2="438" y2="109" stroke="#1e3a8a" stroke-width="4"/>
+        <line x1="408" y1="123" x2="438" y2="123" stroke="#1e3a8a" stroke-width="4"/>
+        <line x1="410" y1="137" x2="438" y2="137" stroke="#1e3a8a" stroke-width="4"/>
+
+        <!-- Second "1" (Bold 110) -->
         <path d="M 468 45 L 504 24 L 504 152 L 490 152 L 490 49 L 468 49 Z" fill="#1e3a8a"/>
-        <path d="M 502 68 L 502 152 L 528 152 C 532 122, 524 88, 502 68 Z" fill="none" stroke="#1e3a8a" stroke-width="5"/>
-        <line x1="504" y1="88" x2="518" y2="88" stroke="#1e3a8a" stroke-width="2.8"/>
-        <line x1="504" y1="100" x2="522" y2="100" stroke="#1e3a8a" stroke-width="2.8"/>
-        <line x1="504" y1="112" x2="525" y2="112" stroke="#1e3a8a" stroke-width="2.8"/>
-        <line x1="504" y1="124" x2="526" y2="124" stroke="#1e3a8a" stroke-width="2.8"/>
-        <line x1="504" y1="136" x2="526" y2="136" stroke="#1e3a8a" stroke-width="2.8"/>
-        <path d="M 588 36 C 555 44, 545 78, 545 105 C 545 136, 564 154, 597 154 C 630 154, 649 136, 649 105 C 649 78, 639 44, 606 36" fill="none" stroke="#1e3a8a" stroke-width="15" stroke-linecap="round"/>
+        <path d="M 502 68 L 502 152 L 528 152 C 532 122, 524 88, 502 68 Z" fill="none" stroke="#1e3a8a" stroke-width="6.5"/>
+        <line x1="504" y1="88" x2="518" y2="88" stroke="#1e3a8a" stroke-width="3.5"/>
+        <line x1="504" y1="100" x2="522" y2="100" stroke="#1e3a8a" stroke-width="3.5"/>
+        <line x1="504" y1="112" x2="525" y2="112" stroke="#1e3a8a" stroke-width="3.5"/>
+        <line x1="504" y1="124" x2="526" y2="124" stroke="#1e3a8a" stroke-width="3.5"/>
+        <line x1="504" y1="136" x2="526" y2="136" stroke="#1e3a8a" stroke-width="3.5"/>
+
+        <!-- "0" Outer Ring + Burj Khalifa Spire in #1e3a8a (Bold 110) -->
+        <path d="M 588 36 C 555 44, 545 78, 545 105 C 545 136, 564 154, 597 154 C 630 154, 649 136, 649 105 C 649 78, 639 44, 606 36" fill="none" stroke="#1e3a8a" stroke-width="16.5" stroke-linecap="round"/>
         <path d="M 596 6 L 598 6 L 599 38 L 601 38 L 601 62 L 604 62 L 604 90 L 608 90 L 608 120 L 612 120 L 612 153 L 582 153 L 582 120 L 586 120 L 586 90 L 590 90 L 590 62 L 593 62 L 593 38 L 595 38 Z" fill="#1e3a8a"/>
-        <line x1="597" y1="62" x2="597" y2="152" stroke="#fff" stroke-width="1.8"/>
-        <line x1="591" y1="95" x2="591" y2="152" stroke="#fff" stroke-width="1.5"/>
-        <line x1="603" y1="110" x2="603" y2="152" stroke="#fff" stroke-width="1.5"/>
+        <line x1="597" y1="62" x2="597" y2="152" stroke="#fff" stroke-width="2"/>
+        <line x1="591" y1="95" x2="591" y2="152" stroke="#fff" stroke-width="1.8"/>
+        <line x1="603" y1="110" x2="603" y2="152" stroke="#fff" stroke-width="1.8"/>
+
+        <!-- Sweeping Horizon Arc Under "110" -->
         <path d="M 385 172 Q 532 130 678 172 Q 532 146 385 172 Z" fill="#1e3a8a"/>
       </svg>
+      <div class="welcome-container">
+        <span class="welcome-lbl">Welcome</span>
+        <span id="topUserName" class="welcome-usr">Shyam</span>
+      </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
+      <!-- WhatsApp Logo Button -->
       <button class="btn btn-s" style="background:#25d366;padding:6px 10px;display:flex;align-items:center;justify-content:center" onclick="wa()" title="Share to WhatsApp">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff">
           <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+      </button>
+
+      <!-- Logout Logo Button -->
+      <button class="btn btn-s" style="background:#dc2626;padding:6px 10px;display:flex;align-items:center;justify-content:center" onclick="logout()" title="Logout">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
         </svg>
       </button>
     </div>
@@ -443,7 +481,6 @@ th{color:#111}
             <div style="font-size:11px;color:#6b7280;font-weight:600">MY NET BALANCE</div>
             <div id="profNet" style="font-size:20px;font-weight:800;margin-top:2px">AED 0.00</div>
           </div>
-          <button class="btn btn-s" style="background:#dc2626" onclick="logout()">Logout</button>
         </div>
       </div>
 
@@ -864,6 +901,7 @@ function render(){
     profAv.innerHTML = init;
   }
 
+  document.getElementById("topUserName").innerText = cur.name;
   document.getElementById("profName").innerText = cur.name;
   document.getElementById("profRole").innerText = cur.r === "admin" ? "Room 110 Admin" : "Room 110 Member";
 
