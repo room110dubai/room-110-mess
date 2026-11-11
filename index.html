@@ -180,9 +180,10 @@ body.dark-page input, body.dark-page select {
   border-color: #334155;
   color: #f8fafc;
 }
-body.dark-page .cks, body.dark-page .chat-box, body.dark-page .prof-bal-box {
+body.dark-page .cks, body.dark-page .chat-box, body.dark-page .prof-bal-box, body.dark-page .modal-content {
   background: #0f172a !important;
   border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 body.dark-page .ck { color: #cbd5e1; }
 body.dark-page .msg-other {
@@ -233,6 +234,48 @@ th{color:#111}
 .msg-me{background:#1e3a8a;color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
 .msg-other{background:#fff;color:#111;align-self:flex-start;border:1px solid #e5e7eb;border-bottom-left-radius:4px}
 .msg-meta{font-size:10px;opacity:0.75;margin-bottom:2px;font-weight:700}
+
+/* Modal Popup Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+.modal-content {
+  background: #fff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  background: #f3f4f6;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5563;
+}
 </style>
 </head>
 <body>
@@ -379,7 +422,12 @@ th{color:#111}
 
     <!-- TAB 5: PROFILE & SETTINGS -->
     <div id="v5" class="hide">
+      <!-- Profile Card with Heading 'Profile' and Edit Button on Right -->
       <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <h3 style="color:#111;font-size:18px">Profile</h3>
+          <button class="btn btn-s" style="background:#2563eb" onclick="openEditProfileModal()">Edit</button>
+        </div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
           <div id="profAvatar" style="width:64px;height:64px;border-radius:50%;background:#1e3a8a;color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden">S</div>
           <div>
@@ -396,48 +444,75 @@ th{color:#111}
         </div>
       </div>
 
-      <!-- Edit Profile & Dark Mode Toggle Card -->
+      <!-- Separate Dark Mode Section -->
       <div class="card">
-        <h3 style="color:#111;margin-bottom:12px">Edit Profile &amp; Settings</h3>
-        <form onsubmit="updateProfile(event)" class="space-y-4">
-          <label>Display Name</label>
-          <input id="editName" type="text" required style="margin-bottom:10px">
-
-          <label>Profile Picture (Upload Image)</label>
-          <input id="editAvatarFile" type="file" accept="image/*" style="margin-bottom:10px;padding:8px">
-
-          <label>New Password (Leave blank to keep current)</label>
-          <input id="editPass" type="password" placeholder="New password" style="margin-bottom:12px">
-
-          <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:12px">
-            <div>
-              <strong style="font-size:14px;color:#111">Dark Mode</strong>
-              <div style="font-size:11px;color:#6b7280">Switch between light &amp; dark liquid glass</div>
-            </div>
-            <input type="checkbox" id="darkModeToggle" onchange="toggleTheme()" style="width:22px;height:22px;cursor:pointer">
+        <h3 style="color:#111;margin-bottom:10px">Appearance</h3>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb">
+          <div>
+            <strong style="font-size:14px;color:#111">Dark Mode</strong>
+            <div style="font-size:11px;color:#6b7280">Switch between light &amp; dark liquid glass</div>
           </div>
-
-          <button class="btn" style="margin-top:0">Save Profile Changes</button>
-        </form>
+          <input type="checkbox" id="darkModeToggle" onchange="toggleTheme()" style="width:22px;height:22px;cursor:pointer">
+        </div>
       </div>
 
-      <!-- Admin Controls (Visible to Admins) -->
+      <!-- Combined Members & Create Member Section (Admin Only) -->
       <div id="adminSection" class="hide">
         <div class="card">
-          <h3 style="color:#111;margin-bottom:10px">Create Member Account</h3>
-          <form onsubmit="addU(event)">
-            <label>Name</label><input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')">
-            <label>User ID</label><input id="nid" required>
-            <label>Password</label><input id="npass" required>
-            <label>Role</label><select id="nrole"><option value="user">User (View &amp; Add)</option><option value="admin">Admin (Full Control)</option></select>
-            <button class="btn">Add Member</button>
-          </form>
-        </div>
-        <div class="card">
-          <strong style="display:block;margin-bottom:8px">Room 110 Members</strong>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3 style="color:#111;font-size:18px">Members</h3>
+            <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()">+ Create User</button>
+          </div>
+          <strong style="display:block;margin-bottom:8px;font-size:13px;color:#6b7280">Room 110 Members List</strong>
           <div id="ulist"></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL POPUP -->
+  <div id="editProfileModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:16px">Edit Profile</h3>
+      <form onsubmit="updateProfile(event)">
+        <label>Display Name</label>
+        <input id="editName" type="text" required style="margin-bottom:12px">
+
+        <label>Profile Picture (Upload Image)</label>
+        <input id="editAvatarFile" type="file" accept="image/*" style="margin-bottom:12px;padding:8px">
+
+        <label>New Password (Leave blank to keep current)</label>
+        <input id="editPass" type="password" placeholder="New password" style="margin-bottom:16px">
+
+        <button class="btn" style="margin-top:0">Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE USER MODAL POPUP -->
+  <div id="createUserModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:16px">Create Member Account</h3>
+      <form onsubmit="addU(event)">
+        <label>Name</label>
+        <input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')" style="margin-bottom:12px" placeholder="Member Name">
+
+        <label>User ID</label>
+        <input id="nid" required style="margin-bottom:12px" placeholder="user_id">
+
+        <label>Password</label>
+        <input id="npass" required style="margin-bottom:12px" placeholder="Password">
+
+        <label>Role</label>
+        <select id="nrole" style="margin-bottom:16px">
+          <option value="user">User (View &amp; Add)</option>
+          <option value="admin">Admin (Full Control)</option>
+        </select>
+
+        <button class="btn" style="margin-top:0">Create Member</button>
+      </form>
     </div>
   </div>
 
@@ -599,12 +674,26 @@ function tab(n){
   }
   render();
 }
+
+/* Modal Controls */
+function openEditProfileModal() {
+  document.getElementById("editProfileModal").className = "modal-overlay";
+}
+function openCreateUserModal() {
+  document.getElementById("createUserModal").className = "modal-overlay";
+}
+function closeModals() {
+  document.getElementById("editProfileModal").className = "modal-overlay hide";
+  document.getElementById("createUserModal").className = "modal-overlay hide";
+}
+
 function addU(e){
   e.preventDefault();
-  var n=document.getElementById("nname").value.trim(),u=document.getElementById("nid").value.trim().toLowerCase(),p=document.getElementById("newUserPass") ? document.getElementById("newUserPass").value.trim() : document.getElementById("npass").value.trim(),r=document.getElementById("nrole").value;
+  var n=document.getElementById("nname").value.trim(),u=document.getElementById("nid").value.trim().toLowerCase(),p=document.getElementById("npass").value.trim(),r=document.getElementById("nrole").value;
   if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
   users.push({id:Date.now(),name:n,u:u,p:p,r:r,avatar:""});
   document.getElementById("nname").value="";document.getElementById("nid").value="";document.getElementById("npass").value="";
+  closeModals();
   save();
 }
 function delU(id){if(users.length>1&&confirm("Delete user?")){users=users.filter(function(x){return x.id!=id});save()}}
@@ -663,6 +752,7 @@ function finishProfileUpdate(){
     }
   }
   localStorage.setItem("r110_saved_user", JSON.stringify(cur));
+  closeModals();
   save();
   alert("Profile updated successfully!");
 }
@@ -677,8 +767,8 @@ function stats(){
   return {tot:tot,st:st};
 }
 function wa(){
-  var s=stats(),txt="*ROOM 110 MESS*\\nTotal: AED "+s.tot.toFixed(2)+"\\n----------------\\n";
-  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"\\n"});
+  var s=stats(),txt="*ROOM 110 MESS*\nTotal: AED "+s.tot.toFixed(2)+"\n----------------\n";
+  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"\n"});
   navigator.clipboard.writeText(txt);alert("WhatsApp Report Copied!");
 }
 function render(){
