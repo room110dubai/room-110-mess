@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Room 110</title>
+<title>Room 110 Mess</title>
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0}
 body{
-  background: #0f172a no-repeat center center fixed;
+  background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
   background-size: cover;
   color:#111;
   min-height:100vh;
@@ -22,69 +22,62 @@ body{
 
 /* Rain Effect Overlay */
 .rain {
-  position: fixed;
+  position: absolute;
   top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.25));
   z-index: 1;
 }
 .drop {
   position: absolute;
-  background: linear-gradient(transparent, rgba(255,255,255,0.75));
-  width: 1.5px;
-  height: 26px;
-  opacity: 0.75;
+  background: linear-gradient(transparent, rgba(255,255,255,0.7));
+  width: 1px;
+  height: 22px;
+  opacity: 0.7;
   animation: fall linear infinite;
 }
 @keyframes fall {
-  0% { transform: translateY(-30px); }
+  0% { transform: translateY(-20px); }
   100% { transform: translateY(105vh); }
 }
 
 .wrap, .login-box, #loginFooter, #appBox { position: relative; z-index: 2; }
-.wrap{max-width:750px;margin:auto;padding:14px;width:100%}
-.card{background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.6);border-radius:16px;padding:22px;margin-bottom:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2)}
-label{display:block;font-size:12px;color:#1e293b;margin:10px 0 5px;font-weight:700}
 
-/* Apple Liquid Glass Inputs & Card */
-.login-box{
-  width:100%;
-  max-width:410px;
-  background: rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1.5px solid rgba(255, 255, 255, 0.55);
-  border-radius: 26px;
-  padding: 34px 26px 26px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
-  text-align: center;
-}
-.login-box input[type="text"], .login-box input[type="password"], .login-box input:not([type="checkbox"]) {
-  width:100%;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  color:#0f172a;
-  padding:13px 14px;
-  border-radius:12px;
-  font-size:14px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
-}
-input,select{width:100%;background:#fff;border:1px solid #cbd5e1;color:#111;padding:12px;border-radius:10px;font-size:14px}
-input:focus,select:focus{border-color:#1e3a8a;outline:none;background:rgba(255,255,255,0.9)}
-.btn{width:100%;background:#1e3a8a;color:#fff;border:0;padding:13px;border-radius:12px;font-weight:700;margin-top:14px;cursor:pointer;font-size:14px;box-shadow:0 6px 16px rgba(30,58,138,0.35)}
+.wrap{max-width:750px;margin:auto;padding:14px;width:100%}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;margin-bottom:12px;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
+label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
+input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:8px;font-size:14px}
+input:focus,select:focus{border-color:#1e3a8a;outline:none}
+.btn{width:100%;background:#1e3a8a;color:#fff;border:0;padding:13px;border-radius:8px;font-weight:700;margin-top:16px;cursor:pointer;font-size:14px}
 .btn:hover{background:#1d4ed8}
-.btn-s{width:auto;padding:7px 12px;font-size:12px;margin:0;border-radius:8px}
-.bg-switcher{margin-top:14px;background:rgba(255,255,255,0.45);color:#0f172a;border:1px solid rgba(255,255,255,0.6);padding:7px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer}
-.top{background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid #e5e7eb;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.btn-s{width:auto;padding:7px 12px;font-size:12px;margin:0}
+.top{background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
 .tabs{display:flex;gap:6px;margin-bottom:12px}
-.tab{flex:1;background:rgba(255,255,255,0.8);color:#374151;border:0;padding:10px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer}
+.tab{flex:1;background:#f3f4f6;color:#4b5563;border:0;padding:10px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer}
 .tab.on{background:#1e3a8a;color:#fff}
 table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
 th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151}
+th{color:#111}
 .g{color:#059669;font-weight:700}.r{color:#dc2626;font-weight:700}.hide{display:none!important}
 .cks{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f9fafb;padding:10px;border-radius:8px;margin-top:8px;border:1px solid #e5e7eb}
 .ck{display:flex;align-items:center;gap:6px;font-size:13px;color:#374151}.ck input{width:16px;height:16px}
-.logo-title{font-size:38px;font-weight:900;color:#1e3a8a;letter-spacing:-0.8px;margin-bottom:4px;text-shadow:0 1px 2px rgba(255,255,255,0.6)}
-.footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.95);font-weight:600}
+
+/* Balanced Frosted Glass Login Box (0.65 Opacity) */
+.login-box{
+  width:100%;
+  max-width:420px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  padding: 32px 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+.logo-title{font-size:32px;font-weight:800;color:#1e3a8a;letter-spacing:-0.5px;margin-bottom:4px}
+.footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:600}
 </style>
 </head>
 <body>
@@ -94,25 +87,24 @@ th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151
 <!-- LOGIN SCREEN -->
 <div id="loginBox" class="login-box">
   <div class="logo-title">Room 110</div>
-  <p style="font-size:16px;font-weight:700;color:#0f172a;margin-top:2px">Welcome back,</p>
-  <p style="font-size:13px;color:#1e293b;margin-bottom:20px;font-weight:500">Please sign in to your account below.</p>
-  <p id="err" style="color:#dc2626;font-size:13px;font-weight:700;margin-bottom:8px"></p>
+  <p style="font-size:15px;font-weight:600;color:#1f2937;margin-top:4px">Welcome back,</p>
+  <p style="font-size:13px;color:#4b5563;margin-bottom:20px">Please sign in to your account below.</p>
+  <p id="err" style="color:#dc2626;font-size:13px;margin-bottom:8px"></p>
   
   <form onsubmit="login(event)" style="text-align:left">
     <label>User ID</label>
-    <input id="uid" type="text" required placeholder="Enter User ID">
+    <input id="uid" required placeholder="Enter User ID">
     
     <label>Password</label>
     <input id="upass" type="password" required placeholder="Enter Password">
     
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 6px">
+    <div style="display:flex;align-items:center;gap:8px;margin:14px 0">
       <input type="checkbox" id="keepMe" style="width:16px;height:16px;cursor:pointer">
-      <label for="keepMe" style="margin:0;cursor:pointer;font-weight:600;color:#1e293b">Keep me logged in</label>
+      <label for="keepMe" style="margin:0;cursor:pointer;font-weight:500;color:#374151">Keep me logged in</label>
     </div>
 
-    <button type="submit" class="btn">Login to Dashboard</button>
+    <button class="btn">Login to Dashboard</button>
   </form>
-  <button type="button" class="bg-switcher" onclick="setRandomBackground()">Change Scenery (200+ Kerala &amp; Dubai Views)</button>
 </div>
 <div id="loginFooter" class="footer-text">Copyright &copy; Shyam Sathyan 2026</div>
 
@@ -164,7 +156,7 @@ th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151
           <label>Name</label><input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')">
           <label>User ID</label><input id="nid" required>
           <label>Password</label><input id="npass" required>
-          <label>Role</label><select id="nrole"><option value="user">User (View &amp; Add)</option><option value="admin">Admin (Full Control)</option></select>
+          <label>Role</label><select id="nrole"><option value="user">User (View & Add)</option><option value="admin">Admin (Full Control)</option></select>
           <button class="btn">Add Member</button>
         </form>
       </div>
@@ -174,14 +166,14 @@ th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151
 </div>
 
 <script>
-// 200+ Dynamic Pool: Curated High-Res Kerala & Dubai Landmarks + 200 Seeded Scenic Endpoints
-var curatedScenes = [
-  'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1920&q=80',
+// 200+ Curated Kerala & UAE Photography Pool (Selects cleanly on load with no awkward transitions)
+var megaBackgrounds = [
   'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1920&q=80',
-  'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=1920&q=80',
-  'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1578895101408-1a364e49ee90?auto=format&fit=crop&w=1920&q=80',
+  'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1920&q=80',
@@ -190,26 +182,24 @@ var curatedScenes = [
   'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1920&q=80'
 ];
 for(var k=1; k<=100; k++){
-  curatedScenes.push('https://picsum.photos/seed/kerala_greenery_' + k + '/1920/1080');
-  curatedScenes.push('https://picsum.photos/seed/dubai_skyline_' + k + '/1920/1080');
+  megaBackgrounds.push('https://picsum.photos/seed/kerala_greenery_' + k + '/1920/1080');
+  megaBackgrounds.push('https://picsum.photos/seed/dubai_skyline_' + k + '/1920/1080');
 }
 
-var bgIdx = 0;
 function setRandomBackground() {
-  var chosen = curatedScenes[bgIdx % curatedScenes.length];
-  bgIdx = Math.floor(Math.random() * curatedScenes.length);
-  document.body.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.38)), url('" + chosen + "')";
+  var randomBg = megaBackgrounds[Math.floor(Math.random() * megaBackgrounds.length)];
+  document.body.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('" + randomBg + "')";
 }
 setRandomBackground();
 
 // Generate Rain Drops
 var rainContainer = document.getElementById('rainContainer');
-for(var r=0; r<75; r++){
+for(var r=0; r<65; r++){
   var drop = document.createElement('div');
   drop.className = 'drop';
   drop.style.left = Math.random() * 100 + '%';
   drop.style.top = (Math.random() * -50) + 'px';
-  drop.style.animationDuration = (0.55 + Math.random() * 0.65) + 's';
+  drop.style.animationDuration = (0.5 + Math.random() * 0.8) + 's';
   drop.style.animationDelay = (Math.random() * 5) + 's';
   rainContainer.appendChild(drop);
 }
@@ -234,7 +224,9 @@ function login(e){
 function openDashboard(){
   document.getElementById("loginBox").className="hide";
   document.getElementById("loginFooter").className="hide";
+  document.getElementById("rainContainer").className="hide";
   document.getElementById("appBox").className="";
+  document.body.style.background = "#f4f6f8";
   document.body.style.justifyContent = "flex-start";
   tab(1);
 }
@@ -244,13 +236,16 @@ function logout(){
   document.getElementById("appBox").className="hide";
   document.getElementById("loginBox").className="login-box";
   document.getElementById("loginFooter").className="footer-text";
+  document.getElementById("rainContainer").className="rain";
   setRandomBackground();
   document.body.style.justifyContent = "center";
 }
 function tab(n){
   for(var i=1;i<=4;i++){
     document.getElementById("t"+i).className="tab"+(i==n?" on":"")+(i==4&&cur.r!="admin"?" hide":"");
-    document.getElementById("v"+i).className=(i==n?(i==2?"card": (i==1?"":"")):"hide");
+    document.getElementById("v"+i).className=(i==n?(i==2?"card hide": (i==1?"":"card hide")):"hide");
+    if(i==n && i==2) document.getElementById("v2").className="card";
+    if(i==n && i==4) document.getElementById("v4").className="";
   }
   render();
 }
