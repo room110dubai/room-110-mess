@@ -16,6 +16,12 @@
 <meta name="theme-color" content="#1e3a8a">
 <link rel="manifest" href="manifest.json">
 
+<!-- FontAwesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Chart.js for Dashboards -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;-webkit-tap-highlight-color:transparent}
 body{
@@ -43,7 +49,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn:hover{background:#1d4ed8}
 .btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px}
 
-/* Top Bar with Logo on Left + Welcome & User Name Below */
+/* Top Bar with Logo on Left + Live Date/Time Below */
 .top{
   background:rgba(255,255,255,0.85);
   backdrop-filter:blur(16px);
@@ -61,11 +67,9 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 }
 .top-left-box { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
 .top-logo { width: 118px; height: auto; display: block; }
-.welcome-container { display: flex; align-items: baseline; gap: 5px; margin-top: 1px; }
-.welcome-lbl { font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
-.welcome-usr { font-size: 14px; font-weight: 800; color: #1e3a8a; line-height: 1.1; }
+.live-datetime { font-size: 11px; color: #6b7280; font-weight: 500; margin-top: 1px; }
 
-/* Floating Bottom Dock */
+/* Apple Liquid Glass Floating Bottom Dock */
 .floating-dock {
   position: fixed;
   bottom: 20px;
@@ -74,10 +78,10 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   width: calc(100% - 32px);
   max-width: 400px;
   height: 66px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(248, 250, 252, 0.52) 100%);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1.5px solid rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 38px;
   padding: 6px 8px;
   display: flex;
@@ -156,8 +160,7 @@ body.dark-page .top {
   background: rgba(15, 23, 42, 0.82);
   border-bottom-color: #1e293b;
 }
-body.dark-page .welcome-lbl { color: #94a3b8; }
-body.dark-page .welcome-usr { color: #60a5fa; }
+body.dark-page .live-datetime { color: #94a3b8; }
 body.dark-page .card {
   background: #1e293b;
   border-color: #334155;
@@ -188,7 +191,7 @@ body.dark-page .msg-other {
   border-color: #334155;
 }
 body.dark-page .floating-dock {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.72) 0%, rgba(15, 23, 42, 0.58) 100%);
+  background: rgba(30, 41, 59, 0.75);
   border: 1.5px solid rgba(255, 255, 255, 0.18);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.22);
 }
@@ -269,13 +272,54 @@ th{color:#111}
   justify-content: center;
   color: #4b5563;
 }
-.sync-badge {
-  font-size: 10px;
-  padding: 3px 7px;
-  border-radius: 12px;
-  background: rgba(5, 150, 105, 0.12);
-  color: #059669;
-  font-weight: 700;
+/* Sync Status Dot Indicator */
+.sync-dot-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.03);
+  transition: background 0.2s;
+}
+.sync-dot-container:hover {
+  background: rgba(0,0,0,0.06);
+}
+.sync-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #10b981; /* Default solid green = live/saved */
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  transition: background-color 0.3s ease;
+}
+@keyframes pulse-blink {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.sync-blinking {
+  animation: pulse-blink 1s infinite ease-in-out;
+}
+
+/* Welcome Profile Card */
+.welcome-profile-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: between;
+  position: relative;
+}
+body.dark-page .welcome-profile-card {
+  background: #1e293b;
+  border-color: #334155;
 }
 </style>
 </head>
@@ -355,13 +399,14 @@ th{color:#111}
         <line x1="603" y1="110" x2="603" y2="152" stroke="#fff" stroke-width="1.8"/>
         <path d="M 385 172 Q 532 130 678 172 Q 532 146 385 172 Z" fill="#1e3a8a"/>
       </svg>
-      <div class="welcome-container">
-        <span class="welcome-lbl">Welcome</span>
-        <span id="topUserName" class="welcome-usr">Shyam</span>
-      </div>
+      <!-- Live Date and Time -->
+      <div id="liveDateTime" class="live-datetime">Loading date & time...</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <span id="syncStatus" class="sync-badge" onclick="loadCloudData()" style="cursor:pointer" title="Tap to refresh cloud data">Cloud Live</span>
+      <!-- Sync Status Dot Indicator -->
+      <div class="sync-dot-container" onclick="loadCloudData()" title="Tap to refresh cloud data">
+        <span id="cloudDot" class="sync-dot"></span>
+      </div>
       <button class="btn btn-s" style="background:#25d366;padding:8px 10px;display:flex;align-items:center;justify-content:center" onclick="wa()" title="Copy WhatsApp Report">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff">
           <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
@@ -380,6 +425,62 @@ th{color:#111}
   <div class="wrap">
     <!-- TAB 1: HOME -->
     <div id="v1">
+      <!-- WELCOME PROFILE CARD -->
+      <div class="welcome-profile-card">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="position:relative">
+            <div id="cardAvatar" style="width:48px;height:48px;border-radius:50%;border:2px solid #1e3a8a;background:#1e3a8a;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden">S</div>
+            <span style="position:absolute;top:0;right:0;width:10px;height:10px;background:#10b981;border:2px solid #fff;border-radius:50%"></span>
+          </div>
+          <div>
+            <div id="cardGreeting" style="font-size:15px;font-weight:800;color:#111;line-height:1.2">Good evening, Shyam</div>
+            <div style="font-size:12px;color:#6b7280;font-weight:500;margin-top:1px">Welcome back,</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:18px;font-weight:900;color:#111">28°C <span style="font-size:15px">☀️</span></div>
+          <div style="font-size:9px;color:#6b7280;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Dubai</div>
+        </div>
+      </div>
+
+      <!-- MONTHLY FINANCIAL DASHBOARD -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Monthly Dashboard</strong>
+          <span style="font-size:11px;font-weight:700;color:#1e3a8a;background:rgba(30,58,138,0.08);padding:3px 8px;border-radius:12px" id="dashMonthLabel">November 2026</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:between;gap:10px">
+          <div style="flex:1;space-y:6px">
+            <div style="margin-bottom:8px">
+              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Purchases (Paid)</div>
+              <div id="dashPaid" style="font-size:15px;font-weight:900;color:#059669;margin-top:1px">AED 0.00</div>
+            </div>
+            <div style="margin-bottom:8px">
+              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Expenses (Share)</div>
+              <div id="dashShare" style="font-size:15px;font-weight:900;color:#d97706;margin-top:1px">AED 0.00</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Net Status</div>
+              <div id="dashNet" style="font-size:15px;font-weight:900;margin-top:1px">AED 0.00</div>
+            </div>
+          </div>
+          <div style="width:110px;height:110px;position:relative;display:flex;align-items:center;justify-content:center">
+            <canvas id="monthlyDonutChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPENSES BY CATEGORY -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Expenses by Category</strong>
+          <i class="fa-solid fa-chart-pie" style="color:#6b7280;font-size:12px"></i>
+        </div>
+        <div id="categoryBreakdownList" style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12px;color:#6b7280;font-style:italic">No category data available yet.</div>
+        </div>
+      </div>
+
       <div class="card" style="display:flex;justify-content:space-between;align-items:center">
         <div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px;font-size:26px">AED 0.00</h2></div>
         <div style="text-align:right"><label style="margin:0">Members</label><h2 id="mcount" style="color:#1e3a8a;margin-top:4px;font-size:26px">0</h2></div>
@@ -407,7 +508,15 @@ th{color:#111}
       <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
       <form onsubmit="addEx(event)">
         <label>Amount (AED)</label><input id="amt" type="number" step="0.01" placeholder="0.00" required>
-        <label>Items / Category</label><input id="desc" placeholder="e.g. Groceries, Chicken, Gas" required>
+        <label>Items / Category</label>
+        <select id="desc" required style="margin-bottom:6px">
+          <option value="Groceries">Groceries</option>
+          <option value="Cinema">Cinema</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Gas">Gas</option>
+          <option value="Maintenance">Maintenance</option>
+          <option value="Food">Food</option>
+        </select>
         <label>Paid By</label><select id="pby"></select>
         <label>Split Between</label>
         <select id="stype" onchange="document.getElementById('cbox').className=this.value=='c'?'cks':'cks hide'">
@@ -422,13 +531,13 @@ th{color:#111}
     <div id="v4" class="card hide">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div>
-          <h3 style="color:#111">Room 110 Mess Chat</h3>
+          <h3 style="color:#111">Room 110 Community Chat</h3>
           <p style="font-size:12px;color:#6b7280">Discuss daily menu, groceries &amp; updates</p>
         </div>
       </div>
       <div id="chatList" class="chat-box"></div>
       <form onsubmit="sendMsg(event)" style="display:flex;gap:8px">
-        <input id="chatInput" placeholder="Write a message to Room 110..." required style="margin:0;flex:1">
+        <input id="chatInput" placeholder="Type a message..." required style="margin:0;flex:1">
         <button class="btn btn-s" style="padding:0 18px">Send</button>
       </form>
     </div>
@@ -437,20 +546,53 @@ th{color:#111}
     <div id="v5" class="hide">
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <h3 style="color:#111;font-size:18px">Profile</h3>
-          <button class="btn btn-s" style="background:#2563eb" onclick="openEditProfileModal()">Edit</button>
+          <h3 style="color:#111;font-size:18px">My Profile</h3>
+          <button class="btn btn-s" style="background:#2563eb" onclick="openEditProfileModal()">Edit Details</button>
         </div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-          <div id="profAvatar" style="width:64px;height:64px;border-radius:50%;background:#1e3a8a;color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden">S</div>
+          <div id="profAvatar" style="width:64px;height:64px;border-radius:50%;background:#1e3a8a;color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #1e3a8a">S</div>
           <div>
-            <h3 id="profName" style="color:#111;font-size:18px">Shyam</h3>
-            <p id="profRole" style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700"></p>
+            <h3 id="profName" style="color:#111;font-size:18px">Shyam Sathyan</h3>
+            <p id="profRole" style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700">Room Admin & Resident</p>
+            <span style="display:inline-block;margin-top:4px;font-size:10px;background:#eff6ff;color:#1d4ed8;font-weight:700;padding:2px 8px;border-radius:10px">Cloud Active</span>
           </div>
         </div>
-        <div class="prof-bal-box" style="background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-size:11px;color:#6b7280;font-weight:600">MY NET BALANCE</div>
-            <div id="profNet" style="font-size:20px;font-weight:800;margin-top:2px">AED 0.00</div>
+      </div>
+
+      <!-- EMERGENCY CONTACTS -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Emergency Contacts</strong>
+          <i class="fa-solid fa-phone-volume" style="color:#dc2626;font-size:12px"></i>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#111">Gas Delivery</div>
+              <div style="font-size:11px;color:#6b7280">+971 50 123 4567</div>
+            </div>
+            <a href="tel:+971501234567" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#111">Groceries Shop</div>
+              <div style="font-size:11px;color:#6b7280">+971 50 987 6543</div>
+            </div>
+            <a href="tel:+971509876543" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#111">Drinking Water</div>
+              <div style="font-size:11px;color:#6b7280">+971 52 456 7890</div>
+            </div>
+            <a href="tel:+971524567890" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#111">Building Maintenance</div>
+              <div style="font-size:11px;color:#6b7280">+971 55 112 2334</div>
+            </div>
+            <a href="tel:+971551122334" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a>
           </div>
         </div>
       </div>
@@ -458,11 +600,32 @@ th{color:#111}
       <div id="adminSection" class="hide">
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <h3 style="color:#111;font-size:18px">Members</h3>
-            <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()">+ Create User</button>
+            <h3 style="color:#111;font-size:18px">Manage Members</h3>
+            <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()">+ Add Member</button>
           </div>
-          <strong style="display:block;margin-bottom:8px;font-size:13px;color:#6b7280">Room 110 Members List</strong>
           <div id="ulist"></div>
+        </div>
+      </div>
+
+      <!-- SERVICES MANAGEMENT (ADMIN CONTROLS) -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Services & Admin Controls</strong>
+          <i class="fa-solid fa-cogs" style="color:#1e3a8a;font-size:12px"></i>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button onclick="alert('Categories management unlocked for admin.')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:700;color:#374151;cursor:pointer">
+            <span><i class="fa-solid fa-tags" style="color:#2563eb;margin-right:8px"></i> Manage Categories</span>
+            <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
+          </button>
+          <button onclick="alert('Custom groups management unlocked for admin.')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:700;color:#374151;cursor:pointer">
+            <span><i class="fa-solid fa-user-group" style="color:#059669;margin-right:8px"></i> Manage Custom Groups</span>
+            <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
+          </button>
+          <button onclick="alert('Emergency contacts management unlocked for admin.')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:700;color:#374151;cursor:pointer">
+            <span><i class="fa-solid fa-address-book" style="color:#d97706;margin-right:8px"></i> Manage Emergency Contacts</span>
+            <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
+          </button>
         </div>
       </div>
 
@@ -470,7 +633,7 @@ th{color:#111}
         <h3 style="color:#111;margin-bottom:10px">Appearance</h3>
         <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb">
           <div>
-            <strong style="font-size:14px;color:#111">Dark Mode</strong>
+            <strong style="font-size:14px;color:#111">Dark Mode Theme</strong>
             <div style="font-size:11px;color:#6b7280">Switch between light &amp; dark liquid glass</div>
           </div>
           <input type="checkbox" id="darkModeToggle" onchange="toggleTheme()" style="width:22px;height:22px;cursor:pointer">
@@ -483,10 +646,12 @@ th{color:#111}
   <div id="editProfileModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
-      <h3 style="color:#111;margin-bottom:16px">Edit Profile</h3>
+      <h3 style="color:#111;margin-bottom:16px">Edit User Details</h3>
       <form onsubmit="updateProfile(event)">
-        <label>Display Name</label>
-        <input id="editName" type="text" required style="margin-bottom:12px">
+        <label>First Name</label>
+        <input id="editFirstName" type="text" required style="margin-bottom:12px" placeholder="First Name">
+        <label>Last Name</label>
+        <input id="editLastName" type="text" required style="margin-bottom:12px" placeholder="Last Name">
         <label>Profile Picture (Upload Image)</label>
         <input id="editAvatarFile" type="file" accept="image/*" style="margin-bottom:12px;padding:8px">
         <label>New Password (Leave blank to keep current)</label>
@@ -499,20 +664,22 @@ th{color:#111}
   <div id="createUserModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
-      <h3 style="color:#111;margin-bottom:16px">Create Member Account</h3>
+      <h3 style="color:#111;margin-bottom:16px">Add New Room Member</h3>
       <form onsubmit="addU(event)">
-        <label>Name</label>
-        <input id="nname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')" style="margin-bottom:12px" placeholder="Member Name">
+        <label>First Name</label>
+        <input id="nFname" required oninput="document.getElementById('nid').value=this.value.toLowerCase().replace(/[^a-z0-9]/g,'')" style="margin-bottom:12px" placeholder="First Name">
+        <label>Last Name</label>
+        <input id="nLname" required style="margin-bottom:12px" placeholder="Last Name">
         <label>User ID</label>
         <input id="nid" required style="margin-bottom:12px" placeholder="user_id">
         <label>Password</label>
         <input id="npass" required style="margin-bottom:12px" placeholder="Password">
         <label>Role</label>
         <select id="nrole" style="margin-bottom:16px">
-          <option value="user">User (View &amp; Add)</option>
-          <option value="admin">Admin (Full Control)</option>
+          <option value="user">Member</option>
+          <option value="admin">Admin</option>
         </select>
-        <button class="btn" style="margin-top:0">Create Member</button>
+        <button class="btn" style="margin-top:0">Save Member</button>
       </form>
     </div>
   </div>
@@ -523,16 +690,18 @@ th{color:#111}
       <h3 style="color:#111;margin-bottom:16px">Edit Member Account</h3>
       <form onsubmit="saveEditedUser(event)">
         <input type="hidden" id="editUserId">
-        <label>Name</label>
-        <input id="eUName" required style="margin-bottom:12px">
+        <label>First Name</label>
+        <input id="eUFirstName" required style="margin-bottom:12px">
+        <label>Last Name</label>
+        <input id="eULastName" required style="margin-bottom:12px">
         <label>User ID</label>
         <input id="eUId" required style="margin-bottom:12px">
         <label>Password</label>
         <input id="eUPass" required style="margin-bottom:12px">
         <label>Role</label>
         <select id="eURole" style="margin-bottom:16px">
-          <option value="user">User (View &amp; Add)</option>
-          <option value="admin">Admin (Full Control)</option>
+          <option value="user">Member</option>
+          <option value="admin">Admin</option>
         </select>
         <div style="display:flex;gap:10px">
           <button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button>
@@ -542,7 +711,7 @@ th{color:#111}
     </div>
   </div>
 
-  <!-- FLOATING DOCK -->
+  <!-- FLOATING APPLE LIQUID GLASS DOCK -->
   <nav class="floating-dock">
     <button id="d1" class="dock-item active" onclick="tab(1)" title="Home">
       <svg class="fill-active" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.5z"/></svg>
@@ -600,16 +769,34 @@ function setRandomBackground() {
 }
 setRandomBackground();
 
-var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:""}];
+var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:""}];
 var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [{u:"Shyam",t:"Welcome to Room 110 Mess Portal!",tm:"Today"}];
 var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
+var monthlyChartInstance = null;
+
+function updateDateTime() {
+  var now = new Date();
+  var options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
+  var dtEl = document.getElementById('liveDateTime');
+  if(dtEl) dtEl.innerText = now.toLocaleDateString('en-US', options);
+
+  var hour = now.getHours();
+  var greeting = "Good evening";
+  if (hour < 12) greeting = "Good morning";
+  else if (hour < 17) greeting = "Good afternoon";
+
+  var greetEl = document.getElementById('cardGreeting');
+  if(greetEl && cur) {
+    greetEl.innerText = greeting + ", " + (cur.firstName || cur.name);
+  }
+}
+setInterval(updateDateTime, 1000);
 
 function loadCloudData(){
   if (!CLOUD_URL) return;
-  var badge = document.getElementById("syncStatus");
-  if(badge) badge.innerText = "Syncing...";
+  setCloudStatus('syncing');
   fetch(CLOUD_URL)
     .then(function(res){ return res.json(); })
     .then(function(data){
@@ -632,13 +819,28 @@ function loadCloudData(){
           localStorage.setItem("r110_saved_user", JSON.stringify(cur));
         }
       }
-      if(badge) badge.innerText = "Cloud Live";
+      setCloudStatus('live');
       applyTheme();
       render();
     })
     .catch(function(err){
-      if(badge) badge.innerText = "Offline Mode";
+      setCloudStatus('error');
     });
+}
+
+function setCloudStatus(status) {
+  var dot = document.getElementById("cloudDot");
+  if(!dot) return;
+  if(status === 'live' || status === 'saved') {
+    dot.style.backgroundColor = "#10b981";
+    dot.className = "sync-dot";
+  } else if(status === 'syncing') {
+    dot.style.backgroundColor = "#10b981";
+    dot.className = "sync-dot sync-blinking";
+  } else if(status === 'error' || status === 'offline') {
+    dot.style.backgroundColor = "#ef4444";
+    dot.className = "sync-dot";
+  }
 }
 
 loadCloudData();
@@ -672,8 +874,7 @@ function save(){
   render();
 
   if(CLOUD_URL){
-    var badge = document.getElementById("syncStatus");
-    if(badge) badge.innerText = "Saving...";
+    setCloudStatus('syncing');
     var payload = JSON.stringify({users: users, exps: exps, msgs: msgs});
     fetch(CLOUD_URL, {
       method: "POST",
@@ -681,9 +882,9 @@ function save(){
       headers: {"Content-Type": "text/plain;charset=utf-8"},
       body: payload
     }).then(function(){
-      if(badge) badge.innerText = "Cloud Saved";
+      setCloudStatus('saved');
     }).catch(function(err){
-      if(badge) badge.innerText = "Sync Error";
+      setCloudStatus('error');
     });
   }
 }
@@ -693,6 +894,10 @@ function login(e){
   var u=document.getElementById("uid").value.trim().toLowerCase(),p=document.getElementById("upass").value.trim();
   cur=users.find(function(x){return x.u.toLowerCase()==u&&x.p==p});
   if(cur){
+    if(!cur.firstName) {
+      cur.firstName = cur.name || "Shyam";
+      cur.lastName = cur.lastName || "Sathyan";
+    }
     if(document.getElementById("keepMe").checked){
       localStorage.setItem("r110_saved_user", JSON.stringify(cur));
     }
@@ -705,10 +910,11 @@ function openDashboard(){
   document.getElementById("loginBox").className="hide";
   document.getElementById("loginFooter").className="hide";
   document.getElementById("appBox").className="";
-  document.body.style.background = "#f4f6f8";
+  document.body.style.background = "#f8fafc";
   document.body.style.justifyContent = "flex-start";
   document.body.style.padding = "0";
   applyTheme();
+  updateDateTime();
   tab(1);
 }
 
@@ -731,7 +937,8 @@ function tab(n){
     if(i==n){
       v.className = (i==3 || i==4) ? "card" : "";
       if(i==5) {
-        document.getElementById("editName").value = cur.name;
+        document.getElementById("editFirstName").value = cur.firstName || cur.name || "";
+        document.getElementById("editLastName").value = cur.lastName || "";
       }
     } else {
       v.className = "hide";
@@ -746,7 +953,8 @@ function openEditUserModal(id) {
   var user = users.find(function(x){return x.id == id});
   if(!user) return;
   document.getElementById("editUserId").value = user.id;
-  document.getElementById("eUName").value = user.name;
+  document.getElementById("eUFirstName").value = user.firstName || user.name || "";
+  document.getElementById("eULastName").value = user.lastName || "";
   document.getElementById("eUId").value = user.u;
   document.getElementById("eUPass").value = user.p;
   document.getElementById("eURole").value = user.r;
@@ -760,10 +968,17 @@ function closeModals() {
 
 function addU(e){
   e.preventDefault();
-  var n=document.getElementById("nname").value.trim(),u=document.getElementById("nid").value.trim().toLowerCase(),p=document.getElementById("npass").value.trim(),r=document.getElementById("nrole").value;
+  var fn=document.getElementById("nFname").value.trim();
+  var ln=document.getElementById("nLname").value.trim();
+  var u=document.getElementById("nid").value.trim().toLowerCase();
+  var p=document.getElementById("npass").value.trim();
+  var r=document.getElementById("nrole").value;
   if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
-  users.push({id:Date.now(),name:n,u:u,p:p,r:r,avatar:""});
-  document.getElementById("nname").value="";document.getElementById("nid").value="";document.getElementById("npass").value="";
+  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:""});
+  document.getElementById("nFname").value="";
+  document.getElementById("nLname").value="";
+  document.getElementById("nid").value="";
+  document.getElementById("npass").value="";
   closeModals();
   save();
 }
@@ -771,14 +986,15 @@ function addU(e){
 function saveEditedUser(e){
   e.preventDefault();
   var id = Number(document.getElementById("editUserId").value);
-  var n = document.getElementById("eUName").value.trim();
+  var fn = document.getElementById("eUFirstName").value.trim();
+  var ln = document.getElementById("eULastName").value.trim();
   var u = document.getElementById("eUId").value.trim().toLowerCase();
   var p = document.getElementById("eUPass").value.trim();
   var r = document.getElementById("eURole").value;
   var user = users.find(function(x){return x.id === id});
   if(user){
     if(users.some(function(x){return x.u === u && x.id !== id})) return alert("User ID already exists!");
-    user.name = n; user.u = u; user.p = p; user.r = r;
+    user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; user.p = p; user.r = r;
     closeModals();
     save();
   }
@@ -797,11 +1013,11 @@ function deleteUserFromModal(){
 
 function addEx(e){
   e.preventDefault();
-  var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value.trim(),pb=document.getElementById("pby").value,st=document.getElementById("stype").value;
-  var al=st=="a"?users.map(function(x){return x.name}):Array.from(document.querySelectorAll(".mck:checked")).map(function(c){return c.value});
+  var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value,st=document.getElementById("stype").value;
+  var al=st=="a"?users.map(function(x){return x.firstName || x.name}):Array.from(document.querySelectorAll(".mck:checked")).map(function(c){return c.value});
   if(!al.length)return alert("Select at least 1 member");
   exps.unshift({id:Date.now(),amt:a,desc:d,pb:pb,al:al,dt:new Date().toLocaleDateString()});
-  document.getElementById("amt").value="";document.getElementById("desc").value="";
+  document.getElementById("amt").value="";
   save();tab(2);
 }
 
@@ -814,7 +1030,7 @@ function sendMsg(e){
   if(!txt)return;
   var now=new Date();
   var tm=now.getHours()+":"+(now.getMinutes()<10?"0":"")+now.getMinutes();
-  msgs.push({u:cur.name,t:txt,tm:tm});
+  msgs.push({u:cur.firstName || cur.name,t:txt,tm:tm});
   inp.value="";
   save();
   var cb=document.getElementById("chatList");
@@ -823,11 +1039,14 @@ function sendMsg(e){
 
 function updateProfile(e){
   e.preventDefault();
-  var newName = document.getElementById("editName").value.trim();
+  var newFn = document.getElementById("editFirstName").value.trim();
+  var newLn = document.getElementById("editLastName").value.trim();
   var newPass = document.getElementById("editPass").value.trim();
   var fileInput = document.getElementById("editAvatarFile");
-  if(!newName) return alert("Name cannot be empty!");
-  cur.name = newName;
+  if(!newFn) return alert("First name cannot be empty!");
+  cur.firstName = newFn;
+  cur.lastName = newLn;
+  cur.name = newFn;
   if(newPass) cur.p = newPass;
 
   if(fileInput.files && fileInput.files[0]){
@@ -869,9 +1088,10 @@ function finishProfileUpdate(){
 function stats(){
   var tot=exps.reduce(function(s,x){return s+Number(x.amt)},0);
   var st=users.map(function(u){
-    var pd=exps.filter(function(x){return x.pb==u.name}).reduce(function(s,x){return s+Number(x.amt)},0);
-    var sh=exps.reduce(function(s,x){return x.al.indexOf(u.name)>-1?s+(Number(x.amt)/x.al.length):s},0);
-    return {name:u.name,pd:pd,sh:sh,net:pd-sh};
+    var uName = u.firstName || u.name;
+    var pd=exps.filter(function(x){return x.pb==uName}).reduce(function(s,x){return s+Number(x.amt)},0);
+    var sh=exps.reduce(function(s,x){return x.al.indexOf(uName)>-1?s+(Number(x.amt)/x.al.length):s},0);
+    return {name:uName,pd:pd,sh:sh,net:pd-sh};
   });
   return {tot:tot,st:st};
 }
@@ -887,45 +1107,85 @@ function render(){
   var freshCur = users.find(function(x){return x.u === cur.u});
   if(freshCur) { cur = freshCur; }
 
-  var init = cur.name ? cur.name.charAt(0).toUpperCase() : "U";
+  var cName = cur.firstName || cur.name || "Shyam";
+  var init = cName.charAt(0).toUpperCase();
   var dockAv = document.getElementById("dockAvatarContainer");
+  var cardAv = document.getElementById("cardAvatar");
   var profAv = document.getElementById("profAvatar");
 
   if(cur.avatar){
     dockAv.innerHTML = '<img src="'+cur.avatar+'">';
+    cardAv.innerHTML = '<img src="'+cur.avatar+'" style="width:100%;height:100%;object-fit:cover">';
     profAv.innerHTML = '<img src="'+cur.avatar+'" style="width:100%;height:100%;object-fit:cover">';
   } else {
     dockAv.innerHTML = '<span id="dockInitial">'+init+'</span>';
+    cardAv.innerHTML = init;
     profAv.innerHTML = init;
   }
 
-  document.getElementById("topUserName").innerText = cur.name;
-  document.getElementById("profName").innerText = cur.name;
-  document.getElementById("profRole").innerText = cur.r === "admin" ? "Room 110 Admin" : "Room 110 Member";
+  updateDateTime();
+  document.getElementById("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
 
   var s=stats();
   document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
   document.getElementById("mcount").innerText=users.length;
   document.getElementById("tb").innerHTML=s.st.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
 
-  var myStat = s.st.find(function(m){return m.name===cur.name}) || {net:0};
-  var pNet = document.getElementById("profNet");
-  pNet.innerText = (myStat.net>=0?"+AED ":"-AED ") + Math.abs(myStat.net).toFixed(2);
-  pNet.className = myStat.net>=0 ? "g" : "r";
+  var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  document.getElementById("pby").innerHTML=users.map(function(u){return "<option value='"+u.name+"' "+(u.name==cur.name?"selected":"")+">"+u.name+"</option>"}).join("");
-  document.getElementById("cbox").innerHTML=users.map(function(u){return "<label class='ck'><input type='checkbox' class='mck' value='"+u.name+"' checked><span>"+u.name+"</span></label>"}).join("");
+  // Monthly Dashboard Render
+  document.getElementById("dashPaid").innerText = "AED " + myStat.pd.toFixed(2);
+  document.getElementById("dashShare").innerText = "AED " + myStat.sh.toFixed(2);
+  var dashNetEl = document.getElementById("dashNet");
+  dashNetEl.innerText = (myStat.net >= 0 ? "+AED " : "-AED ") + Math.abs(myStat.net).toFixed(2);
+  dashNetEl.style.color = myStat.net >= 0 ? "#059669" : "#dc2626";
+
+  // Category Breakdown Render
+  var catTotals = {};
+  exps.forEach(function(x){
+    var cat = x.desc || "Other";
+    catTotals[cat] = (catTotals[cat] || 0) + Number(x.amt);
+  });
+  var catHtml = "";
+  for(var catName in catTotals){
+    catHtml += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151"><i class="fa-solid fa-tag" style="color:#2563eb;margin-right:6px"></i>'+catName+'</span><span style="color:#111;font-weight:700">AED '+catTotals[catName].toFixed(2)+'</span></div>';
+  }
+  document.getElementById("categoryBreakdownList").innerHTML = catHtml || '<div style="font-size:12px;color:#6b7280;font-style:italic">No category data available yet.</div>';
+
+  // Monthly Donut Chart
+  var ctx = document.getElementById('monthlyDonutChart').getContext('2d');
+  if(monthlyChartInstance) monthlyChartInstance.destroy();
+  monthlyChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Paid', 'Share'],
+      datasets: [{
+        data: [myStat.pd || 1, myStat.sh || 1],
+        backgroundColor: ['#10b981', '#f59e0b'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      cutout: '70%'
+    }
+  });
+
+  document.getElementById("pby").innerHTML=users.map(function(u){var uN = u.firstName || u.name; return "<option value='"+uN+"' "+(uN==cName?"selected":"")+">"+uN+"</option>"}).join("");
+  document.getElementById("cbox").innerHTML=users.map(function(u){var uN = u.firstName || u.name; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' checked><span>"+uN+"</span></label>"}).join("");
   document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses recorded yet. Tap (+) in the dock to add one!</div>";
 
   document.getElementById("chatList").innerHTML=msgs.map(function(m){
-    var isMe = m.u === cur.name;
+    var isMe = m.u === cName;
     return "<div class='msg "+(isMe?"msg-me":"msg-other")+"'><div class='msg-meta'>"+m.u+" • "+m.tm+"</div><div>"+m.t+"</div></div>";
   }).join("");
 
   var admSec = document.getElementById("adminSection");
   if(cur.r=="admin"){
     admSec.className="";
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+u.name+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+(u.firstName || u.name)+" "+(u.lastName || "")+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | Role: "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
   } else {
     admSec.className="hide";
   }
