@@ -41,6 +41,7 @@ body{
 .wrap, .login-box, #loginFooter, #appBox { position: relative; z-index: 2; }
 
 .wrap{max-width:750px;margin:auto;padding:16px 14px 115px;width:100%}
+.wrap.chat-fullscreen-wrap{max-width:100%;padding:0;margin:0}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06);transition:background 0.25s,border-color 0.25s}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
 input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px}
@@ -63,6 +64,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   position:sticky;
   top:0;
   z-index:20;
+  height:62px;
 }
 .top-left-box { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
 .top-logo { width: 95px; height: auto; display: block; }
@@ -175,16 +177,33 @@ body.dark-page input, body.dark-page select {
   border-color: #334155;
   color: #f8fafc;
 }
-body.dark-page .cks, body.dark-page .chat-container, body.dark-page .prof-bal-box, body.dark-page .modal-content {
+body.dark-page .cks, body.dark-page .chat-container, body.dark-page .chat-sidebar, body.dark-page .prof-bal-box, body.dark-page .modal-content {
   background: #0f172a !important;
   border-color: #334155 !important;
   color: #f8fafc !important;
+}
+body.dark-page .chat-header-bar, body.dark-page .chat-input-bar {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+body.dark-page .chat-main-pane {
+  background: #0b1120 !important;
+}
+body.dark-page .chat-contact-item {
+  border-bottom-color: #1e293b !important;
+}
+body.dark-page .chat-contact-item:hover, body.dark-page .chat-contact-item.active {
+  background: #1e293b !important;
 }
 body.dark-page .ck { color: #cbd5e1; }
 body.dark-page .msg-other {
   background: #1e293b;
   color: #f8fafc;
   border-color: #334155;
+}
+body.dark-page .msg-me {
+  background: #1e3a8a;
+  color: #f8fafc;
 }
 body.dark-page .floating-dock {
   background: rgba(15, 23, 42, 0.45);
@@ -222,33 +241,46 @@ th{color:#111}
 .logo-svg{width:100%;max-width:340px;height:auto;margin:0 auto 6px;display:block}
 .footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:600}
 
-/* WhatsApp Style Chat UI Styles */
-.chat-container { display: flex; flex-direction: column; height: 420px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+/* Full-Screen WhatsApp Style Chat UI */
+#v4 { padding: 0; margin: 0; border: none; border-radius: 0; box-shadow: none; background: transparent; }
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 62px);
+  width: 100%;
+  background: #fff;
+  overflow: hidden;
+  padding-bottom: 96px;
+}
 .chat-sidebar { width: 100%; display: flex; flex-direction: column; height: 100%; background: #fff; }
-.chat-search { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+.chat-search { padding: 10px 14px; border-bottom: 1px solid #e5e7eb; }
 .chat-list-scroll { flex: 1; overflow-y: auto; }
-.chat-contact-item { display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border-bottom: 1px solid #f3f4f6; transition: background 0.2s; }
+.chat-contact-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; transition: background 0.2s; }
 .chat-contact-item:hover, .chat-contact-item.active { background: #f1f5f9; }
-.contact-avatar { width: 42px; height: 42px; border-radius: 50%; background: #1e3a8a; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; overflow: hidden; }
-.online-dot { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; background: #10b981; border: 2px solid #fff; border-radius: 50%; }
-.offline-dot { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; background: #9ca3af; border: 2px solid #fff; border-radius: 50%; }
+.contact-avatar { width: 44px; height: 44px; border-radius: 50%; background: #1e3a8a; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; overflow: visible; }
+.contact-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.online-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #10b981; border: 2px solid #fff; border-radius: 50%; z-index: 2; }
+.offline-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #9ca3af; border: 2px solid #fff; border-radius: 50%; z-index: 2; }
 
 .chat-main-pane { display: flex; flex-direction: column; height: 100%; background: #efeae2; }
 .chat-header-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f0f2f5; border-bottom: 1px solid #e2e8f0; }
 .chat-messages-scroll { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-.msg-bubble { max-width: 78%; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.chat-input-bar { display: flex; gap: 8px; padding: 10px 12px; background: #f0f2f5; border-top: 1px solid #e2e8f0; align-items: center; }
+.msg-bubble { max-width: 80%; padding: 10px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.45; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.08); user-select: none; }
 .msg-me { background: #d9fdd3; color: #111; align-self: flex-end; border-top-right-radius: 4px; }
 .msg-other { background: #fff; color: #111; align-self: flex-start; border-top-left-radius: 4px; }
-.msg-meta { font-size: 10px; color: #667781; margin-top: 2px; text-align: right; font-weight: 600; }
+.msg-system { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; align-self: flex-start; border-top-left-radius: 4px; }
+.msg-meta { font-size: 10px; color: #667781; margin-top: 4px; text-align: right; font-weight: 600; }
 .msg-reactions { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
 .reaction-pill { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 11px; cursor: pointer; }
+.readonly-notice { text-align: center; padding: 12px; font-size: 12px; font-weight: 600; color: #6b7280; background: #f8fafc; border-top: 1px solid #e2e8f0; }
 
 /* Context Menu Modal for Message Actions */
-.msg-action-menu { position: fixed; background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); padding: 8px; z-index: 10005; display: flex; flex-direction: column; gap: 4px; min-width: 160px; border: 1px solid #e5e7eb; }
-.msg-action-btn { background: none; border: none; padding: 8px 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.msg-action-menu { position: fixed; background: #fff; border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.22); padding: 8px; z-index: 10005; display: flex; flex-direction: column; gap: 4px; min-width: 170px; border: 1px solid #e5e7eb; }
+.msg-action-btn { background: none; border: none; padding: 8px 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .msg-action-btn:hover { background: #f3f4f6; }
 .emoji-picker-row { display: flex; gap: 6px; padding: 6px 8px; border-bottom: 1px solid #e5e7eb; margin-bottom: 4px; justify-content: space-around; }
-.emoji-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 2px; transition: transform 0.1s; }
+.emoji-btn { background: none; border: none; font-size: 19px; cursor: pointer; padding: 2px; transition: transform 0.1s; }
 .emoji-btn:hover { transform: scale(1.2); }
 
 .modal-overlay {
@@ -435,7 +467,7 @@ th{color:#111}
     </div>
   </div>
 
-  <div class="wrap">
+  <div id="mainWrap" class="wrap">
     <!-- TAB 1: HOME -->
     <div id="v1">
       <!-- WELCOME PROFILE CARD -->
@@ -533,47 +565,53 @@ th{color:#111}
       </form>
     </div>
 
-    <!-- TAB 4: CHAT SECTION (WHATSAPP STYLE 1-ON-1 & GROUP) -->
-    <div id="v4" class="card hide" style="padding:12px">
+    <!-- TAB 4: FULL-SCREEN CHAT SECTION -->
+    <div id="v4" class="hide">
       <div class="chat-container">
         <!-- CHAT SIDEBAR / CONTACTS LIST -->
         <div id="chatSidebar" class="chat-sidebar">
-          <div style="padding:12px 14px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
-            <h3 style="color:#111;font-size:16px">Chats</h3>
-            <span style="font-size:11px;color:#6b7280;background:#f3f4f6;padding:3px 8px;border-radius:10px" id="activeChatTitleLabel">Room 110</span>
+          <div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
+            <h3 style="color:#111;font-size:18px">Chats</h3>
+            <span style="font-size:11px;color:#1e3a8a;font-weight:700;background:#eff6ff;padding:4px 10px;border-radius:12px">Room 110</span>
           </div>
           <div class="chat-search">
-            <input id="chatSearchInput" placeholder="Search chats..." oninput="filterChatContacts()" style="padding:8px 12px;font-size:13px">
+            <input id="chatSearchInput" placeholder="Search members or group..." oninput="filterChatContacts()" style="padding:9px 14px;font-size:13px;border-radius:20px;background:#f8fafc">
           </div>
           <div id="chatContactsList" class="chat-list-scroll"></div>
         </div>
 
-        <!-- CHAT MAIN WINDOW (Initially hidden on mobile or shown when active) -->
+        <!-- CHAT MAIN WINDOW -->
         <div id="chatMainPane" class="chat-main-pane hide">
           <div class="chat-header-bar">
             <div style="display:flex;align-items:center;gap:10px">
-              <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:6px 10px" onclick="backToChatList()">
+              <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:7px 11px" onclick="backToChatList()">
                 <i class="fa-solid fa-arrow-left"></i>
               </button>
-              <div id="activeChatAvatar" class="contact-avatar" style="width:36px;height:36px;font-size:14px">R</div>
+              <div id="activeChatAvatar" class="contact-avatar" style="width:38px;height:38px;font-size:15px">R</div>
               <div>
-                <div id="activeChatName" style="font-size:14px;font-weight:700;color:#111">Room 110</div>
+                <div id="activeChatName" style="font-size:15px;font-weight:700;color:#111">Room 110</div>
                 <div id="activeChatStatus" style="font-size:11px;color:#6b7280">Online</div>
               </div>
             </div>
-            <div>
-              <span id="activeChatBadge" style="font-size:10px;background:#d1fae5;color:#059669;padding:3px 8px;border-radius:10px;font-weight:700">Group</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button id="sendReminderBtn" class="btn btn-s hide" style="background:#d97706;color:#fff;font-size:11px;padding:6px 10px" onclick="broadcastStatementReminder()" title="Send Payment Statement Reminder">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Remind
+              </button>
+              <span id="activeChatBadge" style="font-size:10px;background:#d1fae5;color:#059669;padding:4px 9px;border-radius:10px;font-weight:700">Group</span>
             </div>
           </div>
           
           <div id="chatMessagesScroll" class="chat-messages-scroll"></div>
 
-          <form onsubmit="sendActiveChatMsg(event)" style="display:flex;gap:6px;padding:8px;background:#f0f2f5;border-top:1px solid #e2e8f0;align-items:center">
-            <input id="activeChatInput" placeholder="Type a message..." required style="margin:0;flex:1;padding:10px 12px;background:#fff;border-radius:20px;border:1px solid #d1d5db;font-size:13px">
-            <button class="btn btn-s" style="background:#00a884;color:#fff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:0">
-              <i class="fa-solid fa-paper-plane" style="font-size:14px"></i>
+          <form id="chatInputForm" onsubmit="sendActiveChatMsg(event)" class="chat-input-bar">
+            <input id="activeChatInput" placeholder="Type a message..." required style="margin:0;flex:1;padding:10px 14px;background:#fff;border-radius:22px;border:1px solid #d1d5db;font-size:13.5px">
+            <button class="btn btn-s" style="background:#00a884;color:#fff;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">
+              <i class="fa-solid fa-paper-plane" style="font-size:15px"></i>
             </button>
           </form>
+          <div id="chatReadOnlyNotice" class="readonly-notice hide">
+            <i class="fa-solid fa-lock" style="margin-right:4px"></i> Only Super Admin can post announcements &amp; statement reminders here.
+          </div>
         </div>
       </div>
     </div>
@@ -741,7 +779,7 @@ th{color:#111}
     </button>
     <button id="d4" class="dock-item" onclick="tab(4)" title="Chat">
       <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-      <span class="dock-dot"></span>
+      <span id="chatDockDot" class="dock-dot"></span>
     </button>
     <button id="d5" class="dock-item" onclick="tab(5)" title="Profile">
       <div id="dockAvatarContainer" class="dock-avatar"><span id="dockInitial">S</span></div>
@@ -785,7 +823,7 @@ function setRandomBackground() {
 }
 setRandomBackground();
 
-var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:""}];
+var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:"",lastActive:Date.now()}];
 var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [];
 var categories = JSON.parse(localStorage.getItem("r110_cat")||"null") || ["Groceries", "Cinema", "Utilities", "Gas", "Maintenance", "Food"];
@@ -801,24 +839,125 @@ var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null;
 
-// Active Chat Session state: "group_room110" or username for direct chat
+// Active Chat Session state: "group_room110", "superadmin_channel", or member name
 var activeChatTarget = "group_room110";
+var longPressTimer = null;
 
-// Super Admin Automated Welcome Message check
+// Heartbeat to update current user's real active timestamp
+function pingUserActivity(shouldSave) {
+  if(!cur) return;
+  var now = Date.now();
+  cur.lastActive = now;
+  var idx = users.findIndex(function(x){ return x.u === cur.u; });
+  if(idx > -1) {
+    users[idx].lastActive = now;
+  }
+  localStorage.setItem("r110_u", JSON.stringify(users));
+  localStorage.setItem("r110_saved_user", JSON.stringify(cur));
+  if(shouldSave) save();
+}
+setInterval(function(){ pingUserActivity(false); }, 60000);
+
+function getOnlineStatusInfo(userObj) {
+  if(!userObj || !userObj.lastActive) {
+    return { isOnline: false, text: "Offline" };
+  }
+  var diffMs = Date.now() - Number(userObj.lastActive);
+  // Active within last 5 minutes (300,000 ms)
+  if(diffMs <= 300000) {
+    return { isOnline: true, text: "Online" };
+  }
+  var d = new Date(Number(userObj.lastActive));
+  var today = new Date();
+  var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if(d.toDateString() === today.toDateString()) {
+    return { isOnline: false, text: "Last seen today at " + timeStr };
+  }
+  return { isOnline: false, text: "Last seen " + d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + " at " + timeStr };
+}
+
+// Super Admin Automated Welcome Message Initialization
 function checkSuperAdminWelcome() {
-  var hasWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "group_room110"; });
-  if(!hasWelcome) {
+  var hasGroupWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "group_room110"; });
+  var hasAdminWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "superadmin_channel"; });
+  var changed = false;
+
+  if(!hasGroupWelcome) {
     msgs.unshift({
-      id: Date.now(),
-      sender: "Shyam",
+      id: 100001,
+      sender: "Super Admin",
       target: "group_room110",
-      text: "👋 Welcome everyone to Room 110 official community chat! Feel free to discuss daily menu, groceries, and expenses here.",
-      timestamp: "Today",
-      timeEpoch: Date.now(),
+      text: "👋 Welcome to Room 110! All registered room members are automatically added here. Please keep mess receipts updated on time.",
+      timestamp: "System",
+      timeEpoch: Date.now() - 1000000,
       isWelcome: true,
+      isSystem: true,
       reactions: {}
     });
-    save();
+    changed = true;
+  }
+
+  if(!hasAdminWelcome) {
+    msgs.unshift({
+      id: 100002,
+      sender: "Super Admin",
+      target: "superadmin_channel",
+      text: "📢 Official Room 110 Admin Channel: Welcome! Monthly statement summaries, rent notices, and payment reminders will be posted here by the Super Admin.",
+      timestamp: "System",
+      timeEpoch: Date.now() - 1000000,
+      isWelcome: true,
+      isSystem: true,
+      reactions: {}
+    });
+    changed = true;
+  }
+
+  if(changed) {
+    localStorage.setItem("r110_m", JSON.stringify(msgs));
+  }
+}
+
+function broadcastStatementReminder() {
+  if(!cur || cur.r !== 'admin') return;
+  var s = stats();
+  var reminderText = "📊 *MONTHLY STATEMENT & PAYMENT REMINDER*\nTotal Room Spend: AED " + s.tot.toFixed(2) + "\n";
+  s.st.forEach(function(m){
+    if(m.net < 0) {
+      reminderText += "• " + m.name + ": Please settle AED " + Math.abs(m.net).toFixed(2) + "\n";
+    } else if(m.net > 0) {
+      reminderText += "• " + m.name + ": To receive +AED " + m.net.toFixed(2) + "\n";
+    }
+  });
+  reminderText += "Kindly clear dues promptly!";
+
+  var now = new Date();
+  var tm = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
+
+  msgs.push({
+    id: Date.now(),
+    sender: "Super Admin",
+    target: activeChatTarget,
+    text: reminderText.replace(/\n/g, "<br>"),
+    timestamp: tm,
+    timeEpoch: Date.now(),
+    isSystem: true,
+    reactions: {}
+  });
+
+  save();
+  renderChatMessages();
+  triggerPushNotification("Room 110 Statement Reminder", "Super Admin sent a payment statement reminder.");
+}
+
+function triggerPushNotification(title, bodyText) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    new Notification(title, { body: bodyText, icon: "logo.png" });
+  }
+}
+
+function requestNotificationPermission() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
   }
 }
 
@@ -855,8 +994,15 @@ function loadCloudData(){
         localStorage.setItem("r110_e", JSON.stringify(exps));
       }
       if(data && data.msgs && data.msgs.length) {
+        var prevCount = msgs.length;
         msgs = data.msgs;
         localStorage.setItem("r110_m", JSON.stringify(msgs));
+        if(msgs.length > prevCount && cur) {
+          var latest = msgs[msgs.length - 1];
+          if(latest && latest.sender !== (cur.firstName || cur.name)) {
+            triggerPushNotification("New message from " + latest.sender, latest.text.replace(/<br>/g, " "));
+          }
+        }
       }
       if(data && data.categories) {
         categories = data.categories;
@@ -870,6 +1016,7 @@ function loadCloudData(){
         var fresh = users.find(function(x){ return x.u === cur.u; });
         if(fresh) {
           cur = fresh;
+          cur.lastActive = Date.now();
           localStorage.setItem("r110_saved_user", JSON.stringify(cur));
         }
       }
@@ -923,6 +1070,7 @@ function toggleTheme(){
 }
 
 function save(){
+  pingUserActivity(false);
   localStorage.setItem("r110_u", JSON.stringify(users));
   localStorage.setItem("r110_e", JSON.stringify(exps));
   localStorage.setItem("r110_m", JSON.stringify(msgs));
@@ -956,10 +1104,13 @@ function login(e){
       cur.firstName = cur.name || "Shyam";
       cur.lastName = cur.lastName || "Sathyan";
     }
+    cur.lastActive = Date.now();
     if(document.getElementById("keepMe").checked){
       localStorage.setItem("r110_saved_user", JSON.stringify(cur));
     }
+    requestNotificationPermission();
     openDashboard();
+    save();
   }
   else document.getElementById("err").innerText="Invalid User ID or Password";
 }
@@ -974,6 +1125,7 @@ function openDashboard(){
   applyTheme();
   updateDateTime();
   checkSuperAdminWelcome();
+  pingUserActivity(false);
   tab(1);
 }
 
@@ -990,11 +1142,19 @@ function logout(){
 }
 
 function tab(n){
+  var mainWrap = document.getElementById("mainWrap");
+  if(n == 4) {
+    mainWrap.className = "wrap chat-fullscreen-wrap";
+    requestNotificationPermission();
+  } else {
+    mainWrap.className = "wrap";
+  }
+
   for(var i=1;i<=5;i++){
     document.getElementById("d"+i).className = "dock-item" + (i==n ? " active" : "");
     var v = document.getElementById("v"+i);
     if(i==n){
-      v.className = (i==3 || i==4) ? "card" : "";
+      v.className = (i==3) ? "card" : "";
       if(i==5) {
         document.getElementById("editFirstName").value = cur.firstName || cur.name || "";
         document.getElementById("editLastName").value = cur.lastName || "";
@@ -1026,10 +1186,9 @@ function closeModals() {
   document.getElementById("serviceManagerModal").className = "modal-overlay hide";
 }
 
-/* CHAT FUNCTIONS (WHATSAPP STYLE) */
+/* CHAT FUNCTIONS (FULL-SCREEN WHATSAPP STYLE) */
 function selectChatTarget(target) {
   activeChatTarget = target;
-  // On mobile, hide sidebar and show main pane
   document.getElementById("chatSidebar").style.display = "none";
   document.getElementById("chatMainPane").className = "chat-main-pane";
   renderChatActivePane();
@@ -1038,6 +1197,7 @@ function selectChatTarget(target) {
 function backToChatList() {
   document.getElementById("chatSidebar").style.display = "flex";
   document.getElementById("chatMainPane").className = "chat-main-pane hide";
+  renderChatContactsList();
 }
 
 function filterChatContacts() {
@@ -1051,26 +1211,34 @@ function renderChatContactsList() {
 
   var html = '';
 
-  // 1. Group Chat Item (Room 110)
-  if("room 110".includes(filter)) {
-    html += '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget(\'group_room110\')">';
-    html += '<div class="contact-avatar" style="background:#1e3a8a"><i class="fa-solid fa-users"></i></div>';
-    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">Room 110</div><div style="font-size:11px;color:#6b7280">Official group chat for all members</div></div>';
+  // 1. Super Admin Official Announcements & Statement Reminders Channel
+  if("super admin room 110 announcements statements".includes(filter)) {
+    html += '<div class="chat-contact-item '+(activeChatTarget==='superadmin_channel'?'active':'')+'" onclick="selectChatTarget(\'superadmin_channel\')">';
+    html += '<div class="contact-avatar" style="background:#d97706"><i class="fa-solid fa-bullhorn"></i><span class="online-dot"></span></div>';
+    html += '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:14px;color:#111">Super Admin</span><span style="font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700">Official</span></div><div style="font-size:11px;color:#6b7280">Welcome notices &amp; payment reminders</div></div>';
     html += '</div>';
   }
 
-  // 2. Individual Members List
+  // 2. Default Group Chat Item (Room 110)
+  if("room 110".includes(filter)) {
+    html += '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget(\'group_room110\')">';
+    html += '<div class="contact-avatar" style="background:#1e3a8a"><i class="fa-solid fa-users"></i></div>';
+    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">Room 110</div><div style="font-size:11px;color:#6b7280">Group • ' + users.length + ' members</div></div>';
+    html += '</div>';
+  }
+
+  // 3. Individual Members List (Direct 1-on-1 Chats with real online status)
   users.forEach(function(u){
     var uName = u.firstName || u.name;
     if(uName === cName) return; // skip self
     if(!uName.toLowerCase().includes(filter)) return;
 
-    var isOnline = Math.random() > 0.3; // simulated online status
-    var lastSeenText = isOnline ? "Online" : "Last seen recently";
+    var statusInfo = getOnlineStatusInfo(u);
+    var avHtml = u.avatar ? '<img src="'+u.avatar+'">' : uName.charAt(0).toUpperCase();
 
     html += '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(\''+uName+'\')">';
-    html += '<div class="contact-avatar">'+uName.charAt(0).toUpperCase()+'<span class="'+(isOnline?'online-dot':'offline-dot')+'"></span></div>';
-    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+uName+'</div><div style="font-size:11px;color:#6b7280">'+lastSeenText+'</div></div>';
+    html += '<div class="contact-avatar">'+avHtml+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
+    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+uName+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+'">'+statusInfo.text+'</div></div>';
     html += '</div>';
   });
 
@@ -1083,18 +1251,49 @@ function renderChatActivePane() {
   var statusEl = document.getElementById("activeChatStatus");
   var avatarEl = document.getElementById("activeChatAvatar");
   var badgeEl = document.getElementById("activeChatBadge");
+  var reminderBtn = document.getElementById("sendReminderBtn");
+  var inputForm = document.getElementById("chatInputForm");
+  var readOnlyNotice = document.getElementById("chatReadOnlyNotice");
 
-  if(activeChatTarget === 'group_room110') {
+  // Default visibility for input vs read-only
+  inputForm.className = "chat-input-bar";
+  readOnlyNotice.className = "readonly-notice hide";
+  if(cur && cur.r === 'admin') {
+    reminderBtn.className = "btn btn-s";
+  } else {
+    reminderBtn.className = "btn btn-s hide";
+  }
+
+  if(activeChatTarget === 'superadmin_channel') {
+    nameEl.innerText = "Super Admin";
+    statusEl.innerText = "Official Announcements & Statements";
+    avatarEl.style.background = "#d97706";
+    avatarEl.innerHTML = '<i class="fa-solid fa-bullhorn"></i><span class="online-dot"></span>';
+    badgeEl.innerText = "Admin";
+    badgeEl.style.background = "#fef3c7";
+    badgeEl.style.color = "#92400e";
+
+    // Regular users cannot send messages to the Super Admin announcement channel
+    if(cur.r !== 'admin') {
+      inputForm.className = "chat-input-bar hide";
+      readOnlyNotice.className = "readonly-notice";
+    }
+  } else if(activeChatTarget === 'group_room110') {
     nameEl.innerText = "Room 110";
     statusEl.innerText = users.length + " members in group";
+    avatarEl.style.background = "#1e3a8a";
     avatarEl.innerHTML = '<i class="fa-solid fa-users"></i>';
     badgeEl.innerText = "Group";
     badgeEl.style.background = "#d1fae5";
     badgeEl.style.color = "#059669";
   } else {
+    var targetUser = users.find(function(x){ return (x.firstName || x.name) === activeChatTarget; });
+    var statusInfo = getOnlineStatusInfo(targetUser);
     nameEl.innerText = activeChatTarget;
-    statusEl.innerText = "Online";
-    avatarEl.innerHTML = activeChatTarget.charAt(0).toUpperCase() + '<span class="online-dot"></span>';
+    statusEl.innerText = statusInfo.text;
+    avatarEl.style.background = "#1e3a8a";
+    var avInner = (targetUser && targetUser.avatar) ? '<img src="'+targetUser.avatar+'">' : activeChatTarget.charAt(0).toUpperCase();
+    avatarEl.innerHTML = avInner + '<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span>';
     badgeEl.innerText = "Direct";
     badgeEl.style.background = "#e0f2fe";
     badgeEl.style.color = "#0284c7";
@@ -1108,7 +1307,9 @@ function renderChatMessages() {
   var cName = cur.firstName || cur.name;
 
   var targetMsgs = msgs.filter(function(m){
-    if(activeChatTarget === 'group_room110') {
+    if(activeChatTarget === 'superadmin_channel') {
+      return m.target === 'superadmin_channel';
+    } else if(activeChatTarget === 'group_room110') {
       return m.target === 'group_room110' || !m.target;
     } else {
       return (m.target === activeChatTarget && m.sender === cName) || (m.target === cName && m.sender === activeChatTarget);
@@ -1117,17 +1318,29 @@ function renderChatMessages() {
 
   scrollContainer.innerHTML = targetMsgs.map(function(m){
     var isMe = m.sender === cName;
+    var bubbleClass = m.isSystem ? 'msg-system' : (isMe ? 'msg-me' : 'msg-other');
     var reactionsHtml = '';
     if(m.reactions) {
       for(var emoji in m.reactions) {
-        reactionsHtml += '<span class="reaction-pill">'+emoji+' '+m.reactions[emoji].length+'</span>';
+        reactionsHtml += '<span class="reaction-pill" onclick="reactToMessage(\''+m.id+'\', \''+emoji+'\')">'+emoji+' '+m.reactions[emoji].length+'</span>';
       }
     }
 
-    return '<div class="msg-bubble '+(isMe?'msg-me':'msg-other')+'" oncontextmenu="openMsgMenu(event, \''+m.id+'\', '+isMe+')" onclick="openMsgMenu(event, \''+m.id+'\', '+isMe+')">' +
-           (activeChatTarget === 'group_room110' && !isMe ? '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+m.sender+'</div>' : '') +
+    var senderHeader = '';
+    if(m.isSystem) {
+      senderHeader = '<div style="font-size:10px;font-weight:800;color:#b45309;margin-bottom:3px"><i class="fa-solid fa-shield-halved"></i> Super Admin</div>';
+    } else if(activeChatTarget === 'group_room110' && !isMe) {
+      senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+m.sender+'</div>';
+    }
+
+    return '<div class="msg-bubble '+bubbleClass+'" ' +
+           'oncontextmenu="openMsgMenu(event, \''+m.id+'\', '+isMe+')" ' +
+           'ontouchstart="startMsgLongPress(event, \''+m.id+'\', '+isMe+')" ' +
+           'ontouchend="cancelMsgLongPress()" ' +
+           'ontouchmove="cancelMsgLongPress()">' +
+           senderHeader +
            '<div>'+m.text+'</div>' +
-           '<div class="msg-meta">'+m.timestamp+'</div>' +
+           '<div class="msg-meta">'+(m.edited ? '(edited) ' : '')+m.timestamp+'</div>' +
            (reactionsHtml ? '<div class="msg-reactions">'+reactionsHtml+'</div>' : '') +
            '</div>';
   }).join('') || '<div style="text-align:center;color:#667781;font-size:12px;margin-top:20px">No messages yet. Say hello!</div>';
@@ -1135,22 +1348,44 @@ function renderChatMessages() {
   scrollContainer.scrollTop = scrollContainer.scrollHeight;
 }
 
+function startMsgLongPress(e, msgId, isMe) {
+  cancelMsgLongPress();
+  var touch = e.touches[0];
+  var clientX = touch.clientX;
+  var clientY = touch.clientY;
+  longPressTimer = setTimeout(function(){
+    openMsgMenu({ preventDefault: function(){}, clientX: clientX, clientY: clientY }, msgId, isMe);
+  }, 500);
+}
+
+function cancelMsgLongPress() {
+  if(longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+}
+
 function sendActiveChatMsg(e) {
   e.preventDefault();
+  if(activeChatTarget === 'superadmin_channel' && cur.r !== 'admin') {
+    return alert("Only Super Admin can send messages here.");
+  }
   var input = document.getElementById("activeChatInput");
   var txt = input.value.trim();
   if(!txt) return;
 
   var now = new Date();
   var tm = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
+  var isSuperAdminPost = (activeChatTarget === 'superadmin_channel' && cur.r === 'admin');
   
   var newMsg = {
     id: Date.now(),
-    sender: cur.firstName || cur.name,
+    sender: isSuperAdminPost ? "Super Admin" : (cur.firstName || cur.name),
     target: activeChatTarget,
     text: txt,
     timestamp: tm,
     timeEpoch: Date.now(),
+    isSystem: isSuperAdminPost,
     reactions: {}
   };
 
@@ -1160,9 +1395,9 @@ function sendActiveChatMsg(e) {
   renderChatMessages();
 }
 
-/* PRESS AND HOLD / CLICK CONTEXT MENU FOR MESSAGES (EDIT, DELETE WITHIN 5 MINS, EMOJI REACTIONS) */
+/* PRESS AND HOLD CONTEXT MENU FOR MESSAGES (EDIT, DELETE WITHIN 5 MINS, EMOJI REACTIONS) */
 function openMsgMenu(e, msgId, isMe) {
-  e.preventDefault();
+  if(e && e.preventDefault) e.preventDefault();
   var existing = document.getElementById("activeMsgMenu");
   if(existing) existing.remove();
 
@@ -1170,13 +1405,15 @@ function openMsgMenu(e, msgId, isMe) {
   if(!msg) return;
 
   var nowEpoch = Date.now();
-  var canDeleteOrEdit = isMe && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000); // 5 mins = 300,000 ms
+  var canDeleteOrEdit = (isMe || (cur && cur.r === 'admin' && msg.isSystem)) && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000); // 5 mins = 300,000 ms
 
   var menu = document.createElement("div");
   menu.id = "activeMsgMenu";
   menu.className = "msg-action-menu";
-  menu.style.top = Math.min(e.clientY, window.innerHeight - 200) + "px";
-  menu.style.left = Math.min(e.clientX, window.innerWidth - 180) + "px";
+  var posX = e.clientX || (window.innerWidth / 2 - 85);
+  var posY = e.clientY || (window.innerHeight / 2 - 60);
+  menu.style.top = Math.max(10, Math.min(posY, window.innerHeight - 190)) + "px";
+  menu.style.left = Math.max(10, Math.min(posX, window.innerWidth - 185)) + "px";
 
   // Emoji Reaction Picker Row
   var emojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
@@ -1187,7 +1424,7 @@ function openMsgMenu(e, msgId, isMe) {
   emojiRow += '</div>';
 
   var actionButtons = emojiRow;
-  if(canDeleteOrEdit) {
+  if(canDeleteOrEdit && !msg.isWelcome) {
     actionButtons += '<button class="msg-action-btn" onclick="promptEditMessage(\''+msgId+'\')"><i class="fa-solid fa-pen"></i> Edit Message</button>';
     actionButtons += '<button class="msg-action-btn" style="color:#dc2626" onclick="deleteMessage(\''+msgId+'\')"><i class="fa-solid fa-trash"></i> Delete (< 5m)</button>';
   }
@@ -1231,9 +1468,10 @@ function reactToMessage(msgId, emoji) {
 function promptEditMessage(msgId) {
   var msg = msgs.find(function(m){ return m.id == msgId; });
   if(!msg) return;
-  var newText = prompt("Edit your message:", msg.text);
+  var newText = prompt("Edit your message:", msg.text.replace(/<br>/g, "\n"));
   if(newText !== null && newText.trim() !== "") {
-    msg.text = newText.trim();
+    msg.text = newText.trim().replace(/\n/g, "<br>");
+    msg.edited = true;
     save();
     renderChatMessages();
   }
@@ -1259,8 +1497,6 @@ function openServiceManager(type) {
   }
   var modal = document.getElementById("serviceManagerModal");
   var title = document.getElementById("serviceManagerTitle");
-  var body = document.getElementById("serviceManagerBody");
-  var formContainer = document.getElementById("serviceManagerFormContainer");
   modal.className = "modal-overlay";
 
   if(type === 'categories') {
@@ -1279,7 +1515,7 @@ function renderCategoryManagerContent() {
   var body = document.getElementById("serviceManagerBody");
   var formContainer = document.getElementById("serviceManagerFormContainer");
   
-  body.innerHTML = categories.map(function(c, idx){
+  body.innerHTML = categories.map(function(c){
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+c+'\')">Delete</button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
 
@@ -1306,7 +1542,7 @@ function renderGroupManagerContent() {
   var body = document.getElementById("serviceManagerBody");
   var formContainer = document.getElementById("serviceManagerFormContainer");
 
-  body.innerHTML = groups.map(function(g, idx){
+  body.innerHTML = groups.map(function(g){
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+g+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup(\''+g+'\')">Delete</button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No groups found.</div>';
 
@@ -1363,7 +1599,7 @@ function addU(e){
   var p=document.getElementById("npass").value.trim();
   var r=document.getElementById("nrole").value;
   if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
-  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:""});
+  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0});
   document.getElementById("nFname").value="";
   document.getElementById("nLname").value="";
   document.getElementById("nid").value="";
