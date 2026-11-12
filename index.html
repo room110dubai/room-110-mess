@@ -40,8 +40,8 @@
         .sync-blinking {
             animation: pulse-slow 1.2s infinite ease-in-out;
         }
-        /* Authentic Apple Liquid Glass Dock */
-        .apple-liquid-dock {
+        /* Authentic Apple Liquid Glass Bottom Dock */
+        .apple-liquid-glass {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
@@ -55,29 +55,25 @@
     <!-- TOP HEADER -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
         <div>
-            <!-- Restored Original Top-Left Logo Design -->
+            <!-- Exact Original Logo Markup -->
             <div class="flex items-center space-x-1.5">
                 <span class="font-bold text-xl tracking-tight text-blue-900">Room</span>
                 <div class="bg-blue-900 text-white px-1.5 py-0.5 rounded text-xs font-black flex items-center shadow-xs">
                     <i class="fa-solid fa-building text-[10px] mr-0.5"></i>110
                 </div>
             </div>
-            <!-- Live Date and Time -->
             <div id="liveDateTime" class="text-xs font-medium text-slate-500 mt-0.5">Loading date & time...</div>
         </div>
 
         <div class="flex items-center space-x-3">
-            <!-- Cloud Status Indicator Dot -->
             <button id="cloudStatusBtn" onclick="manualCloudSync()" class="relative group p-2 rounded-full hover:bg-slate-100 transition-all cursor-pointer" title="Cloud Status (Tap to Sync)">
                 <span id="cloudDot" class="block w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm transition-all"></span>
             </button>
 
-            <!-- WhatsApp Group Link -->
             <a href="https://chat.whatsapp.com/J1xMhG9p5rY5W4s3K2L1" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md hover:bg-emerald-600 transition-transform active:scale-95">
                 <i class="fa-brands fa-whatsapp text-lg"></i>
             </a>
 
-            <!-- Working Logout Button -->
             <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition-transform active:scale-95 shadow-xs cursor-pointer" title="Logout">
                 <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
             </button>
@@ -93,20 +89,16 @@
             <!-- WELCOME PROFILE CARD -->
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between relative overflow-hidden">
                 <div class="flex items-center space-x-3">
-                    <!-- Profile Photo with Blue Border & Top-Right Active Green Dot -->
                     <div class="relative inline-block shrink-0">
                         <img src="logo.png" alt="Profile" class="w-12 h-12 rounded-full object-cover border-2 border-blue-900 shadow-xs">
                         <span class="absolute top-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
                     </div>
                     <div>
-                        <!-- Row 1: Greeting + First Name -->
                         <h2 id="welcomeGreeting" class="text-base font-bold text-slate-900 leading-tight">Good evening, Shyam</h2>
-                        <!-- Row 2: Welcome Back -->
                         <p class="text-xs text-slate-500 font-medium mt-0.5">Welcome back,</p>
                     </div>
                 </div>
 
-                <!-- Right Corner: Live Dubai Temp -->
                 <div class="text-right shrink-0">
                     <div id="dubaiTemp" class="text-xl font-black text-slate-800 tracking-tight">28°C <span class="text-amber-400 font-normal">☀️</span></div>
                     <div class="text-[10px] text-slate-400 font-semibold tracking-wide uppercase">Dubai</div>
@@ -121,7 +113,6 @@
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4 items-center">
-                    <!-- Left: Numerical Breakdown -->
                     <div class="space-y-2.5">
                         <div>
                             <p class="text-[11px] font-bold text-slate-400 uppercase">Purchases (Paid)</p>
@@ -136,8 +127,6 @@
                             <p id="dashNet" class="text-sm font-extrabold text-rose-600">-AED 12.50</p>
                         </div>
                     </div>
-
-                    <!-- Right: Donut Chart -->
                     <div class="relative h-28 flex items-center justify-center">
                         <canvas id="monthlyChart"></canvas>
                     </div>
@@ -197,7 +186,7 @@
             </div>
         </div>
 
-        <!-- TAB 2: LEDGER / TRANSACTIONS VIEW -->
+        <!-- TAB 2: LEDGER -->
         <div id="view-ledger" class="space-y-4 hidden">
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
                 <div class="flex justify-between items-center mb-3">
@@ -218,7 +207,7 @@
             </div>
         </div>
 
-        <!-- TAB 3: CHAT VIEW -->
+        <!-- TAB 3: CHAT -->
         <div id="view-chat" class="space-y-4 hidden">
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col h-[75vh]">
                 <div class="border-b border-slate-100 pb-2 mb-3 flex items-center justify-between">
@@ -240,10 +229,8 @@
             </div>
         </div>
 
-        <!-- TAB 4: PROFILE & SETTINGS VIEW -->
+        <!-- TAB 4: PROFILE & SETTINGS -->
         <div id="view-profile" class="space-y-4 hidden">
-            
-            <!-- MY PROFILE CARD WITH EDIT USER DETAILS -->
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">My Profile</h3>
@@ -261,7 +248,7 @@
                 </div>
             </div>
 
-            <!-- EMERGENCY CONTACTS CARD -->
+            <!-- EMERGENCY CONTACTS -->
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Emergency Contacts</h3>
@@ -275,17 +262,10 @@
                         </div>
                         <a href="tel:+971501234567" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 shadow-xs"><i class="fa-solid fa-phone text-xs"></i></a>
                     </div>
-                    <div class="flex items-center justify-between py-1.5 border-b border-slate-50">
-                        <div>
-                            <p class="text-xs font-bold text-slate-800">Groceries Shop</p>
-                            <p class="text-[10px] text-slate-400 font-medium">+971509876543</p>
-                        </div>
-                        <a href="tel:+971509876543" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 shadow-xs"><i class="fa-solid fa-phone text-xs"></i></a>
-                    </div>
                 </div>
             </div>
 
-            <!-- MEMBERS MANAGEMENT (ADMIN ONLY) -->
+            <!-- MEMBERS -->
             <div id="adminMembersSection" class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Manage Members</h3>
@@ -301,7 +281,7 @@
                 </div>
             </div>
 
-            <!-- SERVICES MANAGEMENT (ADMIN CONTROLS) -->
+            <!-- SERVICES -->
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Services & Admin Controls</h3>
@@ -323,7 +303,7 @@
                 </div>
             </div>
 
-            <!-- APPEARANCE / DARK MODE -->
+            <!-- APPEARANCE -->
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between">
                 <div>
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Appearance</h4>
@@ -333,13 +313,12 @@
                     <div id="darkModeKnob" class="w-4 h-4 bg-white rounded-full shadow-md transition-transform"></div>
                 </button>
             </div>
-
         </div>
 
     </main>
 
     <!-- APPLE LIQUID GLASS BOTTOM NAVIGATION BAR -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto apple-liquid-dock px-6 py-2.5 flex items-center justify-between z-40">
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto apple-liquid-glass px-6 py-2.5 flex items-center justify-between z-40">
         <button onclick="switchTab('home')" class="nav-btn flex flex-col items-center text-blue-900 transition-all cursor-pointer" data-tab="home">
             <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center transition-all">
                 <i class="fa-solid fa-house text-sm"></i>
@@ -397,7 +376,6 @@
         </div>
     </div>
 
-    <!-- ADD MEMBER MODAL -->
     <div id="addMemberModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -421,7 +399,6 @@
         </div>
     </div>
 
-    <!-- SERVICES MODAL -->
     <div id="serviceModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
@@ -433,7 +410,6 @@
         </div>
     </div>
 
-    <!-- TRANSACTION MODAL -->
     <div id="transactionModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -875,7 +851,6 @@
             }
         }
 
-        // Fully functional logout
         function handleLogout() {
             if (confirm("Are you sure you want to log out of Room 110?")) {
                 localStorage.clear();
