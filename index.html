@@ -41,7 +41,7 @@ body{
 .wrap, .login-box, #loginFooter, #appBox { position: relative; z-index: 2; }
 
 .wrap{max-width:750px;margin:auto;padding:16px 14px 115px;width:100%}
-.wrap.chat-fullscreen-wrap{max-width:100%;padding:0;margin:0}
+.wrap.chat-fullscreen-wrap{padding:0;max-width:100%;height:calc(100vh - 61px)}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06);transition:background 0.25s,border-color 0.25s}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
 input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px}
@@ -64,7 +64,6 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
   position:sticky;
   top:0;
   z-index:20;
-  height:62px;
 }
 .top-left-box { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
 .top-logo { width: 95px; height: auto; display: block; }
@@ -202,7 +201,7 @@ body.dark-page .msg-other {
   border-color: #334155;
 }
 body.dark-page .msg-me {
-  background: #1e3a8a;
+  background: #005c4b;
   color: #f8fafc;
 }
 body.dark-page .floating-dock {
@@ -241,47 +240,69 @@ th{color:#111}
 .logo-svg{width:100%;max-width:340px;height:auto;margin:0 auto 6px;display:block}
 .footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:600}
 
-/* Full-Screen WhatsApp Style Chat UI */
-#v4 { padding: 0; margin: 0; border: none; border-radius: 0; box-shadow: none; background: transparent; }
+/* Full-Screen WhatsApp Style Chat UI Styles */
+#v4.fullscreen-chat {
+  width: 100%;
+  height: calc(100vh - 61px);
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+}
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 62px);
-  width: 100%;
-  background: #fff;
+  flex: 1;
+  height: 100%;
+  background: #f8fafc;
   overflow: hidden;
-  padding-bottom: 96px;
 }
-.chat-sidebar { width: 100%; display: flex; flex-direction: column; height: 100%; background: #fff; }
+.chat-sidebar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  padding-bottom: 92px;
+}
 .chat-search { padding: 10px 14px; border-bottom: 1px solid #e5e7eb; }
 .chat-list-scroll { flex: 1; overflow-y: auto; }
 .chat-contact-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; border-bottom: 1px solid #f3f4f6; transition: background 0.2s; }
 .chat-contact-item:hover, .chat-contact-item.active { background: #f1f5f9; }
 .contact-avatar { width: 44px; height: 44px; border-radius: 50%; background: #1e3a8a; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; overflow: visible; }
-.contact-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.online-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #10b981; border: 2px solid #fff; border-radius: 50%; z-index: 2; }
-.offline-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background: #9ca3af; border: 2px solid #fff; border-radius: 50%; z-index: 2; }
+.contact-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.online-dot { position: absolute; bottom: 1px; right: 1px; width: 11px; height: 11px; background: #10b981; border: 2px solid #fff; border-radius: 50%; }
+.offline-dot { position: absolute; bottom: 1px; right: 1px; width: 11px; height: 11px; background: #9ca3af; border: 2px solid #fff; border-radius: 50%; }
 
-.chat-main-pane { display: flex; flex-direction: column; height: 100%; background: #efeae2; }
+.chat-main-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #efeae2;
+  padding-bottom: 96px;
+}
 .chat-header-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f0f2f5; border-bottom: 1px solid #e2e8f0; }
 .chat-messages-scroll { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
 .chat-input-bar { display: flex; gap: 8px; padding: 10px 12px; background: #f0f2f5; border-top: 1px solid #e2e8f0; align-items: center; }
-.msg-bubble { max-width: 80%; padding: 10px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.45; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.08); user-select: none; }
+
+.msg-bubble { max-width: 80%; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); user-select: none; -webkit-user-select: none; cursor: pointer; }
 .msg-me { background: #d9fdd3; color: #111; align-self: flex-end; border-top-right-radius: 4px; }
 .msg-other { background: #fff; color: #111; align-self: flex-start; border-top-left-radius: 4px; }
-.msg-system { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; align-self: flex-start; border-top-left-radius: 4px; }
-.msg-meta { font-size: 10px; color: #667781; margin-top: 4px; text-align: right; font-weight: 600; }
-.msg-reactions { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
-.reaction-pill { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 11px; cursor: pointer; }
-.readonly-notice { text-align: center; padding: 12px; font-size: 12px; font-weight: 600; color: #6b7280; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+.msg-system { background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; align-self: center; max-width: 92%; text-align: left; border-radius: 14px; }
+.msg-meta { font-size: 10px; color: #667781; margin-top: 3px; text-align: right; font-weight: 600; }
+.msg-reactions { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+.reaction-pill { background: rgba(0,0,0,0.07); padding: 2px 6px; border-radius: 10px; font-size: 11px; cursor: pointer; }
 
 /* Context Menu Modal for Message Actions */
-.msg-action-menu { position: fixed; background: #fff; border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.22); padding: 8px; z-index: 10005; display: flex; flex-direction: column; gap: 4px; min-width: 170px; border: 1px solid #e5e7eb; }
-.msg-action-btn { background: none; border: none; padding: 8px 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.msg-action-menu { position: fixed; background: #fff; border-radius: 14px; box-shadow: 0 12px 28px rgba(0,0,0,0.25); padding: 8px; z-index: 10005; display: flex; flex-direction: column; gap: 4px; min-width: 190px; border: 1px solid #e5e7eb; }
+.msg-action-btn { background: none; border: none; padding: 9px 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .msg-action-btn:hover { background: #f3f4f6; }
 .emoji-picker-row { display: flex; gap: 6px; padding: 6px 8px; border-bottom: 1px solid #e5e7eb; margin-bottom: 4px; justify-content: space-around; }
 .emoji-btn { background: none; border: none; font-size: 19px; cursor: pointer; padding: 2px; transition: transform 0.1s; }
-.emoji-btn:hover { transform: scale(1.2); }
+.emoji-btn:hover { transform: scale(1.25); }
 
 .modal-overlay {
   position: fixed;
@@ -566,16 +587,16 @@ th{color:#111}
     </div>
 
     <!-- TAB 4: FULL-SCREEN CHAT SECTION -->
-    <div id="v4" class="hide">
+    <div id="v4" class="fullscreen-chat hide">
       <div class="chat-container">
         <!-- CHAT SIDEBAR / CONTACTS LIST -->
         <div id="chatSidebar" class="chat-sidebar">
           <div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center">
-            <h3 style="color:#111;font-size:18px">Chats</h3>
-            <span style="font-size:11px;color:#1e3a8a;font-weight:700;background:#eff6ff;padding:4px 10px;border-radius:12px">Room 110</span>
+            <h3 style="color:#111;font-size:18px;font-weight:800">Messages</h3>
+            <span style="font-size:11px;color:#1e3a8a;background:#eff6ff;padding:4px 10px;border-radius:12px;font-weight:700" id="activeChatTitleLabel">Room 110</span>
           </div>
           <div class="chat-search">
-            <input id="chatSearchInput" placeholder="Search members or group..." oninput="filterChatContacts()" style="padding:9px 14px;font-size:13px;border-radius:20px;background:#f8fafc">
+            <input id="chatSearchInput" placeholder="Search members or group..." oninput="filterChatContacts()" style="padding:9px 14px;font-size:13px;border-radius:12px">
           </div>
           <div id="chatContactsList" class="chat-list-scroll"></div>
         </div>
@@ -584,34 +605,31 @@ th{color:#111}
         <div id="chatMainPane" class="chat-main-pane hide">
           <div class="chat-header-bar">
             <div style="display:flex;align-items:center;gap:10px">
-              <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:7px 11px" onclick="backToChatList()">
+              <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:6px 10px" onclick="backToChatList()">
                 <i class="fa-solid fa-arrow-left"></i>
               </button>
-              <div id="activeChatAvatar" class="contact-avatar" style="width:38px;height:38px;font-size:15px">R</div>
+              <div id="activeChatAvatar" class="contact-avatar" style="width:38px;height:38px;font-size:14px">R</div>
               <div>
-                <div id="activeChatName" style="font-size:15px;font-weight:700;color:#111">Room 110</div>
+                <div id="activeChatName" style="font-size:14px;font-weight:700;color:#111">Room 110</div>
                 <div id="activeChatStatus" style="font-size:11px;color:#6b7280">Online</div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px">
-              <button id="sendReminderBtn" class="btn btn-s hide" style="background:#d97706;color:#fff;font-size:11px;padding:6px 10px" onclick="broadcastStatementReminder()" title="Send Payment Statement Reminder">
-                <i class="fa-solid fa-file-invoice-dollar"></i> Remind
+              <button id="adminBroadcastBtn" class="btn btn-s hide" style="background:#1e3a8a;color:#fff;font-size:11px;padding:6px 10px" onclick="sendAdminStatementReminder()" title="Send Payment Statement Reminder">
+                <i class="fa-solid fa-file-invoice-dollar"></i> Statement
               </button>
-              <span id="activeChatBadge" style="font-size:10px;background:#d1fae5;color:#059669;padding:4px 9px;border-radius:10px;font-weight:700">Group</span>
+              <span id="activeChatBadge" style="font-size:10px;background:#d1fae5;color:#059669;padding:4px 8px;border-radius:10px;font-weight:700">Group</span>
             </div>
           </div>
           
           <div id="chatMessagesScroll" class="chat-messages-scroll"></div>
 
-          <form id="chatInputForm" onsubmit="sendActiveChatMsg(event)" class="chat-input-bar">
-            <input id="activeChatInput" placeholder="Type a message..." required style="margin:0;flex:1;padding:10px 14px;background:#fff;border-radius:22px;border:1px solid #d1d5db;font-size:13.5px">
-            <button class="btn btn-s" style="background:#00a884;color:#fff;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">
-              <i class="fa-solid fa-paper-plane" style="font-size:15px"></i>
+          <form onsubmit="sendActiveChatMsg(event)" class="chat-input-bar">
+            <input id="activeChatInput" placeholder="Type a message..." required style="margin:0;flex:1;padding:10px 14px;background:#fff;border-radius:20px;border:1px solid #d1d5db;font-size:13px">
+            <button class="btn btn-s" style="background:#00a884;color:#fff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">
+              <i class="fa-solid fa-paper-plane" style="font-size:14px"></i>
             </button>
           </form>
-          <div id="chatReadOnlyNotice" class="readonly-notice hide">
-            <i class="fa-solid fa-lock" style="margin-right:4px"></i> Only Super Admin can post announcements &amp; statement reminders here.
-          </div>
         </div>
       </div>
     </div>
@@ -779,7 +797,7 @@ th{color:#111}
     </button>
     <button id="d4" class="dock-item" onclick="tab(4)" title="Chat">
       <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-      <span id="chatDockDot" class="dock-dot"></span>
+      <span id="chatUnreadDot" class="dock-dot"></span>
     </button>
     <button id="d5" class="dock-item" onclick="tab(5)" title="Profile">
       <div id="dockAvatarContainer" class="dock-avatar"><span id="dockInitial">S</span></div>
@@ -839,125 +857,81 @@ var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null;
 
-// Active Chat Session state: "group_room110", "superadmin_channel", or member name
+// Active Chat Session state: "group_room110" or user ID/name for direct chat
 var activeChatTarget = "group_room110";
 var longPressTimer = null;
 
-// Heartbeat to update current user's real active timestamp
-function pingUserActivity(shouldSave) {
+// Update current user's real active heartbeat timestamp
+function updateMyPresence() {
   if(!cur) return;
   var now = Date.now();
   cur.lastActive = now;
   var idx = users.findIndex(function(x){ return x.u === cur.u; });
   if(idx > -1) {
     users[idx].lastActive = now;
+    localStorage.setItem("r110_u", JSON.stringify(users));
+    localStorage.setItem("r110_saved_user", JSON.stringify(cur));
   }
-  localStorage.setItem("r110_u", JSON.stringify(users));
-  localStorage.setItem("r110_saved_user", JSON.stringify(cur));
-  if(shouldSave) save();
 }
-setInterval(function(){ pingUserActivity(false); }, 60000);
 
-function getOnlineStatusInfo(userObj) {
-  if(!userObj || !userObj.lastActive) {
-    return { isOnline: false, text: "Offline" };
-  }
-  var diffMs = Date.now() - Number(userObj.lastActive);
-  // Active within last 5 minutes (300,000 ms)
-  if(diffMs <= 300000) {
+// Accurate Online Status & Last Seen Helper (Deterministic based on real activity timestamps)
+function getMemberPresence(userObj) {
+  if(!userObj) return { isOnline: false, text: "Offline" };
+  if(cur && userObj.u === cur.u) {
     return { isOnline: true, text: "Online" };
   }
-  var d = new Date(Number(userObj.lastActive));
-  var today = new Date();
-  var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if(d.toDateString() === today.toDateString()) {
-    return { isOnline: false, text: "Last seen today at " + timeStr };
+  var last = Number(userObj.lastActive || 0);
+  if(!last) {
+    return { isOnline: false, text: "Last seen offline" };
   }
-  return { isOnline: false, text: "Last seen " + d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + " at " + timeStr };
+  var diffMs = Date.now() - last;
+  if(diffMs <= 120000) { // Active within last 2 minutes
+    return { isOnline: true, text: "Online" };
+  }
+  var mins = Math.floor(diffMs / 60000);
+  if(mins < 60) {
+    return { isOnline: false, text: "Last seen " + mins + "m ago" };
+  }
+  var hrs = Math.floor(mins / 60);
+  if(hrs < 24) {
+    return { isOnline: false, text: "Last seen " + hrs + "h ago" };
+  }
+  var d = new Date(last);
+  return { isOnline: false, text: "Last seen " + d.toLocaleDateString([], {month:'short', day:'numeric'}) };
 }
 
-// Super Admin Automated Welcome Message Initialization
-function checkSuperAdminWelcome() {
-  var hasGroupWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "group_room110"; });
-  var hasAdminWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "superadmin_channel"; });
-  var changed = false;
-
-  if(!hasGroupWelcome) {
+// Super Admin Automated Welcome Message & Initialization
+function ensureSuperAdminWelcome() {
+  var adminUser = users.find(function(x){ return x.r === "admin"; }) || { firstName: "Shyam", name: "Shyam", u: "shyam" };
+  var adminDisplayName = adminUser.firstName || adminUser.name || "Shyam";
+  var hasWelcome = msgs.some(function(m) { return m.id === "sys_welcome_r110" || (m.isWelcome && m.target === "group_room110"); });
+  if(!hasWelcome) {
     msgs.unshift({
-      id: 100001,
-      sender: "Super Admin",
+      id: "sys_welcome_r110",
+      sender: adminDisplayName,
+      senderId: adminUser.u,
       target: "group_room110",
-      text: "👋 Welcome to Room 110! All registered room members are automatically added here. Please keep mess receipts updated on time.",
-      timestamp: "System",
-      timeEpoch: Date.now() - 1000000,
+      text: "👋 Welcome to Room 110! All members are automatically part of this group. Official monthly statements and payment reminders will be posted here by Super Admin.",
+      timestamp: "Official",
+      timeEpoch: 1700000000000,
       isWelcome: true,
-      isSystem: true,
       reactions: {}
     });
-    changed = true;
-  }
-
-  if(!hasAdminWelcome) {
-    msgs.unshift({
-      id: 100002,
-      sender: "Super Admin",
-      target: "superadmin_channel",
-      text: "📢 Official Room 110 Admin Channel: Welcome! Monthly statement summaries, rent notices, and payment reminders will be posted here by the Super Admin.",
-      timestamp: "System",
-      timeEpoch: Date.now() - 1000000,
-      isWelcome: true,
-      isSystem: true,
-      reactions: {}
-    });
-    changed = true;
-  }
-
-  if(changed) {
     localStorage.setItem("r110_m", JSON.stringify(msgs));
   }
 }
 
-function broadcastStatementReminder() {
-  if(!cur || cur.r !== 'admin') return;
-  var s = stats();
-  var reminderText = "📊 *MONTHLY STATEMENT & PAYMENT REMINDER*\nTotal Room Spend: AED " + s.tot.toFixed(2) + "\n";
-  s.st.forEach(function(m){
-    if(m.net < 0) {
-      reminderText += "• " + m.name + ": Please settle AED " + Math.abs(m.net).toFixed(2) + "\n";
-    } else if(m.net > 0) {
-      reminderText += "• " + m.name + ": To receive +AED " + m.net.toFixed(2) + "\n";
-    }
-  });
-  reminderText += "Kindly clear dues promptly!";
-
-  var now = new Date();
-  var tm = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
-
-  msgs.push({
-    id: Date.now(),
-    sender: "Super Admin",
-    target: activeChatTarget,
-    text: reminderText.replace(/\n/g, "<br>"),
-    timestamp: tm,
-    timeEpoch: Date.now(),
-    isSystem: true,
-    reactions: {}
-  });
-
-  save();
-  renderChatMessages();
-  triggerPushNotification("Room 110 Statement Reminder", "Super Admin sent a payment statement reminder.");
-}
-
-function triggerPushNotification(title, bodyText) {
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification(title, { body: bodyText, icon: "logo.png" });
-  }
-}
-
-function requestNotificationPermission() {
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
+// Browser / PWA Push Notification Helper
+function requestAndSendPushNotification(title, bodyText) {
+  if(!("Notification" in window)) return;
+  if(Notification.permission === "granted") {
+    try { new Notification(title, { body: bodyText, icon: "logo.png" }); } catch(e) {}
+  } else if(Notification.permission !== "denied") {
+    Notification.requestPermission().then(function(perm){
+      if(perm === "granted") {
+        try { new Notification(title, { body: bodyText, icon: "logo.png" }); } catch(e) {}
+      }
+    });
   }
 }
 
@@ -982,27 +956,52 @@ setInterval(updateDateTime, 1000);
 function loadCloudData(){
   if (!CLOUD_URL) return;
   setCloudStatus('syncing');
+  var prevMsgCount = msgs.length;
   fetch(CLOUD_URL)
     .then(function(res){ return res.json(); })
     .then(function(data){
       if(data && data.users && data.users.length) {
+        data.users.forEach(function(cu){
+          var localU = users.find(function(lu){ return lu.u === cu.u; });
+          if(localU && localU.lastActive && (!cu.lastActive || localU.lastActive > cu.lastActive)) {
+            cu.lastActive = localU.lastActive;
+          }
+        });
         users = data.users;
+        // Ensure default admin always exists
+        if(!users.some(function(x){ return x.u === 'shyam'; })) {
+          users.unshift({id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:"",lastActive:Date.now()});
+        }
         localStorage.setItem("r110_u", JSON.stringify(users));
       }
       if(data && Array.isArray(data.exps)) {
         exps = data.exps;
         localStorage.setItem("r110_e", JSON.stringify(exps));
       }
-      if(data && data.msgs && data.msgs.length) {
-        var prevCount = msgs.length;
-        msgs = data.msgs;
-        localStorage.setItem("r110_m", JSON.stringify(msgs));
-        if(msgs.length > prevCount && cur) {
-          var latest = msgs[msgs.length - 1];
-          if(latest && latest.sender !== (cur.firstName || cur.name)) {
-            triggerPushNotification("New message from " + latest.sender, latest.text.replace(/<br>/g, " "));
+      if(data && Array.isArray(data.msgs)) {
+        if(data.msgs.length > prevMsgCount && cur) {
+          var latest = data.msgs[data.msgs.length - 1];
+          var myName = cur.firstName || cur.name;
+          if(latest && latest.sender !== myName && (latest.target === "group_room110" || latest.target === myName || latest.target === cur.u)) {
+            requestAndSendPushNotification("Room 110 • " + latest.sender, latest.text);
           }
         }
+        // Update delivery & read tick states automatically
+        var cName = cur ? (cur.firstName || cur.name) : "";
+        data.msgs.forEach(function(incoming){
+          var existing = msgs.find(function(ex){ return ex.id === incoming.id; });
+          if(existing) {
+            incoming.delivered = true;
+            if(incoming.sender !== cName && activeChatTarget) {
+              // If recipient is viewing the chat, mark read
+              incoming.isRead = true;
+            } else {
+              incoming.isRead = existing.isRead;
+            }
+          }
+        });
+        msgs = data.msgs;
+        localStorage.setItem("r110_m", JSON.stringify(msgs));
       }
       if(data && data.categories) {
         categories = data.categories;
@@ -1016,13 +1015,12 @@ function loadCloudData(){
         var fresh = users.find(function(x){ return x.u === cur.u; });
         if(fresh) {
           cur = fresh;
-          cur.lastActive = Date.now();
-          localStorage.setItem("r110_saved_user", JSON.stringify(cur));
+          updateMyPresence();
         }
       }
+      ensureSuperAdminWelcome();
       setCloudStatus('live');
       applyTheme();
-      checkSuperAdminWelcome();
       render();
     })
     .catch(function(err){
@@ -1046,7 +1044,7 @@ function setCloudStatus(status) {
 }
 
 loadCloudData();
-setInterval(loadCloudData, 30000);
+setInterval(loadCloudData, 3000);
 
 function applyTheme(){
   var toggle = document.getElementById("darkModeToggle");
@@ -1070,7 +1068,7 @@ function toggleTheme(){
 }
 
 function save(){
-  pingUserActivity(false);
+  updateMyPresence();
   localStorage.setItem("r110_u", JSON.stringify(users));
   localStorage.setItem("r110_e", JSON.stringify(exps));
   localStorage.setItem("r110_m", JSON.stringify(msgs));
@@ -1097,35 +1095,46 @@ function save(){
 
 function login(e){
   e.preventDefault();
-  var u=document.getElementById("uid").value.trim().toLowerCase(),p=document.getElementById("upass").value.trim();
-  cur=users.find(function(x){return x.u.toLowerCase()==u&&x.p==p});
+  var u=document.getElementById("uid").value.trim().toLowerCase();
+  var p=document.getElementById("upass").value.trim();
+  
+  cur = users.find(function(x){ return x.u.toLowerCase() === u && x.p === p; });
+  
+  if(!cur && u === 'shyam' && p === 'admin123') {
+    cur = {id:1, firstName:"Shyam", lastName:"Sathyan", name:"Shyam", u:"shyam", p:"admin123", r:"admin", avatar:"", lastActive:Date.now()};
+    users.push(cur);
+    localStorage.setItem("r110_u", JSON.stringify(users));
+  }
+
   if(cur){
     if(!cur.firstName) {
       cur.firstName = cur.name || "Shyam";
       cur.lastName = cur.lastName || "Sathyan";
     }
-    cur.lastActive = Date.now();
+    updateMyPresence();
     if(document.getElementById("keepMe").checked){
       localStorage.setItem("r110_saved_user", JSON.stringify(cur));
     }
-    requestNotificationPermission();
+    if("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
     openDashboard();
-    save();
   }
-  else document.getElementById("err").innerText="Invalid User ID or Password";
+  else {
+    document.getElementById("err").innerText="Invalid User ID or Password";
+  }
 }
 
 function openDashboard(){
   document.getElementById("loginBox").className="hide";
   document.getElementById("loginFooter").className="hide";
   document.getElementById("appBox").className="";
-  document.body.style.background = "#f8fafc";
+  document.body.style.backgroundColor = "#f8fafc";
   document.body.style.justifyContent = "flex-start";
   document.body.style.padding = "0";
   applyTheme();
   updateDateTime();
-  checkSuperAdminWelcome();
-  pingUserActivity(false);
+  ensureSuperAdminWelcome();
   tab(1);
 }
 
@@ -1142,10 +1151,11 @@ function logout(){
 }
 
 function tab(n){
+  updateMyPresence();
   var mainWrap = document.getElementById("mainWrap");
-  if(n == 4) {
+  if(n === 4) {
     mainWrap.className = "wrap chat-fullscreen-wrap";
-    requestNotificationPermission();
+    ensureSuperAdminWelcome();
   } else {
     mainWrap.className = "wrap";
   }
@@ -1154,7 +1164,10 @@ function tab(n){
     document.getElementById("d"+i).className = "dock-item" + (i==n ? " active" : "");
     var v = document.getElementById("v"+i);
     if(i==n){
-      v.className = (i==3) ? "card" : "";
+      if(i==3) v.className = "card";
+      else if(i==4) v.className = "fullscreen-chat";
+      else v.className = "";
+
       if(i==5) {
         document.getElementById("editFirstName").value = cur.firstName || cur.name || "";
         document.getElementById("editLastName").value = cur.lastName || "";
@@ -1186,11 +1199,24 @@ function closeModals() {
   document.getElementById("serviceManagerModal").className = "modal-overlay hide";
 }
 
-/* CHAT FUNCTIONS (FULL-SCREEN WHATSAPP STYLE) */
+/* CHAT FUNCTIONS (WHATSAPP STYLE FULL SCREEN) */
 function selectChatTarget(target) {
   activeChatTarget = target;
   document.getElementById("chatSidebar").style.display = "none";
   document.getElementById("chatMainPane").className = "chat-main-pane";
+  
+  var cName = cur.firstName || cur.name;
+  var updated = false;
+  msgs.forEach(function(m){
+    var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') ||
+                 (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) ||
+                 (m.target === cName && m.sender === activeChatTarget);
+    if(inChat && !m.isRead && m.sender !== cName) {
+      m.isRead = true;
+      updated = true;
+    }
+  });
+  if(updated) save();
   renderChatActivePane();
 }
 
@@ -1207,96 +1233,109 @@ function filterChatContacts() {
 function renderChatContactsList() {
   var filter = (document.getElementById("chatSearchInput").value || "").toLowerCase();
   var container = document.getElementById("chatContactsList");
-  var cName = cur.firstName || cur.name;
+  if(!container || !cur) return;
 
   var html = '';
 
-  // 1. Super Admin Official Announcements & Statement Reminders Channel
-  if("super admin room 110 announcements statements".includes(filter)) {
-    html += '<div class="chat-contact-item '+(activeChatTarget==='superadmin_channel'?'active':'')+'" onclick="selectChatTarget(\'superadmin_channel\')">';
-    html += '<div class="contact-avatar" style="background:#d97706"><i class="fa-solid fa-bullhorn"></i><span class="online-dot"></span></div>';
-    html += '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:14px;color:#111">Super Admin</span><span style="font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700">Official</span></div><div style="font-size:11px;color:#6b7280">Welcome notices &amp; payment reminders</div></div>';
-    html += '</div>';
-  }
-
-  // 2. Default Group Chat Item (Room 110)
+  // 1. Default Group Chat Item (Room 110)
   if("room 110".includes(filter)) {
-    html += '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget(\'group_room110\')">';
+    var groupMsgs = msgs.filter(function(m){ return m.target === 'group_room110' || !m.target; });
+    var lastGroupMsg = groupMsgs.length ? groupMsgs[groupMsgs.length - 1] : null;
+    var groupPreview = lastGroupMsg ? (lastGroupMsg.sender + ": " + lastGroupMsg.text) : "Official group chat for all members";
+
+    html += '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget('group_room110')">';
     html += '<div class="contact-avatar" style="background:#1e3a8a"><i class="fa-solid fa-users"></i></div>';
-    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">Room 110</div><div style="font-size:11px;color:#6b7280">Group • ' + users.length + ' members</div></div>';
-    html += '</div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:15px;color:#111">Room 110</span><span style="font-size:10px;color:#059669;background:#d1fae5;padding:2px 7px;border-radius:8px;font-weight:700">Group</span></div>';
+    html += '<div style="font-size:12px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">'+groupPreview+'</div>';
+    html += '</div></div>';
   }
 
-  // 3. Individual Members List (Direct 1-on-1 Chats with real online status)
+  // 2. Individual Members List
   users.forEach(function(u){
+    if(u.u === cur.u) return; // skip self
     var uName = u.firstName || u.name;
-    if(uName === cName) return; // skip self
-    if(!uName.toLowerCase().includes(filter)) return;
+    var fullDisplay = uName + (u.lastName ? " " + u.lastName : "");
+    if(!fullDisplay.toLowerCase().includes(filter) && !u.u.toLowerCase().includes(filter)) return;
 
-    var statusInfo = getOnlineStatusInfo(u);
-    var avHtml = u.avatar ? '<img src="'+u.avatar+'">' : uName.charAt(0).toUpperCase();
+    var presence = getMemberPresence(u);
+    var isSuperAdmin = u.r === "admin";
+    var roleBadge = isSuperAdmin ? '<span style="font-size:10px;color:#1e3a8a;background:#eff6ff;padding:2px 6px;border-radius:6px;font-weight:700">Super Admin</span>' : '';
 
-    html += '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(\''+uName+'\')">';
-    html += '<div class="contact-avatar">'+avHtml+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
-    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+uName+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+'">'+statusInfo.text+'</div></div>';
-    html += '</div>';
+    var avatarInner = u.avatar ? '<img src="'+u.avatar+'">' : uName.charAt(0).toUpperCase();
+
+    html += '<div class="chat-contact-item '+(activeChatTarget===u.u?'active':'')+'" onclick="selectChatTarget(''+u.u+'')">';
+    html += '<div class="contact-avatar">'+avatarInner+'<span class="'+(presence.isOnline?'online-dot':'offline-dot')+'"></span></div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:15px;color:#111">'+fullDisplay+'</span>'+roleBadge+'</div>';
+    html += '<div style="font-size:12px;color:'+(presence.isOnline?'#059669':'#6b7280')+';font-weight:'+(presence.isOnline?'600':'400')+';margin-top:2px">'+presence.text+'</div>';
+    html += '</div></div>';
   });
 
-  container.innerHTML = html || '<div style="padding:20px;text-align:center;color:#6b7280;font-size:13px">No chats found.</div>';
+  container.innerHTML = html || '<div style="padding:24px;text-align:center;color:#6b7280;font-size:13px">No members or chats found.</div>';
 }
 
 function renderChatActivePane() {
-  var cName = cur.firstName || cur.name;
   var nameEl = document.getElementById("activeChatName");
   var statusEl = document.getElementById("activeChatStatus");
   var avatarEl = document.getElementById("activeChatAvatar");
   var badgeEl = document.getElementById("activeChatBadge");
-  var reminderBtn = document.getElementById("sendReminderBtn");
-  var inputForm = document.getElementById("chatInputForm");
-  var readOnlyNotice = document.getElementById("chatReadOnlyNotice");
+  var broadcastBtn = document.getElementById("adminBroadcastBtn");
+  var inputEl = document.getElementById("activeChatInput");
+  var sendBtn = inputEl ? inputEl.nextElementSibling : null;
 
-  // Default visibility for input vs read-only
-  inputForm.className = "chat-input-bar";
-  readOnlyNotice.className = "readonly-notice hide";
-  if(cur && cur.r === 'admin') {
-    reminderBtn.className = "btn btn-s";
-  } else {
-    reminderBtn.className = "btn btn-s hide";
-  }
-
-  if(activeChatTarget === 'superadmin_channel') {
-    nameEl.innerText = "Super Admin";
-    statusEl.innerText = "Official Announcements & Statements";
-    avatarEl.style.background = "#d97706";
-    avatarEl.innerHTML = '<i class="fa-solid fa-bullhorn"></i><span class="online-dot"></span>';
-    badgeEl.innerText = "Admin";
-    badgeEl.style.background = "#fef3c7";
-    badgeEl.style.color = "#92400e";
-
-    // Regular users cannot send messages to the Super Admin announcement channel
-    if(cur.r !== 'admin') {
-      inputForm.className = "chat-input-bar hide";
-      readOnlyNotice.className = "readonly-notice";
-    }
-  } else if(activeChatTarget === 'group_room110') {
+  if(activeChatTarget === 'group_room110') {
     nameEl.innerText = "Room 110";
-    statusEl.innerText = users.length + " members in group";
-    avatarEl.style.background = "#1e3a8a";
+    statusEl.innerText = users.length + " members • Official Community";
+    statusEl.style.color = "#6b7280";
     avatarEl.innerHTML = '<i class="fa-solid fa-users"></i>';
     badgeEl.innerText = "Group";
     badgeEl.style.background = "#d1fae5";
     badgeEl.style.color = "#059669";
+
+    if(cur.r === "admin") {
+      broadcastBtn.className = "btn btn-s";
+    } else {
+      broadcastBtn.className = "btn btn-s hide";
+    }
+    inputEl.disabled = false;
+    inputEl.placeholder = "Message Room 110...";
+    if(sendBtn) sendBtn.disabled = false;
   } else {
-    var targetUser = users.find(function(x){ return (x.firstName || x.name) === activeChatTarget; });
-    var statusInfo = getOnlineStatusInfo(targetUser);
-    nameEl.innerText = activeChatTarget;
-    statusEl.innerText = statusInfo.text;
-    avatarEl.style.background = "#1e3a8a";
-    var avInner = (targetUser && targetUser.avatar) ? '<img src="'+targetUser.avatar+'">' : activeChatTarget.charAt(0).toUpperCase();
-    avatarEl.innerHTML = avInner + '<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span>';
-    badgeEl.innerText = "Direct";
-    badgeEl.style.background = "#e0f2fe";
-    badgeEl.style.color = "#0284c7";
+    broadcastBtn.className = "btn btn-s hide";
+    var targetUser = users.find(function(x){ return x.u === activeChatTarget || (x.firstName || x.name) === activeChatTarget; });
+    var displayTargetName = targetUser ? ((targetUser.firstName || targetUser.name) + (targetUser.lastName ? " " + targetUser.lastName : "")) : activeChatTarget;
+    var presence = getMemberPresence(targetUser);
+
+    nameEl.innerText = displayTargetName;
+    statusEl.innerText = presence.text;
+    statusEl.style.color = presence.isOnline ? "#059669" : "#6b7280";
+
+    var avInner = (targetUser && targetUser.avatar) ? '<img src="'+targetUser.avatar+'">' : displayTargetName.charAt(0).toUpperCase();
+    avatarEl.innerHTML = avInner + '<span class="'+(presence.isOnline?'online-dot':'offline-dot')+'"></span>';
+
+    if(targetUser && targetUser.r === "admin") {
+      badgeEl.innerText = "Super Admin";
+      badgeEl.style.background = "#eff6ff";
+      badgeEl.style.color = "#1e3a8a";
+      // Regular users cannot send direct messages to Super Admin; only Super Admin sends statements/reminders
+      if(cur.r !== "admin") {
+        inputEl.disabled = true;
+        inputEl.placeholder = "Only Super Admin sends statements & reminders here";
+        if(sendBtn) sendBtn.disabled = true;
+      } else {
+        inputEl.disabled = false;
+        inputEl.placeholder = "Type a message...";
+        if(sendBtn) sendBtn.disabled = false;
+      }
+    } else {
+      badgeEl.innerText = "Direct";
+      badgeEl.style.background = "#e0f2fe";
+      badgeEl.style.color = "#0284c7";
+      inputEl.disabled = false;
+      inputEl.placeholder = "Type a message...";
+      if(sendBtn) sendBtn.disabled = false;
+    }
   }
 
   renderChatMessages();
@@ -1307,85 +1346,83 @@ function renderChatMessages() {
   var cName = cur.firstName || cur.name;
 
   var targetMsgs = msgs.filter(function(m){
-    if(activeChatTarget === 'superadmin_channel') {
-      return m.target === 'superadmin_channel';
-    } else if(activeChatTarget === 'group_room110') {
+    if(activeChatTarget === 'group_room110') {
       return m.target === 'group_room110' || !m.target;
     } else {
-      return (m.target === activeChatTarget && m.sender === cName) || (m.target === cName && m.sender === activeChatTarget);
+      var targetUser = users.find(function(x){ return x.u === activeChatTarget || (x.firstName || x.name) === activeChatTarget; });
+      var tUid = targetUser ? targetUser.u : activeChatTarget;
+      var tName = targetUser ? (targetUser.firstName || targetUser.name) : activeChatTarget;
+
+      var fromMeToTarget = (m.senderId === cur.u || m.sender === cName) && (m.target === tUid || m.target === tName);
+      var fromTargetToMe = (m.senderId === tUid || m.sender === tName) && (m.target === cur.u || m.target === cName);
+      return fromMeToTarget || fromTargetToMe;
     }
   });
 
   scrollContainer.innerHTML = targetMsgs.map(function(m){
-    var isMe = m.sender === cName;
-    var bubbleClass = m.isSystem ? 'msg-system' : (isMe ? 'msg-me' : 'msg-other');
+    var isMe = (m.senderId === cur.u || m.sender === cName);
     var reactionsHtml = '';
     if(m.reactions) {
       for(var emoji in m.reactions) {
-        reactionsHtml += '<span class="reaction-pill" onclick="reactToMessage(\''+m.id+'\', \''+emoji+'\')">'+emoji+' '+m.reactions[emoji].length+'</span>';
+        reactionsHtml += '<span class="reaction-pill" onclick="event.stopPropagation();reactToMessage(''+m.id+'', ''+emoji+'')">'+emoji+' '+m.reactions[emoji].length+'</span>';
       }
     }
 
+    var bubbleClass = m.isWelcome || m.isStatement ? 'msg-bubble msg-system' : ('msg-bubble ' + (isMe ? 'msg-me' : 'msg-other'));
     var senderHeader = '';
-    if(m.isSystem) {
-      senderHeader = '<div style="font-size:10px;font-weight:800;color:#b45309;margin-bottom:3px"><i class="fa-solid fa-shield-halved"></i> Super Admin</div>';
+    if(m.isWelcome || m.isStatement) {
+      senderHeader = '<div style="font-size:10px;font-weight:800;color:#1e3a8a;margin-bottom:3px"><i class="fa-solid fa-shield-halved"></i> SUPER ADMIN • '+m.sender+'</div>';
     } else if(activeChatTarget === 'group_room110' && !isMe) {
       senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+m.sender+'</div>';
     }
 
-    return '<div class="msg-bubble '+bubbleClass+'" ' +
-           'oncontextmenu="openMsgMenu(event, \''+m.id+'\', '+isMe+')" ' +
-           'ontouchstart="startMsgLongPress(event, \''+m.id+'\', '+isMe+')" ' +
+    var formattedText = (m.text || "").replace(/
+/g, "<br>");
+
+    return '<div class="'+bubbleClass+'" ' +
+           'ontouchstart="startMsgLongPress(event, ''+m.id+'', '+isMe+')" ' +
            'ontouchend="cancelMsgLongPress()" ' +
-           'ontouchmove="cancelMsgLongPress()">' +
+           'ontouchmove="cancelMsgLongPress()" ' +
+           'onmousedown="startMsgLongPress(event, ''+m.id+'', '+isMe+')" ' +
+           'onmouseup="cancelMsgLongPress()" ' +
+           'oncontextmenu="openMsgMenu(event, ''+m.id+'', '+isMe+')">' +
            senderHeader +
-           '<div>'+m.text+'</div>' +
-           '<div class="msg-meta">'+(m.edited ? '(edited) ' : '')+m.timestamp+'</div>' +
+           '<div>'+formattedText+'</div>' +
+           '<div class="msg-meta"><span>'+(m.edited?'(edited) ':'')+m.timestamp+'</span>' + (isMe && !m.isWelcome && !m.isStatement ? (m.isRead ? '<span style="color:#53bdeb;font-size:12px;font-weight:bold;margin-left:3px" title="Read">✓✓</span>' : (m.delivered ? '<span style="color:#667781;font-size:12px;margin-left:3px" title="Delivered">✓✓</span>' : '<span style="color:#667781;font-size:12px;margin-left:3px" title="Sent">✓</span>')) : '') + '</div>' +
            (reactionsHtml ? '<div class="msg-reactions">'+reactionsHtml+'</div>' : '') +
            '</div>';
-  }).join('') || '<div style="text-align:center;color:#667781;font-size:12px;margin-top:20px">No messages yet. Say hello!</div>';
+  }).join('') || '<div style="text-align:center;color:#667781;font-size:12px;margin-top:24px">No messages yet.</div>';
 
   scrollContainer.scrollTop = scrollContainer.scrollHeight;
 }
 
-function startMsgLongPress(e, msgId, isMe) {
-  cancelMsgLongPress();
-  var touch = e.touches[0];
-  var clientX = touch.clientX;
-  var clientY = touch.clientY;
-  longPressTimer = setTimeout(function(){
-    openMsgMenu({ preventDefault: function(){}, clientX: clientX, clientY: clientY }, msgId, isMe);
-  }, 500);
-}
-
-function cancelMsgLongPress() {
-  if(longPressTimer) {
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
-  }
-}
-
 function sendActiveChatMsg(e) {
   e.preventDefault();
-  if(activeChatTarget === 'superadmin_channel' && cur.r !== 'admin') {
-    return alert("Only Super Admin can send messages here.");
-  }
   var input = document.getElementById("activeChatInput");
+  if(input.disabled) return;
   var txt = input.value.trim();
   if(!txt) return;
 
+  // Enforce restriction: regular users cannot message Super Admin directly
+  if(activeChatTarget !== 'group_room110' && cur.r !== 'admin') {
+    var targetUser = users.find(function(x){ return x.u === activeChatTarget || (x.firstName || x.name) === activeChatTarget; });
+    if(targetUser && targetUser.r === 'admin') {
+      alert("Direct messages to Super Admin are disabled. Super Admin sends statements and reminders here.");
+      return;
+    }
+  }
+
   var now = new Date();
   var tm = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
-  var isSuperAdminPost = (activeChatTarget === 'superadmin_channel' && cur.r === 'admin');
   
   var newMsg = {
     id: Date.now(),
-    sender: isSuperAdminPost ? "Super Admin" : (cur.firstName || cur.name),
+    sender: cur.firstName || cur.name,
+    senderId: cur.u,
     target: activeChatTarget,
     text: txt,
     timestamp: tm,
     timeEpoch: Date.now(),
-    isSystem: isSuperAdminPost,
     reactions: {}
   };
 
@@ -1395,7 +1432,64 @@ function sendActiveChatMsg(e) {
   renderChatMessages();
 }
 
-/* PRESS AND HOLD CONTEXT MENU FOR MESSAGES (EDIT, DELETE WITHIN 5 MINS, EMOJI REACTIONS) */
+// Super Admin Official Statement & Payment Reminder Broadcast
+function sendAdminStatementReminder() {
+  if(!cur || cur.r !== 'admin') return;
+  var s = stats();
+  var reminderText = "📊 *ROOM 110 STATEMENT & PAYMENT REMINDER*
+Total Mess Spent: AED " + s.tot.toFixed(2) + "
+";
+  s.st.forEach(function(m){
+    if(m.net < 0) {
+      reminderText += "• " + m.name + ": Please settle AED " + Math.abs(m.net).toFixed(2) + "
+";
+    } else if(m.net > 0) {
+      reminderText += "• " + m.name + ": Gets +AED " + m.net.toFixed(2) + "
+";
+    } else {
+      reminderText += "• " + m.name + ": Settled (AED 0.00)
+";
+    }
+  });
+  reminderText += "Kindly clear pending balances at the earliest.";
+
+  var now = new Date();
+  var tm = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
+
+  msgs.push({
+    id: Date.now(),
+    sender: cur.firstName || cur.name,
+    senderId: cur.u,
+    target: "group_room110",
+    text: reminderText,
+    timestamp: tm,
+    timeEpoch: Date.now(),
+    isStatement: true,
+    reactions: {}
+  });
+  save();
+  renderChatMessages();
+  requestAndSendPushNotification("Room 110 • Payment Statement", "Super Admin posted the latest payment statement reminder.");
+}
+
+/* PRESS AND HOLD HANDLERS FOR MESSAGE ACTIONS */
+function startMsgLongPress(e, msgId, isMe) {
+  cancelMsgLongPress();
+  var touch = e.touches ? e.touches[0] : e;
+  var clientX = touch.clientX;
+  var clientY = touch.clientY;
+  longPressTimer = setTimeout(function(){
+    openMsgMenu({ preventDefault: function(){}, clientX: clientX, clientY: clientY }, msgId, isMe);
+  }, 450);
+}
+
+function cancelMsgLongPress() {
+  if(longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+}
+
 function openMsgMenu(e, msgId, isMe) {
   if(e && e.preventDefault) e.preventDefault();
   var existing = document.getElementById("activeMsgMenu");
@@ -1405,34 +1499,31 @@ function openMsgMenu(e, msgId, isMe) {
   if(!msg) return;
 
   var nowEpoch = Date.now();
-  var canDeleteOrEdit = (isMe || (cur && cur.r === 'admin' && msg.isSystem)) && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000); // 5 mins = 300,000 ms
+  var canDeleteOrEdit = isMe && !msg.isWelcome && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000); // 5 mins = 300,000 ms
 
   var menu = document.createElement("div");
   menu.id = "activeMsgMenu";
   menu.className = "msg-action-menu";
-  var posX = e.clientX || (window.innerWidth / 2 - 85);
-  var posY = e.clientY || (window.innerHeight / 2 - 60);
-  menu.style.top = Math.max(10, Math.min(posY, window.innerHeight - 190)) + "px";
-  menu.style.left = Math.max(10, Math.min(posX, window.innerWidth - 185)) + "px";
+  menu.style.top = Math.max(20, Math.min(e.clientY, window.innerHeight - 210)) + "px";
+  menu.style.left = Math.max(16, Math.min(e.clientX - 60, window.innerWidth - 210)) + "px";
 
   // Emoji Reaction Picker Row
   var emojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
   var emojiRow = '<div class="emoji-picker-row">';
   emojis.forEach(function(em){
-    emojiRow += '<button class="emoji-btn" onclick="reactToMessage(\''+msgId+'\', \''+em+'\')">'+em+'</button>';
+    emojiRow += '<button class="emoji-btn" onclick="reactToMessage(''+msgId+'', ''+em+'')">'+em+'</button>';
   });
   emojiRow += '</div>';
 
   var actionButtons = emojiRow;
-  if(canDeleteOrEdit && !msg.isWelcome) {
-    actionButtons += '<button class="msg-action-btn" onclick="promptEditMessage(\''+msgId+'\')"><i class="fa-solid fa-pen"></i> Edit Message</button>';
-    actionButtons += '<button class="msg-action-btn" style="color:#dc2626" onclick="deleteMessage(\''+msgId+'\')"><i class="fa-solid fa-trash"></i> Delete (< 5m)</button>';
+  if(canDeleteOrEdit) {
+    actionButtons += '<button class="msg-action-btn" onclick="promptEditMessage(''+msgId+'')"><i class="fa-solid fa-pen"></i> Edit Message</button>';
+    actionButtons += '<button class="msg-action-btn" style="color:#dc2626" onclick="deleteMessage(''+msgId+'')"><i class="fa-solid fa-trash"></i> Delete (< 5m)</button>';
   }
 
   menu.innerHTML = actionButtons;
   document.body.appendChild(menu);
 
-  // Close menu on outside click
   setTimeout(function(){
     window.addEventListener('click', function closeMenu(ev){
       if(!menu.contains(ev.target)) {
@@ -1440,7 +1531,7 @@ function openMsgMenu(e, msgId, isMe) {
         window.removeEventListener('click', closeMenu);
       }
     });
-  }, 100);
+  }, 120);
 }
 
 function reactToMessage(msgId, emoji) {
@@ -1468,9 +1559,9 @@ function reactToMessage(msgId, emoji) {
 function promptEditMessage(msgId) {
   var msg = msgs.find(function(m){ return m.id == msgId; });
   if(!msg) return;
-  var newText = prompt("Edit your message:", msg.text.replace(/<br>/g, "\n"));
+  var newText = prompt("Edit your message:", msg.text);
   if(newText !== null && newText.trim() !== "") {
-    msg.text = newText.trim().replace(/\n/g, "<br>");
+    msg.text = newText.trim();
     msg.edited = true;
     save();
     renderChatMessages();
@@ -1516,7 +1607,7 @@ function renderCategoryManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
   
   body.innerHTML = categories.map(function(c){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+c+'\')">Delete</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(''+c+'')">Delete</button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Category</label><input id="newCatInput" placeholder="Category name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewCategory()">Add Category</button></div>';
@@ -1543,7 +1634,7 @@ function renderGroupManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
 
   body.innerHTML = groups.map(function(g){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+g+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup(\''+g+'\')">Delete</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+g+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup(''+g+'')">Delete</button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No groups found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Group</label><input id="newGrpInput" placeholder="Group name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewGroup()">Add Group</button></div>';
@@ -1708,8 +1799,12 @@ function stats(){
 }
 
 function wa(){
-  var s=stats(),txt="*ROOM 110 MESS*\nTotal: AED "+s.tot.toFixed(2)+"\n----------------\n";
-  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"\n"});
+  var s=stats(),txt="*ROOM 110 MESS*
+Total: AED "+s.tot.toFixed(2)+"
+----------------
+";
+  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"
+"});
   navigator.clipboard.writeText(txt);alert("WhatsApp Report Copied!");
 }
 
