@@ -65,7 +65,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .welcome-lbl { font-size: 10px; color: #6b7280; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
 .welcome-usr { font-size: 14px; font-weight: 800; color: #1e3a8a; line-height: 1.1; }
 
-/* Floating Bottom Dock (Adaptive Light/Dark Liquid Glass) */
+/* Floating Bottom Dock */
 .floating-dock {
   position: fixed;
   bottom: 20px;
@@ -567,7 +567,7 @@ th{color:#111}
 <script>
 var CLOUD_URL = "https://script.google.com/macros/s/AKfycbzoZf0P-f5Er0ZwKidlaUoVzWbZOwMTxU3r-Bt0U5tkGQkCL7RNKPCWWJhP6n9g0GUQ/exec";
 
-// Reduced background list to exactly 20 lightning-fast URLs
+// 20 Optimized Background Wallpapers for Login Screen
 var megaBackgrounds = [
   'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=75',
   'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=75',
@@ -925,7 +925,7 @@ function render(){
   var admSec = document.getElementById("adminSection");
   if(cur.r=="admin"){
     admSec.className="";
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+u.name+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}.join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+u.name+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
   } else {
     admSec.className="hide";
   }
