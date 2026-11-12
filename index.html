@@ -40,37 +40,46 @@
         .sync-blinking {
             animation: pulse-slow 1.2s infinite ease-in-out;
         }
+        /* Apple Liquid Glass Dock Styling */
+        .apple-glass-dock {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(226, 232, 240, 0.6);
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 pb-24 select-none">
+<body class="bg-slate-50 text-slate-900 pb-28 select-none">
 
     <!-- TOP HEADER -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
-        <div>
-            <div class="flex items-center space-x-1.5">
-                <span class="font-bold text-xl tracking-tight text-blue-900">Room</span>
-                <div class="bg-blue-900 text-white px-1.5 py-0.5 rounded text-xs font-black flex items-center shadow-xs">
-                    <i class="fa-solid fa-building text-[10px] mr-0.5"></i>110
+        <div class="flex items-center space-x-2">
+            <!-- Restored Original Custom Logo Image -->
+            <img src="logo.png" alt="Room 110 Logo" class="w-9 h-9 rounded-xl object-cover shadow-xs border border-blue-900/20">
+            <div>
+                <div class="flex items-center space-x-1">
+                    <span class="font-bold text-lg tracking-tight text-blue-900">Room</span>
+                    <span class="bg-blue-900 text-white px-1.5 py-0.5 rounded text-[10px] font-black">110</span>
                 </div>
+                <!-- Live Date and Time -->
+                <div id="liveDateTime" class="text-[11px] font-medium text-slate-500">Loading...</div>
             </div>
-            <!-- Live Date and Time -->
-            <div id="liveDateTime" class="text-xs font-medium text-slate-500 mt-0.5">Loading date & time...</div>
         </div>
 
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2.5">
             <!-- Cloud Status Indicator Dot -->
-            <button id="cloudStatusBtn" onclick="manualCloudSync()" class="relative group p-2 rounded-full hover:bg-slate-100 transition-all cursor-pointer" title="Cloud Status (Tap to Sync)">
+            <button id="cloudStatusBtn" onclick="manualCloudSync()" class="p-2 rounded-full hover:bg-slate-100 transition-all cursor-pointer" title="Cloud Status (Tap to Sync)">
                 <span id="cloudDot" class="block w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm transition-all"></span>
             </button>
 
             <!-- WhatsApp Group Link -->
             <a href="https://chat.whatsapp.com/J1xMhG9p5rY5W4s3K2L1" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md hover:bg-emerald-600 transition-transform active:scale-95">
-                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <i class="fa-brands fa-whatsapp text-base"></i>
             </a>
 
             <!-- Logout Button -->
-            <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition-transform active:scale-95" title="Logout">
-                <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+            <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition-transform active:scale-95 shadow-xs cursor-pointer" title="Logout">
+                <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
             </button>
         </div>
     </header>
@@ -143,14 +152,6 @@
                 </div>
                 <div id="categoryBreakdownList" class="space-y-2.5">
                     <!-- Dynamically populated category breakdown -->
-                    <div class="flex items-center justify-between text-xs font-semibold">
-                        <span class="text-slate-600 flex items-center"><i class="fa-solid fa-cart-shopping w-5 text-blue-500"></i> Groceries</span>
-                        <span class="text-slate-900 font-bold">AED 0.00</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs font-semibold">
-                        <span class="text-slate-600 flex items-center"><i class="fa-solid fa-film w-5 text-purple-500"></i> Cinema</span>
-                        <span class="text-slate-900 font-bold">AED 0.00</span>
-                    </div>
                 </div>
             </div>
 
@@ -183,7 +184,7 @@
             <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-sm font-bold text-slate-800">Mess Ledger History</h3>
-                    <button onclick="openAddTransactionModal()" class="bg-blue-900 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-transform">
+                    <button onclick="openAddTransactionModal()" class="bg-blue-900 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-transform cursor-pointer">
                         <i class="fa-solid fa-plus mr-1"></i> Add Entry
                     </button>
                 </div>
@@ -205,7 +206,7 @@
                 </div>
                 <div class="pt-3 border-t border-slate-100 flex items-center space-x-2">
                     <input type="text" id="chatInputMsg" placeholder="Type a message..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
-                    <button onclick="sendChatMessage()" class="bg-blue-900 text-white w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs active:scale-95 transition-transform">
+                    <button onclick="sendChatMessage()" class="bg-blue-900 text-white w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-xs active:scale-95 transition-transform cursor-pointer">
                         <i class="fa-solid fa-paper-plane text-xs"></i>
                     </button>
                 </div>
@@ -215,9 +216,14 @@
         <!-- TAB 4: PROFILE & SETTINGS VIEW -->
         <div id="view-profile" class="space-y-4 hidden">
             
-            <!-- MY PROFILE CARD -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">My Profile</h3>
+            <!-- MY PROFILE CARD WITH EDIT USER DETAILS -->
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">My Profile</h3>
+                    <button onclick="openEditProfileModal()" class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg cursor-pointer">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Details
+                    </button>
+                </div>
                 <div class="flex items-center space-x-3">
                     <img src="logo.png" class="w-14 h-14 rounded-full object-cover border-2 border-blue-900 shadow-xs">
                     <div>
@@ -243,7 +249,7 @@
             <div id="adminMembersSection" class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Manage Members</h3>
-                    <button onclick="openAddMemberModal()" class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg">
+                    <button onclick="openAddMemberModal()" class="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg cursor-pointer">
                         <i class="fa-solid fa-plus mr-1"></i> Add Member
                     </button>
                 </div>
@@ -259,15 +265,15 @@
                     <i class="fa-solid fa-cogs text-blue-900 text-xs"></i>
                 </div>
                 <div class="space-y-2">
-                    <button onclick="openServiceModal('categories')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors">
+                    <button onclick="openServiceModal('categories')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors cursor-pointer">
                         <span><i class="fa-solid fa-tags text-blue-600 mr-2"></i> Manage Categories</span>
                         <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
                     </button>
-                    <button onclick="openServiceModal('groups')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors">
+                    <button onclick="openServiceModal('groups')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors cursor-pointer">
                         <span><i class="fa-solid fa-user-group text-emerald-600 mr-2"></i> Manage Custom Groups</span>
                         <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
                     </button>
-                    <button onclick="openServiceModal('contacts')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors">
+                    <button onclick="openServiceModal('contacts')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors cursor-pointer">
                         <span><i class="fa-solid fa-address-book text-amber-600 mr-2"></i> Manage Emergency Contacts</span>
                         <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
                     </button>
@@ -280,7 +286,7 @@
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Appearance</h4>
                     <p class="text-xs font-semibold text-slate-700 mt-0.5">Dark Mode Theme</p>
                 </div>
-                <button onclick="toggleDarkMode()" id="darkModeToggleBtn" class="w-12 h-6 bg-slate-200 rounded-full p-1 transition-colors relative">
+                <button onclick="toggleDarkMode()" id="darkModeToggleBtn" class="w-12 h-6 bg-slate-200 rounded-full p-1 transition-colors relative cursor-pointer">
                     <div id="darkModeKnob" class="w-4 h-4 bg-white rounded-full shadow-md transition-transform"></div>
                 </button>
             </div>
@@ -289,34 +295,34 @@
 
     </main>
 
-    <!-- BOTTOM NAVIGATION BAR -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-100 px-6 py-2.5 flex items-center justify-between z-40 shadow-lg">
-        <button onclick="switchTab('home')" class="nav-btn flex flex-col items-center text-blue-900 transition-all" data-tab="home">
+    <!-- APPLE LIQUID GLASS BOTTOM NAVIGATION BAR -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto apple-glass-dock px-6 py-2.5 flex items-center justify-between z-40 shadow-lg">
+        <button onclick="switchTab('home')" class="nav-btn flex flex-col items-center text-blue-900 transition-all cursor-pointer" data-tab="home">
             <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center transition-all">
                 <i class="fa-solid fa-house text-sm"></i>
             </div>
             <span class="text-[10px] font-bold mt-0.5">Home</span>
         </button>
 
-        <button onclick="switchTab('ledger')" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-600 transition-all" data-tab="ledger">
+        <button onclick="switchTab('ledger')" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-600 transition-all cursor-pointer" data-tab="ledger">
             <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all">
                 <i class="fa-solid fa-receipt text-sm"></i>
             </div>
             <span class="text-[10px] font-bold mt-0.5">Ledger</span>
         </button>
 
-        <button onclick="openAddTransactionModal()" class="w-11 h-11 bg-blue-900 text-white rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform">
+        <button onclick="openAddTransactionModal()" class="w-11 h-11 bg-blue-900 text-white rounded-full flex items-center justify-center shadow-md active:scale-95 transition-transform cursor-pointer">
             <i class="fa-solid fa-plus text-base"></i>
         </button>
 
-        <button onclick="switchTab('chat')" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-600 transition-all relative" data-tab="chat">
+        <button onclick="switchTab('chat')" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-600 transition-all relative cursor-pointer" data-tab="chat">
             <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all">
                 <i class="fa-solid fa-paper-plane text-sm"></i>
             </div>
             <span class="text-[10px] font-bold mt-0.5">Chat</span>
         </button>
 
-        <button onclick="switchTab('profile')" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-600 transition-all" data-tab="profile">
+        <button onclick="switchTab('profile')" class="nav-btn flex flex-col items-center text-slate-400 hover:text-slate-600 transition-all cursor-pointer" data-tab="profile">
             <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all overflow-hidden border border-slate-300">
                 <img src="logo.png" class="w-full h-full object-cover">
             </div>
@@ -325,6 +331,30 @@
     </nav>
 
     <!-- MODALS CONTAINER -->
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold text-slate-900">Edit User Details</h3>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-500 uppercase">First Name</label>
+                    <input type="text" id="editFirstName" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-500 uppercase">Last Name</label>
+                    <input type="text" id="editLastName" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
+                </div>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeModals()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-bold">Cancel</button>
+                <button onclick="saveProfileDetails()" class="flex-1 bg-blue-900 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm cursor-pointer">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Member Modal -->
     <div id="addMemberModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl">
@@ -344,7 +374,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeModals()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-bold">Cancel</button>
-                <button onclick="saveNewMember()" class="flex-1 bg-blue-900 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm">Save Member</button>
+                <button onclick="saveNewMember()" class="flex-1 bg-blue-900 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm cursor-pointer">Save Member</button>
             </div>
         </div>
     </div>
@@ -356,12 +386,8 @@
                 <h3 id="serviceModalTitle" class="text-sm font-bold text-slate-900">Manage Categories</h3>
                 <button onclick="closeModals()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-base"></i></button>
             </div>
-            <div id="serviceModalContent" class="flex-1 overflow-y-auto space-y-3 pr-1">
-                <!-- Populated dynamically based on service type -->
-            </div>
-            <div class="pt-3 border-t border-slate-100 shrink-0" id="serviceModalFooter">
-                <!-- Add new item inputs -->
-            </div>
+            <div id="serviceModalContent" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
+            <div class="pt-3 border-t border-slate-100 shrink-0" id="serviceModalFooter"></div>
         </div>
     </div>
 
@@ -384,28 +410,23 @@
                     </div>
                     <div>
                         <label class="text-[11px] font-bold text-slate-500 uppercase">Category</label>
-                        <select id="txCategory" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
-                            <!-- Populated categories -->
-                        </select>
+                        <select id="txCategory" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900"></select>
                     </div>
                 </div>
                 <div>
                     <label class="text-[11px] font-bold text-slate-500 uppercase">Paid By</label>
-                    <select id="txPayer" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
-                        <!-- Populated members -->
-                    </select>
+                    <select id="txPayer" class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900"></select>
                 </div>
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeModals()" class="flex-1 bg-slate-100 text-slate-700 py-2.5 rounded-xl text-xs font-bold">Cancel</button>
-                <button onclick="saveNewTransaction()" class="flex-1 bg-blue-900 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm">Save Entry</button>
+                <button onclick="saveNewTransaction()" class="flex-1 bg-blue-900 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm cursor-pointer">Save Entry</button>
             </div>
         </div>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // App State
         let currentUser = {
             firstName: "Shyam",
             lastName: "Sathyan",
@@ -440,7 +461,6 @@
 
         let monthlyChartInstance = null;
 
-        // Initialize App on Load
         window.addEventListener('DOMContentLoaded', () => {
             updateDateTime();
             setInterval(updateDateTime, 1000);
@@ -452,13 +472,11 @@
             renderCategoryDropdowns();
         });
 
-        // Live Date & Time
         function updateDateTime() {
             const now = new Date();
             const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
             document.getElementById('liveDateTime').innerText = now.toLocaleDateString('en-US', options);
 
-            // Dynamic Greeting
             const hour = now.getHours();
             let greeting = "Good evening";
             if (hour < 12) greeting = "Good morning";
@@ -467,7 +485,6 @@
             document.getElementById('welcomeGreeting').innerText = `${greeting}, ${currentUser.firstName}`;
         }
 
-        // Tab Switching
         function switchTab(tabName) {
             ['home', 'ledger', 'chat', 'profile'].forEach(t => {
                 document.getElementById(`view-${t}`).classList.add('hidden');
@@ -489,7 +506,6 @@
             }
         }
 
-        // Cloud Status & Sync Simulation
         function manualCloudSync() {
             const dot = document.getElementById('cloudDot');
             dot.className = "block w-3.5 h-3.5 rounded-full bg-amber-500 shadow-sm sync-blinking";
@@ -498,7 +514,6 @@
             }, 1200);
         }
 
-        // Render Dashboard & Chart
         function renderDashboard() {
             let totalSpent = transactions.reduce((acc, curr) => acc + curr.amount, 0);
             let myPaid = transactions.filter(t => t.paidBy === currentUser.firstName).reduce((acc, curr) => acc + curr.amount, 0);
@@ -514,7 +529,6 @@
 
             document.getElementById('totalMembersCount').innerText = `${members.length} Members`;
 
-            // Render Member Balance Rows
             let balanceHtml = '';
             members.forEach(m => {
                 let paid = transactions.filter(t => t.paidBy === m.firstName).reduce((acc, curr) => acc + curr.amount, 0);
@@ -531,7 +545,6 @@
             });
             document.getElementById('memberBalanceRows').innerHTML = balanceHtml;
 
-            // Render Category Breakdown
             let catHtml = '';
             categories.forEach(cat => {
                 let catTotal = transactions.filter(t => t.category === cat).reduce((acc, curr) => acc + curr.amount, 0);
@@ -546,7 +559,6 @@
             });
             document.getElementById('categoryBreakdownList').innerHTML = catHtml || '<p class="text-xs text-slate-400 italic">No category expenses yet.</p>';
 
-            // Render Chart
             const ctx = document.getElementById('monthlyChart').getContext('2d');
             if (monthlyChartInstance) monthlyChartInstance.destroy();
             monthlyChartInstance = new Chart(ctx, {
@@ -568,7 +580,6 @@
             });
         }
 
-        // Render Emergency Contacts with tel: link
         function renderEmergencyContacts() {
             let html = '';
             emergencyContacts.forEach(c => {
@@ -578,7 +589,7 @@
                             <p class="text-xs font-bold text-slate-800">${c.name}</p>
                             <p class="text-[10px] text-slate-400 font-medium">${c.number}</p>
                         </div>
-                        <a href="tel:${c.number}" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-transform active:scale-95" title="Call Now">
+                        <a href="tel:${c.number}" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-transform active:scale-95 shadow-xs" title="Call Now">
                             <i class="fa-solid fa-phone text-xs"></i>
                         </a>
                     </div>
@@ -587,10 +598,9 @@
             document.getElementById('emergencyContactsList').innerHTML = html;
         }
 
-        // Render Members
         function renderMembers() {
             let html = '';
-            members.forEach((m, idx) => {
+            members.forEach((m) => {
                 html += `
                     <div class="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-none text-xs">
                         <span class="font-bold text-slate-800">${m.firstName} ${m.lastName}</span>
@@ -601,7 +611,6 @@
             document.getElementById('adminMembersList').innerHTML = html;
         }
 
-        // Render Transactions
         function renderTransactions() {
             let html = '';
             transactions.forEach(t => {
@@ -618,7 +627,6 @@
             document.getElementById('transactionList').innerHTML = html || '<p class="text-xs text-slate-400 italic">No transactions recorded.</p>';
         }
 
-        // Render Chat
         function renderChat() {
             let html = '';
             chatMessages.forEach(msg => {
@@ -646,7 +654,28 @@
             manualCloudSync();
         }
 
-        // Modals Control
+        function openEditProfileModal() {
+            document.getElementById('editFirstName').value = currentUser.firstName;
+            document.getElementById('editLastName').value = currentUser.lastName;
+            document.getElementById('editProfileModal').classList.remove('hidden');
+        }
+
+        function saveProfileDetails() {
+            const fName = document.getElementById('editFirstName').value.trim();
+            const lName = document.getElementById('editLastName').value.trim();
+            if (!fName) return alert("First name cannot be empty");
+
+            currentUser.firstName = fName;
+            currentUser.lastName = lName;
+            currentUser.fullName = `${fName} ${lName}`.trim();
+
+            document.getElementById('profileCardName').innerText = currentUser.fullName;
+            closeModals();
+            updateDateTime();
+            renderDashboard();
+            manualCloudSync();
+        }
+
         function openAddMemberModal() {
             document.getElementById('addMemberModal').classList.remove('hidden');
         }
@@ -678,13 +707,13 @@
                 content.innerHTML = categories.map((c, i) => `
                     <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs">
                         <span class="font-bold text-slate-800">${c}</span>
-                        <button onclick="deleteCategory(${i})" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteCategory(${i})" class="text-rose-500 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
                 footer.innerHTML = `
                     <div class="flex space-x-2">
                         <input type="text" id="newCategoryInput" placeholder="New category name..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
-                        <button onclick="addCategory()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add</button>
+                        <button onclick="addCategory()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">Add</button>
                     </div>
                 `;
             } else if (type === 'groups') {
@@ -692,13 +721,13 @@
                 content.innerHTML = groups.map((g, i) => `
                     <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs">
                         <span class="font-bold text-slate-800">${g}</span>
-                        <button onclick="deleteGroup(${i})" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteGroup(${i})" class="text-rose-500 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
                 footer.innerHTML = `
                     <div class="flex space-x-2">
                         <input type="text" id="newGroupInput" placeholder="New group name..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
-                        <button onclick="addGroup()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add</button>
+                        <button onclick="addGroup()" class="bg-blue-900 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">Add</button>
                     </div>
                 `;
             } else if (type === 'contacts') {
@@ -709,14 +738,14 @@
                             <p class="font-bold text-slate-800">${ec.name}</p>
                             <p class="text-[10px] text-slate-400">${ec.number}</p>
                         </div>
-                        <button onclick="deleteContact(${i})" class="text-rose-500 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteContact(${i})" class="text-rose-500 text-xs cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
                 footer.innerHTML = `
                     <div class="space-y-2">
                         <input type="text" id="newContactName" placeholder="Contact Name..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
                         <input type="text" id="newContactNumber" placeholder="+971..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
-                        <button onclick="addContact()" class="w-full bg-blue-900 text-white py-2 rounded-xl text-xs font-bold">Add Contact</button>
+                        <button onclick="addContact()" class="w-full bg-blue-900 text-white py-2 rounded-xl text-xs font-bold cursor-pointer">Add Contact</button>
                     </div>
                 `;
             }
@@ -796,6 +825,7 @@
         }
 
         function closeModals() {
+            document.getElementById('editProfileModal').classList.add('hidden');
             document.getElementById('addMemberModal').classList.add('hidden');
             document.getElementById('serviceModal').classList.add('hidden');
             document.getElementById('transactionModal').classList.add('hidden');
@@ -810,17 +840,18 @@
                 knob.style.transform = 'translateX(24px)';
                 btn.classList.remove('bg-slate-200');
                 btn.classList.add('bg-blue-900');
-                document.body.className = "bg-slate-900 text-slate-100 pb-24 select-none";
+                document.body.className = "bg-slate-900 text-slate-100 pb-28 select-none";
             } else {
                 knob.style.transform = 'translateX(0px)';
                 btn.classList.remove('bg-blue-900');
                 btn.classList.add('bg-slate-200');
-                document.body.className = "bg-slate-50 text-slate-900 pb-24 select-none";
+                document.body.className = "bg-slate-50 text-slate-900 pb-28 select-none";
             }
         }
 
         function handleLogout() {
             if (confirm("Are you sure you want to log out?")) {
+                localStorage.clear();
                 window.location.reload();
             }
         }
