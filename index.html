@@ -538,6 +538,10 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
               <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Expenses For Me (Paid by Roommates)</div>
               <div id="dashShare" style="font-size:15px;font-weight:900;color:#d97706;margin-top:1px">AED 0.00</div>
             </div>
+            <div id="dashNetRow">
+              <div id="dashNetLabel" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Net Receivable</div>
+              <div id="dashNet" style="font-size:15px;font-weight:900;color:#059669;margin-top:1px">AED 0.00</div>
+            </div>
           </div>
           <div style="width:110px;height:110px;position:relative;display:flex;align-items:center;justify-content:center">
             <canvas id="monthlyDonutChart"></canvas>
@@ -1947,9 +1951,24 @@ function render(){
   var forMe = monthExps.reduce(function(t,x){
     return (x.pb != cName && x.al.indexOf(cName) > -1) ? t + (Number(x.amt) / x.al.length) : t;
   }, 0);
+  var myMonthShare = monthExps.reduce(function(t,x){
+    return x.al.indexOf(cName) > -1 ? t + (Number(x.amt) / x.al.length) : t;
+  }, 0);
+  var myMonthNet = myPurchases - myMonthShare;
   document.getElementById("dashMonthLabel").innerText = nowD.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   document.getElementById("dashPaid").innerText = "AED " + myPurchases.toFixed(2);
   document.getElementById("dashShare").innerText = "AED " + forMe.toFixed(2);
+  var dashNetLabelEl = document.getElementById("dashNetLabel");
+  var dashNetEl = document.getElementById("dashNet");
+  if(myMonthNet < 0) {
+    dashNetLabelEl.innerText = "Net Payable";
+    dashNetEl.innerText = "AED " + Math.abs(myMonthNet).toFixed(2);
+    dashNetEl.style.color = "#dc2626";
+  } else {
+    dashNetLabelEl.innerText = "Net Receivable";
+    dashNetEl.innerText = "AED " + myMonthNet.toFixed(2);
+    dashNetEl.style.color = "#059669";
+  }
 
   // Category Breakdown Render
   var catTotals = {};
