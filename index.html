@@ -218,6 +218,36 @@ body.dark-page .dock-item.active {
 body.dark-page .dock-item svg { stroke: #ffffff; }
 body.dark-page .dock-item.active svg.fill-active { fill: #ffffff; }
 
+/* ===== Dark mode fixes: inline colours/backgrounds that the class rules could not override ===== */
+body.dark-page input, body.dark-page select {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+body.dark-page input::placeholder { color: #64748b; }
+body.dark-page [style*="color:#111"] { color: #f8fafc !important; }
+body.dark-page [style*="color:#374151"] { color: #cbd5e1 !important; }
+body.dark-page [style*="color:#1e3a8a"]:not(.prof-row-icon):not(.dock-item) { color: #93c5fd !important; }
+body.dark-page [style*="background:#f8fafc"] { background: #0f172a !important; }
+body.dark-page [style*="solid #e5e7eb"], body.dark-page [style*="solid #f3f4f6"] { border-color: #334155 !important; }
+body.dark-page .chat-search { border-bottom-color: #334155; }
+body.dark-page .readonly-notice { background: #1e293b; color: #94a3b8; border-top-color: #334155; }
+body.dark-page th { border-bottom-color: #334155; }
+body.dark-page .btn[style*="background:#e2e8f0"] { background: #334155 !important; color: #f8fafc !important; }
+body.dark-page .msg-action-menu { background: #1e293b; border-color: #334155; }
+body.dark-page .msg-action-btn { color: #e2e8f0; }
+body.dark-page .msg-action-btn:hover { background: #334155; }
+body.dark-page .emoji-picker-row { border-bottom-color: #334155; }
+body.dark-page .modal-close { background: #334155; color: #f8fafc; }
+body.dark-page .online-dot, body.dark-page .offline-dot { border-color: #0f172a; }
+body.dark-page .reaction-pill { background: rgba(255,255,255,0.12); }
+body.dark-page .msg-meta { color: #94a3b8; }
+body.dark-page [style*="background:#eff6ff"] { background: rgba(147,197,253,0.15) !important; }
+body.dark-page [style*="color:#1d4ed8"] { color: #93c5fd !important; }
+body.dark-page .top-logo [fill="#1e3a8a"] { fill: #93c5fd; }
+body.dark-page .top-logo [stroke="#1e3a8a"] { stroke: #93c5fd; }
+body.dark-page .top-logo [stroke="#fff"] { stroke: #0f172a; }
+
 table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
 th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151}
 th{color:#111}
@@ -356,6 +386,17 @@ th{color:#111}
   animation: pulse-blink 1s infinite ease-in-out;
 }
 
+/* Instagram-style profile menu */
+.prof-menu-row { display:flex; align-items:center; justify-content:space-between; padding:14px 2px; border-bottom:1px solid #f3f4f6; cursor:pointer; }
+.prof-menu-row:last-child { border-bottom:none; }
+.prof-row-left { display:flex; align-items:center; gap:14px; font-size:15px; font-weight:600; color:#111; }
+.prof-row-icon { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.prof-row-arrow { font-size:12px; color:#9ca3af; }
+.prof-page-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+body.dark-page .prof-menu-row { border-bottom-color:#334155; }
+body.dark-page .prof-row-left { color:#f8fafc; }
+body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
+
 /* Welcome Profile Card */
 .welcome-profile-card {
   background: #fff;
@@ -457,13 +498,6 @@ th{color:#111}
           <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
         </svg>
       </button>
-      <button class="btn btn-s" style="background:#dc2626;padding:8px 10px;display:flex;align-items:center;justify-content:center" onclick="logout()" title="Logout">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-      </button>
     </div>
   </div>
 
@@ -483,7 +517,7 @@ th{color:#111}
           </div>
         </div>
         <div style="text-align:right">
-          <div id="liveWeatherTemp" style="font-size:18px;font-weight:900;color:#111">28°C <span style="font-size:15px">☀️</span></div>
+          <div id="liveWeatherTemp" style="font-size:18px;font-weight:900;color:#111">--°C</div>
           <div style="font-size:9px;color:#6b7280;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Dubai</div>
         </div>
       </div>
@@ -618,6 +652,7 @@ th{color:#111}
 
     <!-- TAB 5: PROFILE & SETTINGS -->
     <div id="v5" class="hide">
+     <div id="profMenu">
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <h3 style="color:#111;font-size:18px">My Profile</h3>
@@ -627,55 +662,92 @@ th{color:#111}
           <div id="profAvatar" style="width:64px;height:64px;border-radius:50%;background:#1e3a8a;color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #1e3a8a">S</div>
           <div>
             <h3 id="profName" style="color:#111;font-size:18px">Shyam Sathyan</h3>
-            <p id="profRole" style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700">Room Admin & Resident</p>
+            <p id="profRole" style="font-size:12px;color:#6b7280;text-transform:uppercase;font-weight:700">Member</p>
             <span style="display:inline-block;margin-top:4px;font-size:10px;background:#eff6ff;color:#1d4ed8;font-weight:700;padding:2px 8px;border-radius:10px">Cloud Active</span>
           </div>
         </div>
       </div>
 
-      <!-- EMERGENCY CONTACTS -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Emergency Contacts</strong>
-          <i class="fa-solid fa-phone-volume" style="color:#dc2626;font-size:12px"></i>
+      <!-- PROFILE MENU (headings only) -->
+      <div class="card" style="padding:6px 18px">
+        <div class="prof-menu-row" onclick="openProfPage('ec')">
+          <div class="prof-row-left"><span class="prof-row-icon" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-phone-volume"></i></span>Emergency Contacts</div>
+          <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
         </div>
+        <div id="adminSection" class="hide">
+          <div class="prof-menu-row" onclick="openProfPage('members')">
+            <div class="prof-row-left"><span class="prof-row-icon" style="background:#dbeafe;color:#2563eb"><i class="fa-solid fa-users-gear"></i></span>Manage Members</div>
+            <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
+          </div>
+          <div class="prof-menu-row" onclick="openProfPage('services')">
+            <div class="prof-row-left"><span class="prof-row-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-cogs"></i></span>Services</div>
+            <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
+          </div>
+        </div>
+        <div class="prof-menu-row" onclick="openProfPage('appearance')">
+          <div class="prof-row-left"><span class="prof-row-icon" style="background:#ede9fe;color:#7c3aed"><i class="fa-solid fa-circle-half-stroke"></i></span>Appearance</div>
+          <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
+        </div>
+        <div class="prof-menu-row" onclick="logout()">
+          <div class="prof-row-left" style="color:#dc2626"><span class="prof-row-icon" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-right-from-bracket"></i></span>Logout</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: EMERGENCY CONTACTS -->
+    <div id="profPage_ec" class="hide">
+      <div class="prof-page-head">
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 style="color:#111;font-size:18px">Emergency Contacts</h3>
+      </div>
+      <div class="card">
         <div id="emergencyContactsListContainer" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
+    </div>
 
-      <div id="adminSection" class="hide">
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <h3 style="color:#111;font-size:18px">Manage Members</h3>
-            <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()">+ Add Member</button>
-          </div>
-          <div id="ulist"></div>
-        </div>
+    <!-- PAGE: MANAGE MEMBERS -->
+    <div id="profPage_members" class="hide">
+      <div class="prof-page-head">
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 style="color:#111;font-size:18px;flex:1">Manage Members</h3>
+        <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()">+ Add Member</button>
       </div>
-
-      <!-- SERVICES MANAGEMENT (ADMIN CONTROLS) -->
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Services & Admin Controls</strong>
-          <i class="fa-solid fa-cogs" style="color:#1e3a8a;font-size:12px"></i>
-        </div>
+        <div id="ulist"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: SERVICES -->
+    <div id="profPage_services" class="hide">
+      <div class="prof-page-head">
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 style="color:#111;font-size:18px">Services</h3>
+      </div>
+      <div class="card">
         <div style="display:flex;flex-direction:column;gap:8px">
-          <button onclick="openServiceManager('categories')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:700;color:#374151;cursor:pointer">
+          <button onclick="openServiceManager('categories')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;font-weight:700;color:#374151;cursor:pointer">
             <span><i class="fa-solid fa-tags" style="color:#2563eb;margin-right:8px"></i> Manage Categories</span>
             <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
           </button>
-          <button onclick="openServiceManager('groups')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:700;color:#374151;cursor:pointer">
+          <button onclick="openServiceManager('groups')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;font-weight:700;color:#374151;cursor:pointer">
             <span><i class="fa-solid fa-user-group" style="color:#059669;margin-right:8px"></i> Manage Custom Groups</span>
             <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
           </button>
-          <button onclick="openServiceManager('contacts')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;font-weight:700;color:#374151;cursor:pointer">
+          <button onclick="openServiceManager('contacts')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;font-weight:700;color:#374151;cursor:pointer">
             <span><i class="fa-solid fa-address-book" style="color:#d97706;margin-right:8px"></i> Manage Emergency Contacts</span>
             <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
           </button>
         </div>
       </div>
+    </div>
 
+    <!-- PAGE: APPEARANCE -->
+    <div id="profPage_appearance" class="hide">
+      <div class="prof-page-head">
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 style="color:#111;font-size:18px">Appearance</h3>
+      </div>
       <div class="card">
-        <h3 style="color:#111;margin-bottom:10px">Appearance</h3>
         <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb">
           <div>
             <strong style="font-size:14px;color:#111">Dark Mode Theme</strong>
@@ -684,6 +756,7 @@ th{color:#111}
           <input type="checkbox" id="darkModeToggle" onchange="toggleTheme()" style="width:22px;height:22px;cursor:pointer">
         </div>
       </div>
+    </div>
     </div>
   </div>
 
@@ -877,18 +950,18 @@ function getOnlineStatusInfo(userObj) {
 }
 
 // Live Real-Time Weather Fetch for Dubai
-function weatherIcon(code) {
-  if(code === 0) return "☀️";
-  if(code <= 2) return "⛅";
+function weatherIcon(code, isDay) {
+  if(code === 0) return isDay ? "☀️" : "🌙";
+  if(code <= 2) return isDay ? "⛅" : "☁️";
   if(code === 3) return "☁️";
   if(code === 45 || code === 48) return "🌫️";
   if(code >= 51 && code <= 67) return "🌧️";
-  if(code >= 80 && code <= 82) return "🌦️";
+  if(code >= 80 && code <= 82) return isDay ? "🌦️" : "🌧️";
   if(code >= 95) return "⛈️";
-  return "🌤️";
+  return isDay ? "🌤️" : "☁️";
 }
 function fetchLiveWeather() {
-  var url = "https://api.open-meteo.com/v1/forecast?latitude=25.2048&longitude=55.2708&current=temperature_2m,weather_code";
+  var url = "https://api.open-meteo.com/v1/forecast?latitude=25.2048&longitude=55.2708&current=temperature_2m,weather_code,is_day";
   fetch(url)
     .then(function(res) { return res.json(); })
     .then(function(data) {
@@ -896,7 +969,7 @@ function fetchLiveWeather() {
         var tempC = Math.round(data.current.temperature_2m);
         var weatherEl = document.getElementById("liveWeatherTemp");
         if(weatherEl) {
-          weatherEl.innerHTML = tempC + '°C <span style="font-size:15px">' + weatherIcon(data.current.weather_code) + '</span>';
+          weatherEl.innerHTML = tempC + '°C <span style="font-size:15px">' + weatherIcon(data.current.weather_code, data.current.is_day === 1) + '</span>';
         }
       }
     })
@@ -1206,12 +1279,30 @@ function tab(n){
       if(i==5) {
         document.getElementById("editFirstName").value = cur.firstName || cur.name || "";
         document.getElementById("editLastName").value = cur.lastName || "";
+        showProfMenu();
       }
     } else {
       v.className = "hide";
     }
   }
   render();
+}
+
+/* PROFILE SUB-PAGES (Instagram style menu) */
+var PROF_PAGES = ["ec","members","services","appearance"];
+function openProfPage(name) {
+  document.getElementById("profMenu").className = "hide";
+  PROF_PAGES.forEach(function(k){
+    document.getElementById("profPage_" + k).className = (k === name) ? "" : "hide";
+  });
+  window.scrollTo(0, 0);
+}
+function showProfMenu() {
+  document.getElementById("profMenu").className = "";
+  PROF_PAGES.forEach(function(k){
+    document.getElementById("profPage_" + k).className = "hide";
+  });
+  window.scrollTo(0, 0);
 }
 
 function openEditProfileModal() { document.getElementById("editProfileModal").className = "modal-overlay"; }
@@ -1838,11 +1929,13 @@ function render(){
 
   updateDateTime();
   document.getElementById("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
+  document.getElementById("profRole").innerText = (cur.r === "admin") ? "Admin" : "Member";
 
   var s=stats();
   document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
   document.getElementById("mcount").innerText=users.length;
-  document.getElementById("tb").innerHTML=s.st.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
+  var visibleBal=s.st.filter(function(m){return Math.abs(m.net)>=0.005});
+  document.getElementById("tb").innerHTML=visibleBal.length===0?"<tr><td colspan='4' style='text-align:center;color:#6b7280;font-style:italic'>All balances are settled.</td></tr>":visibleBal.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
