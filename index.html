@@ -854,14 +854,14 @@ function pingUserActivity(shouldSave) {
   localStorage.setItem("r110_saved_user", JSON.stringify(cur));
   if(shouldSave) save();
 }
-setInterval(function(){ pingUserActivity(false); }, 30000);
+setInterval(function(){ pingUserActivity(false); }, 20000);
 
 function getOnlineStatusInfo(userObj) {
   if(!userObj || !userObj.lastActive) {
     return { isOnline: false, text: "Offline" };
   }
   var diffMs = Date.now() - Number(userObj.lastActive);
-  if(diffMs <= 180000) { // Active within last 3 minutes
+  if(diffMs <= 120000) { // Active within last 2 minutes
     return { isOnline: true, text: "Online" };
   }
   var d = new Date(Number(userObj.lastActive));
@@ -888,6 +888,7 @@ function checkSuperAdminWelcome() {
       timeEpoch: Date.now() - 1000000,
       isWelcome: true,
       isSystem: true,
+      isRead: true,
       reactions: {}
     });
     changed = true;
@@ -903,6 +904,7 @@ function checkSuperAdminWelcome() {
       timeEpoch: Date.now() - 1000000,
       isWelcome: true,
       isSystem: true,
+      isRead: true,
       reactions: {}
     });
     changed = true;
@@ -937,6 +939,7 @@ function broadcastStatementReminder() {
     timestamp: tm,
     timeEpoch: Date.now(),
     isSystem: true,
+    isRead: false,
     reactions: {}
   });
 
@@ -989,13 +992,14 @@ function loadCloudData(){
         exps = data.exps;
         localStorage.setItem("r110_e", JSON.stringify(exps));
       }
-      if(data && data.msgs && data.msgs.length) {
+      if(data && Array.isArray(data.msgs)) {
         var prevCount = msgs.length;
         msgs = data.msgs;
         localStorage.setItem("r110_m", JSON.stringify(msgs));
         if(msgs.length > prevCount && cur) {
           var latest = msgs[msgs.length - 1];
-          if(latest && latest.sender !== (cur.firstName || cur.name)) {
+          var cName = cur.firstName || cur.name;
+          if(latest && latest.sender !== cName) {
             triggerPushNotification("New message from " + latest.sender, latest.text.replace(/<br>/g, " "));
           }
         }
@@ -1012,10 +1016,22 @@ function loadCloudData(){
         var fresh = users.find(function(x){ return x.u === cur.u; });
         if(fresh) {
           cur = fresh;
-          cur.lastActive = Date.now();
-          localStorage.setItem("r110_saved_user", JSON.stringify(cur));
+          updateMyPresence();
         }
       }
+
+      // Check if any message sent by current user has been viewed/read by cloud sync
+      var cName = cur ? (cur.firstName || cur.name) : "";
+      msgs.forEach(function(m){
+        if(m.sender === cName && !m.isRead) {
+          // If message is in group or another user's active session, mark delivered / read
+          var targetUser = users.find(function(x){ return (x.firstName || x.name) === m.target; });
+          if(m.target === 'group_room110' || (targetUser && Number(targetUser.lastActive || 0) >= m.timeEpoch)) {
+            m.isRead = true;
+          }
+        }
+      });
+
       setCloudStatus('live');
       applyTheme();
       checkSuperAdminWelcome();
@@ -1041,7 +1057,7 @@ function setCloudStatus(status) {
   }
 }
 
-// Fast 3-second polling interval for real-time messaging updates
+// Ultra-fast 3-second polling interval for real-time messaging & tick delivery
 loadCloudData();
 setInterval(loadCloudData, 3000);
 
@@ -1067,7 +1083,7 @@ function toggleTheme(){
 }
 
 function save(){
-  pingUserActivity(false);
+  updateMyPresence();
   localStorage.setItem("r110_u", JSON.stringify(users));
   localStorage.setItem("r110_e", JSON.stringify(exps));
   localStorage.setItem("r110_m", JSON.stringify(msgs));
@@ -1101,7 +1117,7 @@ function login(e){
       cur.firstName = cur.name || "Shyam";
       cur.lastName = cur.lastName || "Sathyan";
     }
-    cur.lastActive = Date.now();
+    updateMyPresence();
     if(document.getElementById("keepMe").checked){
       localStorage.setItem("r110_saved_user", JSON.stringify(cur));
     }
@@ -1122,7 +1138,7 @@ function openDashboard(){
   applyTheme();
   updateDateTime();
   checkSuperAdminWelcome();
-  pingUserActivity(false);
+  updateMyPresence();
   tab(1);
 }
 
@@ -1139,11 +1155,12 @@ function logout(){
 }
 
 function tab(n){
-  pingUserActivity(false);
+  updateMyPresence();
   var mainWrap = document.getElementById("mainWrap");
   if(n === 4) {
     mainWrap.className = "wrap chat-fullscreen-wrap";
     requestNotificationPermission();
+    ensureSuperAdminWelcome();
   } else {
     mainWrap.className = "wrap";
   }
@@ -1152,7 +1169,10 @@ function tab(n){
     document.getElementById("d"+i).className = "dock-item" + (i==n ? " active" : "");
     var v = document.getElementById("v"+i);
     if(i==n){
-      v.className = (i==3) ? "card" : "";
+      if(i==3) v.className = "card";
+      else if(i==4) v.className = "fullscreen-chat";
+      else v.className = "";
+
       if(i==5) {
         document.getElementById("editFirstName").value = cur.firstName || cur.name || "";
         document.getElementById("editLastName").value = cur.lastName || "";
@@ -1184,13 +1204,12 @@ function closeModals() {
   document.getElementById("serviceManagerModal").className = "modal-overlay hide";
 }
 
-/* CHAT FUNCTIONS (FULL-SCREEN WHATSAPP STYLE WITH TICKS) */
+/* CHAT FUNCTIONS (WHATSAPP STYLE FULL SCREEN) */
 function selectChatTarget(target) {
   activeChatTarget = target;
   document.getElementById("chatSidebar").style.display = "none";
   document.getElementById("chatMainPane").className = "chat-main-pane";
   
-  // Mark messages in this chat as read (double blue ticks)
   var cName = cur.firstName || cur.name;
   var updated = false;
   msgs.forEach(function(m){
@@ -1219,7 +1238,7 @@ function filterChatContacts() {
 function renderChatContactsList() {
   var filter = (document.getElementById("chatSearchInput").value || "").toLowerCase();
   var container = document.getElementById("chatContactsList");
-  var cName = cur.firstName || cur.name;
+  if(!container || !cur) return;
 
   var html = '';
 
@@ -1233,28 +1252,40 @@ function renderChatContactsList() {
 
   // 2. Default Group Chat Item (Room 110)
   if("room 110".includes(filter)) {
+    var groupMsgs = msgs.filter(function(m){ return m.target === 'group_room110' || !m.target; });
+    var lastGroupMsg = groupMsgs.length ? groupMsgs[groupMsgs.length - 1] : null;
+    var groupPreview = lastGroupMsg ? (lastGroupMsg.sender + ": " + lastGroupMsg.text) : "Official group chat for all members";
+
     html += '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget(\'group_room110\')">';
     html += '<div class="contact-avatar" style="background:#1e3a8a"><i class="fa-solid fa-users"></i></div>';
-    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">Room 110</div><div style="font-size:11px;color:#6b7280">Group • ' + users.length + ' members</div></div>';
-    html += '</div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:15px;color:#111">Room 110</span><span style="font-size:10px;color:#059669;background:#d1fae5;padding:2px 7px;border-radius:8px;font-weight:700">Group</span></div>';
+    html += '<div style="font-size:12px;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">'+groupPreview+'</div>';
+    html += '</div></div>';
   }
 
   // 3. Individual Members List
   users.forEach(function(u){
+    if(u.u === cur.u) return; // skip self
     var uName = u.firstName || u.name;
-    if(uName === cName) return;
-    if(!uName.toLowerCase().includes(filter)) return;
+    var fullDisplay = uName + (u.lastName ? " " + u.lastName : "");
+    if(!fullDisplay.toLowerCase().includes(filter) && !u.u.toLowerCase().includes(filter)) return;
 
     var statusInfo = getOnlineStatusInfo(u);
-    var avHtml = u.avatar ? '<img src="'+u.avatar+'">' : uName.charAt(0).toUpperCase();
+    var isSuperAdmin = u.r === "admin";
+    var roleBadge = isSuperAdmin ? '<span style="font-size:10px;color:#1e3a8a;background:#eff6ff;padding:2px 6px;border-radius:6px;font-weight:700">Super Admin</span>' : '';
+
+    var avatarInner = u.avatar ? '<img src="'+u.avatar+'">' : uName.charAt(0).toUpperCase();
 
     html += '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(\''+uName+'\')">';
-    html += '<div class="contact-avatar">'+avHtml+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
-    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+uName+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+'">'+statusInfo.text+'</div></div>';
-    html += '</div>';
+    html += '<div class="contact-avatar">'+avatarInner+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:15px;color:#111">'+fullDisplay+'</span>'+roleBadge+'</div>';
+    html += '<div style="font-size:12px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+';margin-top:2px">'+statusInfo.text+'</div>';
+    html += '</div></div>';
   });
 
-  container.innerHTML = html || '<div style="padding:20px;text-align:center;color:#6b7280;font-size:13px">No chats found.</div>';
+  container.innerHTML = html || '<div style="padding:24px;text-align:center;color:#6b7280;font-size:13px">No members or chats found.</div>';
 }
 
 function renderChatActivePane() {
@@ -1342,13 +1373,13 @@ function renderChatMessages() {
       senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+m.sender+'</div>';
     }
 
-    // Tick determination: Single tick (sent), Double grey tick (delivered), Double blue tick (read)
+    // WhatsApp Tick indicators: Single grey tick (sent/saved), Double grey tick (delivered), Double blue tick (read)
     var ticksHtml = '';
     if(isMe && !m.isSystem) {
       if(m.isRead) {
-        ticksHtml = '<span style="color:#53bdeb;font-size:11px;font-weight:bold" title="Read">✓✓</span>';
+        ticksHtml = '<span style="color:#53bdeb;font-size:12px;font-weight:bold;margin-left:3px" title="Read">✓✓</span>';
       } else {
-        ticksHtml = '<span style="color:#667781;font-size:11px" title="Delivered">✓✓</span>';
+        ticksHtml = '<span style="color:#667781;font-size:12px;margin-left:3px" title="Delivered">✓✓</span>';
       }
     }
 
@@ -1818,10 +1849,11 @@ function render(){
     }
   });
 
-  document.getElementById("pby").innerHTML=users.map(function(u){var uN = u.firstName || u.name; return "<option value='"+uN+"' "+(uN==cName?'selected':"")+">"+uN+"</option>"}).join("");
+  document.getElementById("pby").innerHTML=users.map(function(u){var uN = u.firstName || u.name; return "<option value='"+uN+"' "+(uN==cName?"selected":"")+">"+uN+"</option>"}).join("");
   document.getElementById("cbox").innerHTML=users.map(function(u){var uN = u.firstName || u.name; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' checked><span>"+uN+"</span></label>"}).join("");
   document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses recorded yet. Tap (+) in the dock to add one!</div>";
 
+  // Render WhatsApp style chat contacts & active pane
   renderChatContactsList();
   if(document.getElementById("chatMainPane").className.indexOf("hide") === -1) {
     renderChatActivePane();
