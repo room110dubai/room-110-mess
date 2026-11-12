@@ -531,16 +531,12 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
           <div style="flex:1">
             <div style="margin-bottom:8px">
-              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Purchases (Paid)</div>
+              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">My Purchases (I Paid)</div>
               <div id="dashPaid" style="font-size:15px;font-weight:900;color:#059669;margin-top:1px">AED 0.00</div>
             </div>
             <div style="margin-bottom:8px">
-              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Expenses (Share)</div>
+              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Expenses For Me (Paid by Roommates)</div>
               <div id="dashShare" style="font-size:15px;font-weight:900;color:#d97706;margin-top:1px">AED 0.00</div>
-            </div>
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Net Status</div>
-              <div id="dashNet" style="font-size:15px;font-weight:900;margin-top:1px">AED 0.00</div>
             </div>
           </div>
           <div style="width:110px;height:110px;position:relative;display:flex;align-items:center;justify-content:center">
@@ -1939,12 +1935,21 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Monthly Dashboard Render
-  document.getElementById("dashPaid").innerText = "AED " + myStat.pd.toFixed(2);
-  document.getElementById("dashShare").innerText = "AED " + myStat.sh.toFixed(2);
-  var dashNetEl = document.getElementById("dashNet");
-  dashNetEl.innerText = (myStat.net >= 0 ? "+AED " : "-AED ") + Math.abs(myStat.net).toFixed(2);
-  dashNetEl.style.color = myStat.net >= 0 ? "#059669" : "#dc2626";
+  // Monthly Dashboard Render (private: only the logged-in member's own figures, current month)
+  var nowD = new Date();
+  var monthExps = exps.filter(function(x){
+    var d = new Date(Number(x.id));
+    return d.getMonth() === nowD.getMonth() && d.getFullYear() === nowD.getFullYear();
+  });
+  var myPurchases = monthExps.reduce(function(t,x){
+    return x.pb == cName ? t + Number(x.amt) : t;
+  }, 0);
+  var forMe = monthExps.reduce(function(t,x){
+    return (x.pb != cName && x.al.indexOf(cName) > -1) ? t + (Number(x.amt) / x.al.length) : t;
+  }, 0);
+  document.getElementById("dashMonthLabel").innerText = nowD.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById("dashPaid").innerText = "AED " + myPurchases.toFixed(2);
+  document.getElementById("dashShare").innerText = "AED " + forMe.toFixed(2);
 
   // Category Breakdown Render
   var catTotals = {};
@@ -1976,19 +1981,21 @@ function render(){
   }
 
   // Monthly Donut Chart (updates in place, no re-spin)
-  var newPaid = myStat.pd || 1;
-  var newShare = myStat.sh || 1;
+  var bothZero = !(myPurchases > 0) && !(forMe > 0);
+  var chartVals = bothZero ? [1, 0] : [myPurchases, forMe];
+  var chartCols = bothZero ? ['#d1d5db', '#d1d5db'] : ['#10b981', '#f59e0b'];
   if(window.Chart) {
     if(monthlyChartInstance) {
-      monthlyChartInstance.data.datasets[0].data = [newPaid, newShare];
+      monthlyChartInstance.data.datasets[0].data = chartVals;
+      monthlyChartInstance.data.datasets[0].backgroundColor = chartCols;
       monthlyChartInstance.update('none');
     } else {
       var ctx = document.getElementById('monthlyDonutChart').getContext('2d');
       monthlyChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Paid', 'Share'],
-          datasets: [{ data: [newPaid, newShare], backgroundColor: ['#10b981', '#f59e0b'], borderWidth: 0 }]
+          labels: ['My Purchases', 'For Me'],
+          datasets: [{ data: chartVals, backgroundColor: chartCols, borderWidth: 0 }]
         },
         options: {
           responsive: true,
