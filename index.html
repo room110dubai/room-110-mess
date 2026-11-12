@@ -270,7 +270,7 @@ th{color:#111}
 .msg-me { background: #d9fdd3; color: #111; align-self: flex-end; border-top-right-radius: 4px; }
 .msg-other { background: #fff; color: #111; align-self: flex-start; border-top-left-radius: 4px; }
 .msg-system { background: #fef3c7; border: 1px solid #fde68a; color: #92400e; align-self: flex-start; border-top-left-radius: 4px; }
-.msg-meta { font-size: 10px; color: #667781; margin-top: 4px; text-align: right; font-weight: 600; display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
+.msg-meta { font-size: 10px; color: #667781; margin-top: 4px; text-align: right; font-weight: 600; }
 .msg-reactions { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
 .reaction-pill { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 11px; cursor: pointer; }
 .readonly-notice { text-align: center; padding: 12px; font-size: 12px; font-weight: 600; color: #6b7280; background: #f8fafc; border-top: 1px solid #e2e8f0; }
@@ -779,7 +779,7 @@ th{color:#111}
     </button>
     <button id="d4" class="dock-item" onclick="tab(4)" title="Chat">
       <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-      <span id="chatUnreadDot" class="dock-dot"></span>
+      <span id="chatDockDot" class="dock-dot"></span>
     </button>
     <button id="d5" class="dock-item" onclick="tab(5)" title="Profile">
       <div id="dockAvatarContainer" class="dock-avatar"><span id="dockInitial">S</span></div>
@@ -941,8 +941,6 @@ function broadcastStatementReminder() {
     timestamp: tm,
     timeEpoch: Date.now(),
     isSystem: true,
-    delivered: true,
-    isRead: false,
     reactions: {}
   });
 
@@ -997,21 +995,11 @@ function loadCloudData(){
       }
       if(data && data.msgs && data.msgs.length) {
         var prevCount = msgs.length;
-        var cName = cur ? (cur.firstName || cur.name) : "";
-        data.msgs.forEach(function(incoming){
-          var existing = msgs.find(function(ex){ return ex.id === incoming.id; });
-          incoming.delivered = true;
-          if(existing && existing.isRead) {
-            incoming.isRead = true;
-          } else if(incoming.sender !== cName && document.getElementById("chatMainPane") && document.getElementById("chatMainPane").className.indexOf("hide") === -1) {
-            incoming.isRead = true;
-          }
-        });
         msgs = data.msgs;
         localStorage.setItem("r110_m", JSON.stringify(msgs));
         if(msgs.length > prevCount && cur) {
           var latest = msgs[msgs.length - 1];
-          if(latest && latest.sender !== cName) {
+          if(latest && latest.sender !== (cur.firstName || cur.name)) {
             triggerPushNotification("New message from " + latest.sender, latest.text.replace(/<br>/g, " "));
           }
         }
@@ -1057,9 +1045,8 @@ function setCloudStatus(status) {
   }
 }
 
-// 3 seconds real-time poll refresh
 loadCloudData();
-setInterval(loadCloudData, 3000);
+setInterval(loadCloudData, 30000);
 
 function applyTheme(){
   var toggle = document.getElementById("darkModeToggle");
@@ -1204,19 +1191,6 @@ function selectChatTarget(target) {
   activeChatTarget = target;
   document.getElementById("chatSidebar").style.display = "none";
   document.getElementById("chatMainPane").className = "chat-main-pane";
-  
-  var cName = cur.firstName || cur.name;
-  var updated = false;
-  msgs.forEach(function(m){
-    var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') ||
-                 (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) ||
-                 (m.target === cName && m.sender === activeChatTarget);
-    if(inChat && !m.isRead && m.sender !== cName) {
-      m.isRead = true;
-      updated = true;
-    }
-  });
-  if(updated) save();
   renderChatActivePane();
 }
 
@@ -1264,7 +1238,7 @@ function renderChatContactsList() {
 
     html += '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(\''+uName+'\')">';
     html += '<div class="contact-avatar">'+avHtml+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
-    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+uName+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+';margin-top:2px">'+statusInfo.text+'</div></div>';
+    html += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+uName+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+'">'+statusInfo.text+'</div></div>';
     html += '</div>';
   });
 
@@ -1359,18 +1333,6 @@ function renderChatMessages() {
       senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+m.sender+'</div>';
     }
 
-    // WhatsApp Tick Status Logic
-    var ticksHtml = '';
-    if(isMe && !m.isSystem) {
-      if(m.isRead) {
-        ticksHtml = '<span style="color:#53bdeb;font-size:12px;font-weight:bold;margin-left:3px" title="Read">✓✓</span>';
-      } else if(m.delivered) {
-        ticksHtml = '<span style="color:#667781;font-size:12px;margin-left:3px" title="Delivered">✓✓</span>';
-      } else {
-        ticksHtml = '<span style="color:#667781;font-size:12px;margin-left:3px" title="Sent">✓</span>';
-      }
-    }
-
     return '<div class="msg-bubble '+bubbleClass+'" ' +
            'oncontextmenu="openMsgMenu(event, \''+m.id+'\', '+isMe+')" ' +
            'ontouchstart="startMsgLongPress(event, \''+m.id+'\', '+isMe+')" ' +
@@ -1378,7 +1340,7 @@ function renderChatMessages() {
            'ontouchmove="cancelMsgLongPress()">' +
            senderHeader +
            '<div>'+m.text+'</div>' +
-           '<div class="msg-meta"><span>'+(m.edited ? '(edited) ' : '')+m.timestamp+'</span>'+ticksHtml+'</div>' +
+           '<div class="msg-meta">'+(m.edited ? '(edited) ' : '')+m.timestamp+'</div>' +
            (reactionsHtml ? '<div class="msg-reactions">'+reactionsHtml+'</div>' : '') +
            '</div>';
   }).join('') || '<div style="text-align:center;color:#667781;font-size:12px;margin-top:20px">No messages yet. Say hello!</div>';
@@ -1424,8 +1386,6 @@ function sendActiveChatMsg(e) {
     timestamp: tm,
     timeEpoch: Date.now(),
     isSystem: isSuperAdminPost,
-    delivered: true,
-    isRead: false,
     reactions: {}
   };
 
@@ -1854,7 +1814,7 @@ function render(){
   var admSec = document.getElementById("adminSection");
   if(cur.r=="admin"){
     admSec.className="";
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+(u.firstName || u.name)+" "+(u.lastName || "")+"</b><div style='font-size:12px;color:#6b7280">ID: "+u.u+" | Pass: "+u.p+" | Role: "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+(u.firstName || u.name)+" "+(u.lastName || "")+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | Role: "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
   } else {
     admSec.className="hide";
   }
