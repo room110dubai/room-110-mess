@@ -40,12 +40,13 @@
         .sync-blinking {
             animation: pulse-slow 1.2s infinite ease-in-out;
         }
-        /* Apple Liquid Glass Dock Styling */
-        .apple-glass-dock {
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(226, 232, 240, 0.6);
+        /* Authentic Apple Liquid Glass Dock */
+        .apple-liquid-dock {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.05);
         }
     </style>
 </head>
@@ -53,33 +54,32 @@
 
     <!-- TOP HEADER -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between shadow-xs">
-        <div class="flex items-center space-x-2">
-            <!-- Restored Original Custom Logo Image -->
-            <img src="logo.png" alt="Room 110 Logo" class="w-9 h-9 rounded-xl object-cover shadow-xs border border-blue-900/20">
-            <div>
-                <div class="flex items-center space-x-1">
-                    <span class="font-bold text-lg tracking-tight text-blue-900">Room</span>
-                    <span class="bg-blue-900 text-white px-1.5 py-0.5 rounded text-[10px] font-black">110</span>
+        <div>
+            <!-- Restored Original Top-Left Logo Design -->
+            <div class="flex items-center space-x-1.5">
+                <span class="font-bold text-xl tracking-tight text-blue-900">Room</span>
+                <div class="bg-blue-900 text-white px-1.5 py-0.5 rounded text-xs font-black flex items-center shadow-xs">
+                    <i class="fa-solid fa-building text-[10px] mr-0.5"></i>110
                 </div>
-                <!-- Live Date and Time -->
-                <div id="liveDateTime" class="text-[11px] font-medium text-slate-500">Loading...</div>
             </div>
+            <!-- Live Date and Time -->
+            <div id="liveDateTime" class="text-xs font-medium text-slate-500 mt-0.5">Loading date & time...</div>
         </div>
 
-        <div class="flex items-center space-x-2.5">
+        <div class="flex items-center space-x-3">
             <!-- Cloud Status Indicator Dot -->
-            <button id="cloudStatusBtn" onclick="manualCloudSync()" class="p-2 rounded-full hover:bg-slate-100 transition-all cursor-pointer" title="Cloud Status (Tap to Sync)">
+            <button id="cloudStatusBtn" onclick="manualCloudSync()" class="relative group p-2 rounded-full hover:bg-slate-100 transition-all cursor-pointer" title="Cloud Status (Tap to Sync)">
                 <span id="cloudDot" class="block w-3.5 h-3.5 rounded-full bg-emerald-500 shadow-sm transition-all"></span>
             </button>
 
             <!-- WhatsApp Group Link -->
             <a href="https://chat.whatsapp.com/J1xMhG9p5rY5W4s3K2L1" target="_blank" class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md hover:bg-emerald-600 transition-transform active:scale-95">
-                <i class="fa-brands fa-whatsapp text-base"></i>
+                <i class="fa-brands fa-whatsapp text-lg"></i>
             </a>
 
-            <!-- Logout Button -->
+            <!-- Working Logout Button -->
             <button onclick="handleLogout()" class="w-9 h-9 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition-transform active:scale-95 shadow-xs cursor-pointer" title="Logout">
-                <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                <i class="fa-solid fa-arrow-right-from-bracket text-sm"></i>
             </button>
         </div>
     </header>
@@ -125,15 +125,15 @@
                     <div class="space-y-2.5">
                         <div>
                             <p class="text-[11px] font-bold text-slate-400 uppercase">Purchases (Paid)</p>
-                            <p id="dashPaid" class="text-base font-black text-emerald-600">AED 0.00</p>
+                            <p id="dashPaid" class="text-base font-black text-emerald-600">AED 30.00</p>
                         </div>
                         <div>
                             <p class="text-[11px] font-bold text-slate-400 uppercase">Expenses (Share)</p>
-                            <p id="dashShare" class="text-base font-black text-amber-600">AED 0.00</p>
+                            <p id="dashShare" class="text-base font-black text-amber-600">AED 42.50</p>
                         </div>
                         <div class="pt-1 border-t border-slate-100">
                             <p class="text-[11px] font-bold text-slate-400 uppercase">Net Status</p>
-                            <p id="dashNet" class="text-sm font-extrabold text-emerald-600">+AED 0.00</p>
+                            <p id="dashNet" class="text-sm font-extrabold text-rose-600">-AED 12.50</p>
                         </div>
                     </div>
 
@@ -151,7 +151,14 @@
                     <i class="fa-solid fa-chart-pie text-slate-400 text-xs"></i>
                 </div>
                 <div id="categoryBreakdownList" class="space-y-2.5">
-                    <!-- Dynamically populated category breakdown -->
+                    <div class="flex items-center justify-between text-xs font-semibold py-1 border-b border-slate-50">
+                        <span class="text-slate-600"><i class="fa-solid fa-tag w-5 text-blue-500"></i> Groceries</span>
+                        <span class="text-slate-900 font-bold">AED 55.00</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs font-semibold py-1">
+                        <span class="text-slate-600"><i class="fa-solid fa-tag w-5 text-blue-500"></i> Utilities</span>
+                        <span class="text-slate-900 font-bold">AED 30.00</span>
+                    </div>
                 </div>
             </div>
 
@@ -172,7 +179,18 @@
                             </tr>
                         </thead>
                         <tbody id="memberBalanceRows" class="divide-y divide-slate-50 font-medium">
-                            <!-- Dynamic rows -->
+                            <tr>
+                                <td class="py-2.5 font-bold text-slate-800">Shyam</td>
+                                <td class="py-2.5 text-right text-slate-600">30.0</td>
+                                <td class="py-2.5 text-right text-slate-600">42.5</td>
+                                <td class="py-2.5 text-right font-bold text-rose-600">-12.5</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2.5 font-bold text-slate-800">Sumon</td>
+                                <td class="py-2.5 text-right text-slate-600">55.0</td>
+                                <td class="py-2.5 text-right text-slate-600">42.5</td>
+                                <td class="py-2.5 text-right font-bold text-emerald-600">+12.5</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -189,7 +207,13 @@
                     </button>
                 </div>
                 <div id="transactionList" class="space-y-2.5">
-                    <!-- Populated transactions -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 text-xs">
+                        <div>
+                            <p class="font-bold text-slate-800">Weekly Groceries</p>
+                            <p class="text-[10px] text-slate-400">Paid by Sumon • <span class="text-blue-600 font-semibold">Groceries</span></p>
+                        </div>
+                        <span class="font-black text-slate-900">AED 55.00</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,7 +226,10 @@
                     <span class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 rounded-full">Live Sync</span>
                 </div>
                 <div id="chatMessagesBox" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
-                    <!-- Chat messages -->
+                    <div class="flex flex-col items-start">
+                        <span class="text-[9px] font-bold text-slate-400 mb-0.5">Arbab</span>
+                        <div class="p-2.5 rounded-2xl max-w-[80%] text-xs bg-slate-100 text-slate-800 rounded-tl-xs">Monthly closing statement generated successfully.</div>
+                    </div>
                 </div>
                 <div class="pt-3 border-t border-slate-100 flex items-center space-x-2">
                     <input type="text" id="chatInputMsg" placeholder="Type a message..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-blue-900">
@@ -241,7 +268,20 @@
                     <i class="fa-solid fa-phone-volume text-rose-500 text-xs"></i>
                 </div>
                 <div id="emergencyContactsList" class="space-y-2.5">
-                    <!-- Populated emergency contacts with tel: dialer links -->
+                    <div class="flex items-center justify-between py-1.5 border-b border-slate-50">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">Gas Delivery</p>
+                            <p class="text-[10px] text-slate-400 font-medium">+971501234567</p>
+                        </div>
+                        <a href="tel:+971501234567" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 shadow-xs"><i class="fa-solid fa-phone text-xs"></i></a>
+                    </div>
+                    <div class="flex items-center justify-between py-1.5 border-b border-slate-50">
+                        <div>
+                            <p class="text-xs font-bold text-slate-800">Groceries Shop</p>
+                            <p class="text-[10px] text-slate-400 font-medium">+971509876543</p>
+                        </div>
+                        <a href="tel:+971509876543" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 shadow-xs"><i class="fa-solid fa-phone text-xs"></i></a>
+                    </div>
                 </div>
             </div>
 
@@ -254,7 +294,10 @@
                     </button>
                 </div>
                 <div id="adminMembersList" class="space-y-2">
-                    <!-- Members list -->
+                    <div class="flex items-center justify-between py-1.5 text-xs border-b border-slate-50">
+                        <span class="font-bold text-slate-800">Shyam Sathyan</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-semibold">Admin</span>
+                    </div>
                 </div>
             </div>
 
@@ -265,15 +308,15 @@
                     <i class="fa-solid fa-cogs text-blue-900 text-xs"></i>
                 </div>
                 <div class="space-y-2">
-                    <button onclick="openServiceModal('categories')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors cursor-pointer">
+                    <button onclick="openServiceModal('categories')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
                         <span><i class="fa-solid fa-tags text-blue-600 mr-2"></i> Manage Categories</span>
                         <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
                     </button>
-                    <button onclick="openServiceModal('groups')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors cursor-pointer">
+                    <button onclick="openServiceModal('groups')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
                         <span><i class="fa-solid fa-user-group text-emerald-600 mr-2"></i> Manage Custom Groups</span>
                         <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
                     </button>
-                    <button onclick="openServiceModal('contacts')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition-colors cursor-pointer">
+                    <button onclick="openServiceModal('contacts')" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
                         <span><i class="fa-solid fa-address-book text-amber-600 mr-2"></i> Manage Emergency Contacts</span>
                         <i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i>
                     </button>
@@ -296,7 +339,7 @@
     </main>
 
     <!-- APPLE LIQUID GLASS BOTTOM NAVIGATION BAR -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto apple-glass-dock px-6 py-2.5 flex items-center justify-between z-40 shadow-lg">
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto apple-liquid-dock px-6 py-2.5 flex items-center justify-between z-40">
         <button onclick="switchTab('home')" class="nav-btn flex flex-col items-center text-blue-900 transition-all cursor-pointer" data-tab="home">
             <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center transition-all">
                 <i class="fa-solid fa-house text-sm"></i>
@@ -330,8 +373,7 @@
         </button>
     </nav>
 
-    <!-- MODALS CONTAINER -->
-    <!-- Edit Profile Modal -->
+    <!-- MODALS -->
     <div id="editProfileModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -355,7 +397,7 @@
         </div>
     </div>
 
-    <!-- Add Member Modal -->
+    <!-- ADD MEMBER MODAL -->
     <div id="addMemberModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -379,7 +421,7 @@
         </div>
     </div>
 
-    <!-- Services Management Modal -->
+    <!-- SERVICES MODAL -->
     <div id="serviceModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
@@ -391,7 +433,7 @@
         </div>
     </div>
 
-    <!-- Add Transaction Modal -->
+    <!-- TRANSACTION MODAL -->
     <div id="transactionModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-xl">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -427,38 +469,24 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        let currentUser = {
-            firstName: "Shyam",
-            lastName: "Sathyan",
-            fullName: "Shyam Sathyan",
-            role: "Admin"
-        };
-
-        let members = [
-            { firstName: "Shyam", lastName: "Sathyan", role: "Admin" },
-            { firstName: "Sumon", lastName: "Mia", role: "Member" }
-        ];
-
+        let currentUser = { firstName: "Shyam", lastName: "Sathyan", fullName: "Shyam Sathyan", role: "Admin" };
+        let members = [{ firstName: "Shyam", lastName: "Sathyan", role: "Admin" }, { firstName: "Sumon", lastName: "Mia", role: "Member" }];
         let categories = ["Groceries", "Cinema", "Utilities", "Gas", "Maintenance", "Food"];
         let groups = ["Mess Group", "Movie Buddies"];
-        
         let emergencyContacts = [
             { name: "Gas Delivery", number: "+971501234567" },
             { name: "Groceries Shop", number: "+971509876543" },
             { name: "Drinking Water", number: "+971524567890" },
             { name: "Building Maintenance", number: "+971551122334" }
         ];
-
         let transactions = [
             { title: "Weekly Groceries", amount: 55.0, category: "Groceries", paidBy: "Sumon" },
             { title: "Electricity & Water", amount: 30.0, category: "Utilities", paidBy: "Shyam" }
         ];
-
         let chatMessages = [
             { sender: "Arbab", text: "Monthly closing statement generated successfully.", time: "09:00 AM" },
             { sender: "Sumon", text: "Groceries purchased for this week.", time: "02:15 PM" }
         ];
-
         let monthlyChartInstance = null;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -589,9 +617,7 @@
                             <p class="text-xs font-bold text-slate-800">${c.name}</p>
                             <p class="text-[10px] text-slate-400 font-medium">${c.number}</p>
                         </div>
-                        <a href="tel:${c.number}" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 transition-transform active:scale-95 shadow-xs" title="Call Now">
-                            <i class="fa-solid fa-phone text-xs"></i>
-                        </a>
+                        <a href="tel:${c.number}" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-100 shadow-xs"><i class="fa-solid fa-phone text-xs"></i></a>
                     </div>
                 `;
             });
@@ -849,10 +875,12 @@
             }
         }
 
+        // Fully functional logout
         function handleLogout() {
-            if (confirm("Are you sure you want to log out?")) {
+            if (confirm("Are you sure you want to log out of Room 110?")) {
                 localStorage.clear();
-                window.location.reload();
+                sessionStorage.clear();
+                window.location.href = window.location.pathname;
             }
         }
     </script>
