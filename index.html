@@ -413,6 +413,11 @@ body.dark-page .exp-tile.active { border-color:#93c5fd; background:rgba(147,197,
 body.dark-page .exp-tile-amt, body.dark-page .exp-row-title, body.dark-page .exp-row-amt { color:#f8fafc; }
 body.dark-page .exp-row { border-bottom-color:#334155; }
 
+textarea { width:100%; background:#fff; border:1px solid #d1d5db; color:#111; padding:12px; border-radius:10px; font-size:14px; resize:vertical; min-height:62px; }
+textarea:focus { border-color:#1e3a8a; outline:none; }
+body.dark-page textarea { background:#0f172a !important; border-color:#334155 !important; color:#f8fafc !important; }
+.exp-ic { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+
 /* Welcome Profile Card */
 .welcome-profile-card {
   background: #fff;
@@ -568,7 +573,7 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
       <!-- EXPENSES BY CATEGORY -->
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Expenses by Category</strong>
+          <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px" id="catTitle">Expenses by Category</strong>
           <i class="fa-solid fa-chart-pie" style="color:#6b7280;font-size:12px"></i>
         </div>
         <div id="catChartWrap" style="position:relative;height:190px;margin-bottom:12px;display:none">
@@ -580,11 +585,11 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
       </div>
 
       <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-        <div><label style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px;font-size:26px">AED 0.00</h2></div>
+        <div><label id="totLabel" style="margin:0">Total Spent</label><h2 id="tot" style="color:#111;margin-top:4px;font-size:26px">AED 0.00</h2></div>
         <div style="text-align:right"><label style="margin:0">Members</label><h2 id="mcount" style="color:#1e3a8a;margin-top:4px;font-size:26px">0</h2></div>
       </div>
       <div class="card">
-        <strong>Member Balances (+ Gets / - Pays)</strong>
+        <strong id="balTitle">Member Balances (+ Gets / - Pays)</strong>
         <table><thead><tr><th>Name</th><th>Paid</th><th>Share</th><th>Net</th></tr></thead><tbody id="tb"></tbody></table>
       </div>
     </div>
@@ -605,21 +610,24 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
         <div style="display:flex;gap:10px;margin-top:14px">
           <div id="tilePurch" class="exp-tile active" onclick="setExpView('purchases')">
             <div class="exp-tile-label">Current Purchases</div>
-            <div id="expPurchAmt" class="exp-tile-amt">AED 0.00</div>
+            <div id="expPurchAmt" class="exp-tile-amt" style="color:#059669">AED 0.00</div>
             <div id="expPurchCnt" class="exp-tile-cnt">0 bills paid by me</div>
           </div>
           <div id="tileExp" class="exp-tile" onclick="setExpView('expenses')">
             <div class="exp-tile-label">My Current Expenses</div>
-            <div id="expShareAmt" class="exp-tile-amt">AED 0.00</div>
+            <div id="expShareAmt" class="exp-tile-amt" style="color:#dc2626">AED 0.00</div>
             <div id="expShareCnt" class="exp-tile-cnt">0 shares</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatementModal()"><i class="fa-solid fa-file-pdf"></i> Statement</button>
+          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(todayISO().slice(0,7))"><i class="fa-solid fa-file-pdf"></i> Statement</button>
           <button class="btn btn-s" style="flex:1;margin:0;background:#059669" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Payment</button>
           <button class="btn btn-s" style="flex:1;margin:0" onclick="tab(3)">+ Add</button>
         </div>
-        <button id="expAllBtn" class="hide" style="margin-top:10px;background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer" onclick="setExpView('all')">Admin: view all expenses</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+          <button style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openStatementModal()">Older statements</button>
+          <button id="expAllBtn" class="hide" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="setExpView('all')">Super Admin: everyone's expenses</button>
+        </div>
       </div>
       <div class="card" id="expListCard">
         <div id="expListTitle" style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px"></div>
@@ -641,6 +649,8 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
         <select id="desc" required style="margin-bottom:6px"></select>
         <label>Vendor</label>
         <select id="expVendor"></select>
+        <label>Description</label>
+        <textarea id="expNote" rows="2" placeholder="Optional note (e.g. weekly vegetables)"></textarea>
         <label>Paid By</label><select id="pby"></select>
         <label>Split Between</label>
         <select id="stype" onchange="onSplitTypeChange()"></select>
@@ -725,12 +735,12 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
           <div class="prof-row-left"><span class="prof-row-icon" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-phone-volume"></i></span>Emergency Contacts</div>
           <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
         </div>
-        <div id="adminSection" class="hide">
-          <div class="prof-menu-row" onclick="openProfPage('members')">
+        <div>
+          <div id="membersRow" class="prof-menu-row hide" onclick="openProfPage('members')">
             <div class="prof-row-left"><span class="prof-row-icon" style="background:#dbeafe;color:#2563eb"><i class="fa-solid fa-users-gear"></i></span>Manage Members</div>
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
-          <div class="prof-menu-row" onclick="openProfPage('services')">
+          <div id="servicesRow" class="prof-menu-row hide" onclick="openProfPage('services')">
             <div class="prof-row-left"><span class="prof-row-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-cogs"></i></span>Services</div>
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
@@ -870,10 +880,12 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
         <label>Password</label>
         <input id="npass" required style="margin-bottom:12px" placeholder="Password">
         <label>Role</label>
-        <select id="nrole" style="margin-bottom:16px">
+        <select id="nrole" style="margin-bottom:12px">
           <option value="user">Member</option>
           <option value="admin">Admin</option>
+          <option value="superadmin">Super Admin</option>
         </select>
+        <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="nMess" checked><span>Mess member (shares expenses)</span></label>
         <button class="btn" style="margin-top:0">Save Member</button>
       </form>
     </div>
@@ -894,10 +906,12 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
         <label>Password</label>
         <input id="eUPass" required style="margin-bottom:12px">
         <label>Role</label>
-        <select id="eURole" style="margin-bottom:16px">
+        <select id="eURole" style="margin-bottom:12px">
           <option value="user">Member</option>
           <option value="admin">Admin</option>
+          <option value="superadmin">Super Admin</option>
         </select>
+        <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
         <div style="display:flex;gap:10px">
           <button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button>
           <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()">Delete User</button>
@@ -929,10 +943,30 @@ body.dark-page .exp-row { border-bottom-color:#334155; }
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
       <h3 style="color:#111;margin-bottom:6px">Generate Statement</h3>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">PDF statement of your account for the selected month.</p>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Opens your PDF statement for the selected month.</p>
       <label>Statement Month</label>
       <select id="stmtMonth" style="margin-bottom:16px"></select>
-      <button class="btn" style="margin-top:0;background:#dc2626" onclick="generateStatement()"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+      <button class="btn" style="margin-top:0;background:#dc2626" onclick="generateStatement()"><i class="fa-solid fa-file-pdf"></i> Open Statement</button>
+    </div>
+  </div>
+
+  <!-- EDIT EXPENSE MODAL -->
+  <div id="editExpModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:12px">Edit Expense</h3>
+      <form onsubmit="saveEditedExp(event)">
+        <input type="hidden" id="eeId">
+        <label>Amount (AED)</label><input id="eeAmt" type="number" step="0.01" required style="margin-bottom:10px">
+        <label>Date</label><input id="eeDate" type="date" required style="margin-bottom:10px">
+        <label>Category</label><select id="eeDesc" style="margin-bottom:10px"></select>
+        <label>Vendor</label><select id="eeVendor" style="margin-bottom:10px"></select>
+        <label>Description</label><textarea id="eeNote" rows="2" placeholder="Optional note" style="margin-bottom:10px"></textarea>
+        <label>Paid By</label><select id="eePby" style="margin-bottom:10px"></select>
+        <label>Split Between</label>
+        <div id="eeCbox" class="cks" style="margin-bottom:14px"></div>
+        <button class="btn" style="margin-top:0">Save Changes</button>
+      </form>
     </div>
   </div>
 
@@ -1023,7 +1057,10 @@ var emergencyContacts = JSON.parse(localStorage.getItem("r110_ec")||"null") || [
 
 var vendors = JSON.parse(localStorage.getItem("r110_ven")||"null") || [];
 var payments = JSON.parse(localStorage.getItem("r110_pay")||"null") || [];
-var expView = "purchases";
+var expView = "mine";
+var lastSel = JSON.parse(localStorage.getItem("r110_last")||"null") || {};
+var lastSuperSave = 0;
+ensureSuperAdmin();
 var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null;
@@ -1140,7 +1177,7 @@ function checkSuperAdminWelcome() {
 }
 
 function broadcastStatementReminder() {
-  if(!cur || cur.r !== 'admin') return;
+  if(!isSuper()) return;
   var s = stats();
   var reminderText = "📊 *MONTHLY STATEMENT & PAYMENT REMINDER*\nTotal Room Spend: AED " + s.tot.toFixed(2) + "\n";
   s.st.forEach(function(m){
@@ -1209,8 +1246,10 @@ function loadCloudData(){
   fetch(CLOUD_URL)
     .then(function(res){ return res.json(); })
     .then(function(data){
+      var addedSuper = false;
       if(data && data.users && data.users.length) {
         users = data.users;
+        addedSuper = ensureSuperAdmin();
         localStorage.setItem("r110_u", JSON.stringify(users));
       }
       if(data && Array.isArray(data.exps)) {
@@ -1274,6 +1313,7 @@ function loadCloudData(){
       applyTheme();
       checkSuperAdminWelcome();
       render();
+      if(addedSuper && Date.now() - lastSuperSave > 15000) { lastSuperSave = Date.now(); save(); }
     })
     .catch(function(err){
       setCloudStatus('error');
@@ -1380,6 +1420,7 @@ function openDashboard(){
   checkSuperAdminWelcome();
   pingUserActivity(false);
   tab(1);
+  applyLastSelections();
 }
 
 function logout(){
@@ -1437,6 +1478,15 @@ function showProfMenu() {
   window.scrollTo(0, 0);
 }
 
+function isSuper() { return !!cur && cur.r === "superadmin"; }
+function isAdminLike() { return !!cur && (cur.r === "admin" || cur.r === "superadmin"); }
+function isMess(u) { return u.mess !== false; }
+function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : "Member"); }
+function ensureSuperAdmin() {
+  if(users.some(function(x){ return String(x.u).toLowerCase() === "admin"; })) return false;
+  users.unshift({ id: Date.now(), firstName: "Super", lastName: "Admin", name: "Super", u: "admin", p: "admin123", r: "superadmin", avatar: "", lastActive: 0, mess: false });
+  return true;
+}
 function escHtml(t) {
   return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
@@ -1467,10 +1517,10 @@ function getSplitMembers() {
   if(st && st.indexOf("g:") === 0) {
     var gname = decodeURIComponent(st.slice(2));
     var g = groups.filter(function(x){ return x.name === gname; })[0];
-    var existing = users.map(memberName);
+    var existing = users.filter(isMess).map(memberName);
     pool = ((g && g.members) || []).filter(function(n){ return existing.indexOf(n) > -1; });
   } else {
-    pool = users.map(memberName);
+    pool = users.filter(isMess).map(memberName);
   }
   return {
     al: pool.filter(function(n){ return onVac.indexOf(n) === -1; }),
@@ -1501,7 +1551,7 @@ function periodRange(ym) {
 }
 
 /* ===== EXPENSES TAB ===== */
-function setExpView(v) { expView = v; renderExpensesTab(); }
+function setExpView(v) { expView = (expView === v) ? "mine" : v; renderExpensesTab(); }
 
 function renderExpensesTab() {
   if(!cur) return;
@@ -1510,42 +1560,56 @@ function renderExpensesTab() {
   var pr = periodRange(ym);
   document.getElementById("expPeriod").innerText = fmtDate(pr.start) + " - " + fmtDate(pr.end);
 
-  var purchases = [], shares = [], all = [];
+  var entries = [], purchTotal = 0, shareTotal = 0, purchCnt = 0, shareCnt = 0;
   exps.forEach(function(x){
     if(expDate(x).slice(0, 7) !== ym) return;
-    all.push(x);
-    if(x.pb == cName) purchases.push(x);
-    if(x.al.indexOf(cName) > -1) shares.push(x);
+    var mine = x.pb == cName, inSplit = x.al.indexOf(cName) > -1;
+    var share = inSplit ? Number(x.amt) / x.al.length : 0;
+    if(mine) { purchTotal += Number(x.amt); purchCnt++; }
+    if(inSplit) { shareTotal += share; shareCnt++; }
+    if(expView === "all") { entries.push({ x: x, kind: "bill", amt: Number(x.amt), ord: 0 }); return; }
+    if(mine && expView !== "expenses") entries.push({ x: x, kind: "purchase", amt: Number(x.amt), ord: 0 });
+    if(inSplit && expView !== "purchases") entries.push({ x: x, kind: "expense", amt: share, ord: 1 });
   });
-  var purchTotal = purchases.reduce(function(t, x){ return t + Number(x.amt); }, 0);
-  var shareTotal = shares.reduce(function(t, x){ return t + Number(x.amt) / x.al.length; }, 0);
   document.getElementById("expPurchAmt").innerText = "AED " + money(purchTotal);
-  document.getElementById("expPurchCnt").innerText = purchases.length + (purchases.length === 1 ? " bill" : " bills") + " paid by me";
+  document.getElementById("expPurchCnt").innerText = purchCnt + (purchCnt === 1 ? " bill" : " bills") + " paid by me";
   document.getElementById("expShareAmt").innerText = "AED " + money(shareTotal);
-  document.getElementById("expShareCnt").innerText = shares.length + (shares.length === 1 ? " share" : " shares");
+  document.getElementById("expShareCnt").innerText = shareCnt + (shareCnt === 1 ? " share" : " shares");
 
-  var isAdmin = cur.r === "admin";
-  if(expView === "all" && !isAdmin) expView = "purchases";
-  document.getElementById("expAllBtn").className = isAdmin ? "" : "hide";
+  if(expView === "all" && !isSuper()) { expView = "mine"; return renderExpensesTab(); }
+  document.getElementById("expAllBtn").className = isSuper() ? "" : "hide";
   document.getElementById("tilePurch").className = "exp-tile" + (expView === "purchases" ? " active" : "");
   document.getElementById("tileExp").className = "exp-tile" + (expView === "expenses" ? " active" : "");
+  var titles = { mine: "Your activity", purchases: "Purchases only (tap the tile again for all)", expenses: "Expenses only (tap the tile again for all)", all: "Everyone's expenses (Super Admin)" };
+  document.getElementById("expListTitle").innerText = titles[expView];
 
-  var list = expView === "purchases" ? purchases : (expView === "expenses" ? shares : all);
-  document.getElementById("expListTitle").innerText = expView === "purchases" ? "Purchases paid by me" : (expView === "expenses" ? "My expense shares" : "All expenses (admin)");
-  list = list.slice().sort(function(a, b){
-    var da = expDate(a), db = expDate(b);
-    return da < db ? 1 : (da > db ? -1 : Number(b.id) - Number(a.id));
+  entries.sort(function(a, b){
+    var da = expDate(a.x), db = expDate(b.x);
+    if(da !== db) return da < db ? 1 : -1;
+    if(a.x.id != b.x.id) return Number(b.x.id) - Number(a.x.id);
+    return a.ord - b.ord;
   });
 
+  var style = {
+    purchase: { fg: "#059669", bg: "#d1fae5", ic: "fa-bag-shopping", sign: "+" },
+    expense:  { fg: "#dc2626", bg: "#fee2e2", ic: "fa-receipt", sign: "-" },
+    bill:     { fg: "#2563eb", bg: "#dbeafe", ic: "fa-file-invoice", sign: "" }
+  };
   var html = "", lastD = "";
-  list.forEach(function(x){
-    var d = expDate(x);
+  entries.forEach(function(en){
+    var x = en.x, st = style[en.kind], d = expDate(x);
     if(d !== lastD) { html += '<div class="exp-date-head">' + fmtDate(d) + '</div>'; lastD = d; }
-    var amt = expView === "expenses" ? Number(x.amt) / x.al.length : Number(x.amt);
-    var sub = "Paid by " + escHtml(x.pb) + " &bull; split " + x.al.length + (expView === "expenses" ? " &bull; bill AED " + money(x.amt) : "");
-    html += '<div class="exp-row"><div style="min-width:0"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div>' +
-            '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt">AED ' + money(amt) + '</div>' +
-            (isAdmin ? '<button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')">X</button>' : '') + '</div></div>';
+    var sub = en.kind === "purchase" ? "Purchase &bull; paid by me &bull; split " + x.al.length
+            : (en.kind === "expense" ? "Expense &bull; paid by " + escHtml(x.pb) + " &bull; bill AED " + money(x.amt)
+            : "Paid by " + escHtml(x.pb) + " &bull; split " + x.al.length);
+    if(x.note) sub += '<br><i>' + escHtml(x.note) + '</i>';
+    var canEdit = canEditExp(x);
+    html += '<div class="exp-row"><div style="display:flex;align-items:center;gap:12px;min-width:0">' +
+            '<div class="exp-ic" style="background:' + st.bg + ';color:' + st.fg + '"><i class="fa-solid ' + st.ic + '"></i></div>' +
+            '<div style="min-width:0"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div></div>' +
+            '<div style="display:flex;align-items:center;gap:5px"><div class="exp-row-amt" style="color:' + st.fg + '">' + st.sign + 'AED ' + money(en.amt) + '</div>' +
+            (canEdit ? '<button class="btn btn-s" style="background:#2563eb;padding:5px 8px" onclick="openEditExp(' + x.id + ')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')">X</button>' : '') +
+            '</div></div>';
   });
   document.getElementById("expList").innerHTML = html || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded in this period.</div>';
 
@@ -1557,7 +1621,7 @@ function renderExpensesTab() {
     var sent = p.from == cName;
     return '<div class="exp-row"><div><div class="exp-row-title">' + (sent ? 'Paid to ' + escHtml(p.to) : 'Received from ' + escHtml(p.from)) + '</div><div class="exp-row-sub">' + fmtDate(p.date) + '</div></div>' +
            '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt" style="color:' + (sent ? '#dc2626' : '#059669') + '">' + (sent ? '-' : '+') + 'AED ' + money(p.amt) + '</div>' +
-           ((sent || isAdmin) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')">X</button>' : '') + '</div></div>';
+           ((sent || isSuper()) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')">X</button>' : '') + '</div></div>';
   }).join('');
 }
 
@@ -1603,28 +1667,15 @@ function openStatementModal() {
 }
 function generateStatement() {
   var ym = document.getElementById("stmtMonth").value;
-  var cName = cur.firstName || cur.name;
-  var blob = buildStatementPdf(ym);
   closeModals();
-  deliverPdf(blob, "Room110_Statement_" + cName.replace(/[^A-Za-z0-9]/g, "") + "_" + ym + ".pdf");
+  openStatement(ym);
 }
-function deliverPdf(blob, name) {
-  var file = null;
-  try { file = new File([blob], name, { type: "application/pdf" }); } catch(err) {}
-  if(file && navigator.canShare && navigator.canShare({ files: [file] })) {
-    navigator.share({ files: [file], title: name }).catch(function(err){
-      if(!err || err.name !== "AbortError") downloadBlob(blob, name);
-    });
-  } else {
-    downloadBlob(blob, name);
-  }
-}
-function downloadBlob(blob, name) {
+function openStatement(ym) {
+  var blob = buildStatementPdf(ym);
   var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click();
-  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  var w = window.open(url, "_blank");
+  if(!w) window.location.href = url;   // pop-up blocked: open in this tab instead
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
 }
 
 /* Minimal dependency-free PDF writer (Helvetica) */
@@ -1701,7 +1752,7 @@ function buildStatementPdf(ym) {
     if(d < pr.start) { opening += paid - share; }
     else if(d <= pr.end) {
       purchases += paid; expenses += share;
-      rows.push({ d: d, id: Number(x.id), desc: x.desc + (x.vendor ? " - " + x.vendor : ""), by: x.pb, purch: paid, exp: share, pay: 0, eff: paid - share });
+      rows.push({ d: d, id: Number(x.id), desc: x.desc + (x.vendor ? " - " + x.vendor : "") + (x.note ? " | " + x.note : ""), by: x.pb, purch: paid, exp: share, pay: 0, eff: paid - share });
     }
   });
   payments.forEach(function(p){
@@ -1833,6 +1884,7 @@ function openEditUserModal(id) {
   document.getElementById("eUId").value = user.u;
   document.getElementById("eUPass").value = user.p;
   document.getElementById("eURole").value = user.r;
+  document.getElementById("eUMess").checked = user.mess !== false;
   document.getElementById("editUserModal").className = "modal-overlay";
 }
 function closeModals() {
@@ -1842,6 +1894,7 @@ function closeModals() {
   document.getElementById("serviceManagerModal").className = "modal-overlay hide";
   document.getElementById("paymentModal").className = "modal-overlay hide";
   document.getElementById("statementModal").className = "modal-overlay hide";
+  document.getElementById("editExpModal").className = "modal-overlay hide";
 }
 
 /* CHAT FUNCTIONS (FULL-SCREEN WHATSAPP STYLE) */
@@ -1952,7 +2005,7 @@ function renderChatActivePane() {
   // Default visibility for input vs read-only
   inputForm.className = "chat-input-bar";
   readOnlyNotice.className = "readonly-notice hide";
-  if(cur && cur.r === 'admin') {
+  if(isSuper()) {
     reminderBtn.className = "btn btn-s";
   } else {
     reminderBtn.className = "btn btn-s hide";
@@ -1968,7 +2021,7 @@ function renderChatActivePane() {
     badgeEl.style.color = "#92400e";
 
     // Regular users cannot send messages to the Super Admin announcement channel
-    if(cur.r !== 'admin') {
+    if(!isSuper()) {
       inputForm.className = "chat-input-bar hide";
       readOnlyNotice.className = "readonly-notice";
     }
@@ -2076,7 +2129,7 @@ function cancelMsgLongPress() {
 
 function sendActiveChatMsg(e) {
   e.preventDefault();
-  if(activeChatTarget === 'superadmin_channel' && cur.r !== 'admin') {
+  if(activeChatTarget === 'superadmin_channel' && !isSuper()) {
     return alert("Only Super Admin can send messages here.");
   }
   var input = document.getElementById("activeChatInput");
@@ -2085,7 +2138,7 @@ function sendActiveChatMsg(e) {
 
   var now = new Date();
   var tm = now.getHours() + ":" + (now.getMinutes()<10?"0":"") + now.getMinutes();
-  var isSuperAdminPost = (activeChatTarget === 'superadmin_channel' && cur.r === 'admin');
+  var isSuperAdminPost = (activeChatTarget === 'superadmin_channel' && isSuper());
   
   var newMsg = {
     id: Date.now(),
@@ -2117,7 +2170,7 @@ function openMsgMenu(e, msgId, isMe) {
   if(!msg) return;
 
   var nowEpoch = Date.now();
-  var canDeleteOrEdit = (isMe || (cur && cur.r === 'admin' && msg.isSystem)) && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000); // 5 mins = 300,000 ms
+  var canDeleteOrEdit = (isMe || (isSuper() && msg.isSystem)) && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000); // 5 mins = 300,000 ms
 
   var menu = document.createElement("div");
   menu.id = "activeMsgMenu";
@@ -2203,7 +2256,7 @@ function deleteMessage(msgId) {
 
 /* ADMIN SERVICES MANAGER */
 function openServiceManager(type) {
-  if(!cur || cur.r !== 'admin') {
+  if(!isAdminLike()) {
     alert("Access restricted to Admins only.");
     return;
   }
@@ -2264,7 +2317,7 @@ function renderGroupManagerContent() {
   }).join('') || '<div style="color:#6b7280;font-style:italic">No groups yet. Create one below.</div>';
 
   var eg = editingGroupIdx > -1 ? groups[editingGroupIdx] : null;
-  var checks = users.map(function(u){
+  var checks = users.filter(isMess).map(function(u){
     var n = memberName(u);
     var on = eg && (eg.members || []).indexOf(n) > -1;
     return '<label class="ck"><input type="checkbox" class="gmck" value="'+escHtml(n)+'" '+(on ? 'checked' : '')+'><span>'+escHtml(n)+'</span></label>';
@@ -2363,7 +2416,7 @@ function addU(e){
   var p=document.getElementById("npass").value.trim();
   var r=document.getElementById("nrole").value;
   if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
-  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0});
+  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:document.getElementById("nMess").checked});
   document.getElementById("nFname").value="";
   document.getElementById("nLname").value="";
   document.getElementById("nid").value="";
@@ -2383,7 +2436,9 @@ function saveEditedUser(e){
   var user = users.find(function(x){return x.id === id});
   if(user){
     if(users.some(function(x){return x.u === u && x.id !== id})) return alert("User ID already exists!");
+    if(user.r === "superadmin" && r !== "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("At least one Super Admin is required.");
     user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; user.p = p; user.r = r;
+    user.mess = document.getElementById("eUMess").checked;
     closeModals();
     save();
   }
@@ -2391,6 +2446,8 @@ function saveEditedUser(e){
 
 function deleteUserFromModal(){
   var id = Number(document.getElementById("editUserId").value);
+  var target = users.find(function(x){ return x.id === id; });
+  if(target && target.r === "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("Cannot delete the only Super Admin!");
   if(users.length > 1 && confirm("Delete user?")){
     users = users.filter(function(x){return x.id !== id});
     closeModals();
@@ -2405,16 +2462,80 @@ function addEx(e){
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
   var vendor=document.getElementById("expVendor").value;
+  var note=document.getElementById("expNote").value.trim();
   var al=getSplitMembers().al;
   if(!al.length)return alert("No members to charge. Select at least 1 member who is not on vacation.");
-  exps.unshift({id:Date.now(),amt:a,desc:d,vendor:vendor,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()});
+  exps.unshift({id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()});
+  // remember the last selections so the next entry starts from them
+  lastSel = {desc:d, vendor:vendor, pby:pb, stype:document.getElementById("stype").value};
+  localStorage.setItem("r110_last", JSON.stringify(lastSel));
   document.getElementById("amt").value="";
+  document.getElementById("expNote").value="";
   document.getElementById("expDate").value=todayISO();
-  document.getElementById("expVendor").value="";
   save();tab(2);
 }
 
-function delEx(id){if(confirm("Delete expense?")){exps=exps.filter(function(x){return x.id!=id});save()}}
+function applyLastSelections(){
+  function setIf(id, v) {
+    var el = document.getElementById(id);
+    if(!el || !v) return;
+    for(var i = 0; i < el.options.length; i++) { if(el.options[i].value === v) { el.value = v; return; } }
+  }
+  setIf("desc", lastSel.desc); setIf("expVendor", lastSel.vendor); setIf("pby", lastSel.pby); setIf("stype", lastSel.stype);
+  onSplitTypeChange();
+}
+
+function canEditExp(x) {
+  if(!cur) return false;
+  if(isSuper()) return true;
+  if(cur.r !== "admin") return false;
+  var me = cur.firstName || cur.name;
+  return x.pb == me || x.al.indexOf(me) > -1;
+}
+function optList(values, selected) {
+  var vals = values.slice();
+  if(selected && vals.indexOf(selected) === -1) vals.push(selected);
+  return vals.map(function(v){ return '<option value="' + escHtml(v) + '"' + (v === selected ? ' selected' : '') + '>' + escHtml(v) + '</option>'; }).join('');
+}
+function openEditExp(id) {
+  var x = exps.find(function(e){ return e.id == id; });
+  if(!x || !canEditExp(x)) return;
+  document.getElementById("eeId").value = x.id;
+  document.getElementById("eeAmt").value = x.amt;
+  document.getElementById("eeDate").value = expDate(x);
+  document.getElementById("eeDesc").innerHTML = optList(categories, x.desc);
+  document.getElementById("eeVendor").innerHTML = '<option value="">-- No vendor --</option>' + optList(vendors.map(function(v){ return v.name; }), x.vendor || "");
+  document.getElementById("eeNote").value = x.note || "";
+  document.getElementById("eePby").innerHTML = optList(users.map(memberName), x.pb);
+  var names = users.filter(isMess).map(memberName);
+  x.al.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
+  document.getElementById("eeCbox").innerHTML = names.map(function(n){
+    return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (x.al.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
+  }).join('');
+  document.getElementById("editExpModal").className = "modal-overlay";
+}
+function saveEditedExp(e) {
+  e.preventDefault();
+  var id = document.getElementById("eeId").value;
+  var x = exps.find(function(t){ return t.id == id; });
+  if(!x || !canEditExp(x)) return;
+  var al = Array.prototype.map.call(document.querySelectorAll(".eck:checked"), function(c){ return c.value; });
+  if(!al.length) return alert("Select at least 1 member");
+  x.amt = parseFloat(document.getElementById("eeAmt").value);
+  x.date = document.getElementById("eeDate").value || expDate(x);
+  x.desc = document.getElementById("eeDesc").value;
+  x.vendor = document.getElementById("eeVendor").value;
+  x.note = document.getElementById("eeNote").value.trim();
+  x.pb = document.getElementById("eePby").value;
+  x.al = al;
+  closeModals();
+  save();
+}
+function delEx(id){
+  var x = exps.find(function(t){ return t.id == id; });
+  if(!x || !canEditExp(x)) return;
+  if(confirm("Delete expense?")){ exps = exps.filter(function(t){ return t.id != id; }); save(); }
+}
 
 function updateProfile(e){
   e.preventDefault();
@@ -2505,16 +2626,22 @@ function render(){
 
   updateDateTime();
   document.getElementById("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
-  document.getElementById("profRole").innerText = (cur.r === "admin") ? "Admin" : "Member";
+  document.getElementById("profRole").innerText = roleLabel(cur.r);
+  document.getElementById("membersRow").classList.toggle("hide", !isSuper());
+  document.getElementById("servicesRow").classList.toggle("hide", !isAdminLike());
   var vacToggle = document.getElementById("vacationToggle");
   if(vacToggle && vacToggle.checked !== !!cur.vacation) vacToggle.checked = !!cur.vacation;
   var vacStatus = document.getElementById("vacationStatus");
   if(vacStatus) vacStatus.innerText = cur.vacation ? "On - you are not charged for new mess expenses" : "Off - you are included in mess expenses";
 
   var s=stats();
-  document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
-  document.getElementById("mcount").innerText=users.length;
-  var visibleBal=s.st.filter(function(m){return Math.abs(m.net)>=0.005});
+  var myAllShare = exps.reduce(function(t,x){ return x.al.indexOf(cName) > -1 ? t + Number(x.amt) / x.al.length : t; }, 0);
+  document.getElementById("tot").innerText="AED "+(isSuper() ? s.tot : myAllShare).toFixed(2);
+  document.getElementById("totLabel").innerText = isSuper() ? "Total Spent" : "My Total Expenses";
+  document.getElementById("balTitle").innerText = isSuper() ? "Member Balances (+ Gets / - Pays)" : "My Balance (+ Gets / - Pays)";
+  document.getElementById("catTitle").innerText = isSuper() ? "Expenses by Category" : "My Expenses by Category";
+  document.getElementById("mcount").innerText=users.filter(isMess).length;
+  var visibleBal=isSuper()?s.st.filter(function(m){return Math.abs(m.net)>=0.005}):s.st.filter(function(m){return m.name===cName});
   document.getElementById("tb").innerHTML=visibleBal.length===0?"<tr><td colspan='4' style='text-align:center;color:#6b7280;font-style:italic'>All balances are settled.</td></tr>":visibleBal.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
@@ -2559,7 +2686,8 @@ function render(){
   var catTotals = {};
   exps.forEach(function(x){
     var cat = x.desc || "Other";
-    catTotals[cat] = (catTotals[cat] || 0) + Number(x.amt);
+    var v = isSuper() ? Number(x.amt) : (x.al.indexOf(cName) > -1 ? Number(x.amt) / x.al.length : 0);
+    if(v > 0) catTotals[cat] = (catTotals[cat] || 0) + v;
   });
   var catNames = Object.keys(catTotals).sort(function(a,b){ return catTotals[b] - catTotals[a]; });
   var catPalette = ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316','#64748b'];
@@ -2644,13 +2772,13 @@ function render(){
   var prevPby = document.getElementById("pby").value || cName;
   var unchecked = Array.prototype.map.call(document.querySelectorAll(".mck:not(:checked):not(:disabled)"), function(c){ return c.value; });
   setHtmlIfChanged(document.getElementById("pby"), users.map(function(u){var uN = memberName(u); return "<option value='"+uN+"' "+(uN==prevPby?"selected":"")+">"+uN+"</option>"}).join(""));
-  setHtmlIfChanged(document.getElementById("cbox"), users.map(function(u){var uN = memberName(u); var vac = !!u.vacation; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(vac?"disabled":(unchecked.indexOf(uN)>-1?"":"checked"))+"><span>"+uN+(vac?" 🏖️ (Vacation)":"")+"</span></label>"}).join(""));
+  setHtmlIfChanged(document.getElementById("cbox"), users.filter(isMess).map(function(u){var uN = memberName(u); var vac = !!u.vacation; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(vac?"disabled":(unchecked.indexOf(uN)>-1?"":"checked"))+"><span>"+uN+(vac?" 🏖️ (Vacation)":"")+"</span></label>"}).join(""));
 
   // Split Between: All / custom groups / specific members
   var stypeSel = document.getElementById("stype");
   var prevSt = stypeSel.value || "a";
   var stOpts = '<option value="a">All Room 110 Members</option>';
-  var existingNames = users.map(memberName);
+  var existingNames = users.filter(isMess).map(memberName);
   groups.forEach(function(g){
     var live = (g.members || []).filter(function(n){ return existingNames.indexOf(n) > -1; });
     if(live.length) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
@@ -2680,12 +2808,8 @@ function render(){
     renderChatActivePane();
   }
 
-  var admSec = document.getElementById("adminSection");
-  if(cur.r=="admin"){
-    admSec.className="";
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+(u.firstName || u.name)+" "+(u.lastName || "")+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | Role: "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
-  } else {
-    admSec.className="hide";
+  if(isSuper()) {
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
   }
 }
 if(cur) openDashboard();
