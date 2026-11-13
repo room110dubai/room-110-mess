@@ -397,6 +397,22 @@ body.dark-page .prof-menu-row { border-bottom-color:#334155; }
 body.dark-page .prof-row-left { color:#f8fafc; }
 body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
 
+/* Expenses tab */
+.exp-tile { flex:1; border:2px solid transparent; border-radius:14px; padding:12px; background:#f8fafc; cursor:pointer; min-width:0; }
+.exp-tile.active { border-color:#1e3a8a; background:#eff6ff; }
+.exp-tile-label { font-size:10px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.4px; }
+.exp-tile-amt { font-size:18px; font-weight:900; color:#111; margin-top:4px; }
+.exp-tile-cnt { font-size:11px; color:#6b7280; margin-top:2px; }
+.exp-date-head { font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; margin:14px 0 2px; letter-spacing:0.4px; }
+.exp-row { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid #f3f4f6; }
+.exp-row-title { font-weight:700; font-size:13px; color:#111; }
+.exp-row-sub { font-size:11px; color:#6b7280; margin-top:2px; }
+.exp-row-amt { font-weight:800; font-size:13px; color:#111; white-space:nowrap; }
+body.dark-page .exp-tile { background:#0f172a; }
+body.dark-page .exp-tile.active { border-color:#93c5fd; background:rgba(147,197,253,0.12); }
+body.dark-page .exp-tile-amt, body.dark-page .exp-row-title, body.dark-page .exp-row-amt { color:#f8fafc; }
+body.dark-page .exp-row { border-bottom-color:#334155; }
+
 /* Welcome Profile Card */
 .welcome-profile-card {
   background: #fff;
@@ -575,14 +591,44 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
 
     <!-- TAB 2: EXPENSES -->
     <div id="v2" class="hide">
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <strong style="font-size:16px;color:#111">Mess Expenses</strong>
-          <div style="font-size:12px;color:#6b7280">All recorded bills &amp; splits</div>
+      <div class="card" style="padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+          <div>
+            <strong style="font-size:16px;color:#111">Expenses</strong>
+            <div style="font-size:12px;color:#6b7280">Your purchases &amp; shares</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Current Period</div>
+            <div id="expPeriod" style="font-size:12px;font-weight:700;color:#1e3a8a;margin-top:2px">-</div>
+          </div>
         </div>
-        <button class="btn btn-s" onclick="tab(3)">+ Add New</button>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <div id="tilePurch" class="exp-tile active" onclick="setExpView('purchases')">
+            <div class="exp-tile-label">Current Purchases</div>
+            <div id="expPurchAmt" class="exp-tile-amt">AED 0.00</div>
+            <div id="expPurchCnt" class="exp-tile-cnt">0 bills paid by me</div>
+          </div>
+          <div id="tileExp" class="exp-tile" onclick="setExpView('expenses')">
+            <div class="exp-tile-label">My Current Expenses</div>
+            <div id="expShareAmt" class="exp-tile-amt">AED 0.00</div>
+            <div id="expShareCnt" class="exp-tile-cnt">0 shares</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatementModal()"><i class="fa-solid fa-file-pdf"></i> Statement</button>
+          <button class="btn btn-s" style="flex:1;margin:0;background:#059669" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Payment</button>
+          <button class="btn btn-s" style="flex:1;margin:0" onclick="tab(3)">+ Add</button>
+        </div>
+        <button id="expAllBtn" class="hide" style="margin-top:10px;background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer" onclick="setExpView('all')">Admin: view all expenses</button>
       </div>
-      <div id="hlist"></div>
+      <div class="card" id="expListCard">
+        <div id="expListTitle" style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px"></div>
+        <div id="expList"></div>
+      </div>
+      <div class="card hide" id="payListCard">
+        <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payments This Period</div>
+        <div id="payList"></div>
+      </div>
     </div>
 
     <!-- TAB 3: ADD EXPENSE -->
@@ -590,8 +636,11 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
       <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
       <form onsubmit="addEx(event)">
         <label>Amount (AED)</label><input id="amt" type="number" step="0.01" placeholder="0.00" required>
+        <label>Date</label><input id="expDate" type="date" required>
         <label>Items / Category</label>
         <select id="desc" required style="margin-bottom:6px"></select>
+        <label>Vendor</label>
+        <select id="expVendor"></select>
         <label>Paid By</label><select id="pby"></select>
         <label>Split Between</label>
         <select id="stype" onchange="onSplitTypeChange()"></select>
@@ -743,6 +792,10 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
             <span><i class="fa-solid fa-address-book" style="color:#d97706;margin-right:8px"></i> Manage Emergency Contacts</span>
             <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
           </button>
+          <button onclick="openServiceManager('vendors')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;font-weight:700;color:#374151;cursor:pointer">
+            <span><i class="fa-solid fa-store" style="color:#7c3aed;margin-right:8px"></i> Vendor Management</span>
+            <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -853,6 +906,36 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
     </div>
   </div>
 
+  <!-- RECORD PAYMENT MODAL -->
+  <div id="paymentModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:6px">Record Payment</h3>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Money you paid to a room mate to settle your dues.</p>
+      <form onsubmit="savePayment(event)">
+        <label>Paid To</label>
+        <select id="payTo" style="margin-bottom:12px"></select>
+        <label>Amount (AED)</label>
+        <input id="payAmt" type="number" step="0.01" min="0.01" required style="margin-bottom:12px" placeholder="0.00">
+        <label>Date</label>
+        <input id="payDate" type="date" required style="margin-bottom:16px">
+        <button class="btn" style="margin-top:0;background:#059669">Save Payment</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STATEMENT MODAL -->
+  <div id="statementModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:6px">Generate Statement</h3>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">PDF statement of your account for the selected month.</p>
+      <label>Statement Month</label>
+      <select id="stmtMonth" style="margin-bottom:16px"></select>
+      <button class="btn" style="margin-top:0;background:#dc2626" onclick="generateStatement()"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+    </div>
+  </div>
+
   <!-- SERVICES MANAGER MODAL (ADMIN ONLY) -->
   <div id="serviceManagerModal" class="modal-overlay hide">
     <div class="modal-content">
@@ -938,6 +1021,9 @@ var emergencyContacts = JSON.parse(localStorage.getItem("r110_ec")||"null") || [
   {name: "Building Maintenance", number: "+971551122334"}
 ];
 
+var vendors = JSON.parse(localStorage.getItem("r110_ven")||"null") || [];
+var payments = JSON.parse(localStorage.getItem("r110_pay")||"null") || [];
+var expView = "purchases";
 var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null;
@@ -1160,6 +1246,14 @@ function loadCloudData(){
         categories = data.categories;
         localStorage.setItem("r110_cat", JSON.stringify(categories));
       }
+      if(data && Array.isArray(data.vendors)) {
+        vendors = data.vendors;
+        localStorage.setItem("r110_ven", JSON.stringify(vendors));
+      }
+      if(data && Array.isArray(data.payments)) {
+        payments = data.payments;
+        localStorage.setItem("r110_pay", JSON.stringify(payments));
+      }
       if(data && Array.isArray(data.groups)) {
         groups = normalizeGroups(data.groups);
         localStorage.setItem("r110_grp", JSON.stringify(groups));
@@ -1233,12 +1327,14 @@ function save(){
   localStorage.setItem("r110_m", JSON.stringify(msgs));
   localStorage.setItem("r110_cat", JSON.stringify(categories));
   localStorage.setItem("r110_grp", JSON.stringify(groups));
+  localStorage.setItem("r110_ven", JSON.stringify(vendors));
+  localStorage.setItem("r110_pay", JSON.stringify(payments));
   localStorage.setItem("r110_ec", JSON.stringify(emergencyContacts));
   render();
 
   if(CLOUD_URL){
     setCloudStatus('syncing');
-    var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, categories: categories, emergencyContacts: emergencyContacts, groups: groups});
+    var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
     fetch(CLOUD_URL, {
       method: "POST",
       mode: "no-cors",
@@ -1391,6 +1487,341 @@ function onSplitTypeChange() {
   document.getElementById("splitHint").innerHTML = h;
 }
 
+/* ===== DATE HELPERS ===== */
+var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+function toISO(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+function todayISO() { return toISO(new Date()); }
+function expDate(x) { return x.date || toISO(new Date(Number(x.id))); }
+function fmtDate(iso) { var p = iso.split("-"); return Number(p[2]) + " " + MONTHS[Number(p[1]) - 1] + " " + p[0]; }
+function money(n) { return Number(n).toFixed(2); }
+function periodRange(ym) {
+  var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7));
+  return { start: ym + "-01", end: ym + "-" + pad2(new Date(y, m, 0).getDate()) };
+}
+
+/* ===== EXPENSES TAB ===== */
+function setExpView(v) { expView = v; renderExpensesTab(); }
+
+function renderExpensesTab() {
+  if(!cur) return;
+  var cName = cur.firstName || cur.name;
+  var ym = todayISO().slice(0, 7);
+  var pr = periodRange(ym);
+  document.getElementById("expPeriod").innerText = fmtDate(pr.start) + " - " + fmtDate(pr.end);
+
+  var purchases = [], shares = [], all = [];
+  exps.forEach(function(x){
+    if(expDate(x).slice(0, 7) !== ym) return;
+    all.push(x);
+    if(x.pb == cName) purchases.push(x);
+    if(x.al.indexOf(cName) > -1) shares.push(x);
+  });
+  var purchTotal = purchases.reduce(function(t, x){ return t + Number(x.amt); }, 0);
+  var shareTotal = shares.reduce(function(t, x){ return t + Number(x.amt) / x.al.length; }, 0);
+  document.getElementById("expPurchAmt").innerText = "AED " + money(purchTotal);
+  document.getElementById("expPurchCnt").innerText = purchases.length + (purchases.length === 1 ? " bill" : " bills") + " paid by me";
+  document.getElementById("expShareAmt").innerText = "AED " + money(shareTotal);
+  document.getElementById("expShareCnt").innerText = shares.length + (shares.length === 1 ? " share" : " shares");
+
+  var isAdmin = cur.r === "admin";
+  if(expView === "all" && !isAdmin) expView = "purchases";
+  document.getElementById("expAllBtn").className = isAdmin ? "" : "hide";
+  document.getElementById("tilePurch").className = "exp-tile" + (expView === "purchases" ? " active" : "");
+  document.getElementById("tileExp").className = "exp-tile" + (expView === "expenses" ? " active" : "");
+
+  var list = expView === "purchases" ? purchases : (expView === "expenses" ? shares : all);
+  document.getElementById("expListTitle").innerText = expView === "purchases" ? "Purchases paid by me" : (expView === "expenses" ? "My expense shares" : "All expenses (admin)");
+  list = list.slice().sort(function(a, b){
+    var da = expDate(a), db = expDate(b);
+    return da < db ? 1 : (da > db ? -1 : Number(b.id) - Number(a.id));
+  });
+
+  var html = "", lastD = "";
+  list.forEach(function(x){
+    var d = expDate(x);
+    if(d !== lastD) { html += '<div class="exp-date-head">' + fmtDate(d) + '</div>'; lastD = d; }
+    var amt = expView === "expenses" ? Number(x.amt) / x.al.length : Number(x.amt);
+    var sub = "Paid by " + escHtml(x.pb) + " &bull; split " + x.al.length + (expView === "expenses" ? " &bull; bill AED " + money(x.amt) : "");
+    html += '<div class="exp-row"><div style="min-width:0"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div>' +
+            '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt">AED ' + money(amt) + '</div>' +
+            (isAdmin ? '<button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')">X</button>' : '') + '</div></div>';
+  });
+  document.getElementById("expList").innerHTML = html || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded in this period.</div>';
+
+  var myPays = payments.filter(function(p){
+    return (p.from == cName || p.to == cName) && p.date.slice(0, 7) === ym;
+  }).sort(function(a, b){ return a.date < b.date ? 1 : -1; });
+  document.getElementById("payListCard").className = myPays.length ? "card" : "card hide";
+  document.getElementById("payList").innerHTML = myPays.map(function(p){
+    var sent = p.from == cName;
+    return '<div class="exp-row"><div><div class="exp-row-title">' + (sent ? 'Paid to ' + escHtml(p.to) : 'Received from ' + escHtml(p.from)) + '</div><div class="exp-row-sub">' + fmtDate(p.date) + '</div></div>' +
+           '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt" style="color:' + (sent ? '#dc2626' : '#059669') + '">' + (sent ? '-' : '+') + 'AED ' + money(p.amt) + '</div>' +
+           ((sent || isAdmin) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')">X</button>' : '') + '</div></div>';
+  }).join('');
+}
+
+/* ===== PAYMENTS ===== */
+function openPaymentModal() {
+  var cName = cur.firstName || cur.name;
+  document.getElementById("payTo").innerHTML = users.map(memberName).filter(function(n){ return n !== cName; }).map(function(n){
+    return '<option value="' + escHtml(n) + '">' + escHtml(n) + '</option>';
+  }).join('');
+  document.getElementById("payAmt").value = "";
+  document.getElementById("payDate").value = todayISO();
+  document.getElementById("paymentModal").className = "modal-overlay";
+}
+function savePayment(e) {
+  e.preventDefault();
+  var to = document.getElementById("payTo").value;
+  var amt = parseFloat(document.getElementById("payAmt").value);
+  var date = document.getElementById("payDate").value || todayISO();
+  if(!to) return alert("No room mate to pay.");
+  if(!(amt > 0)) return alert("Enter a valid amount");
+  payments.push({ id: Date.now(), date: date, from: cur.firstName || cur.name, to: to, amt: amt });
+  closeModals();
+  save();
+}
+function delPay(id) {
+  if(confirm("Delete this payment?")) { payments = payments.filter(function(p){ return p.id != id; }); save(); }
+}
+
+/* ===== STATEMENT (PDF) ===== */
+function openStatementModal() {
+  var earliest = todayISO().slice(0, 7);
+  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  payments.forEach(function(p){ var m = p.date.slice(0, 7); if(m < earliest) earliest = m; });
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
+  for(var i = 0; i < 36; i++) {
+    var ym = y + "-" + pad2(m + 1);
+    if(ym < earliest) break;
+    opts += '<option value="' + ym + '">' + MONTHS[m] + ' ' + y + (i === 0 ? ' (current)' : '') + '</option>';
+    m--; if(m < 0) { m = 11; y--; }
+  }
+  document.getElementById("stmtMonth").innerHTML = opts;
+  document.getElementById("statementModal").className = "modal-overlay";
+}
+function generateStatement() {
+  var ym = document.getElementById("stmtMonth").value;
+  var cName = cur.firstName || cur.name;
+  var blob = buildStatementPdf(ym);
+  closeModals();
+  deliverPdf(blob, "Room110_Statement_" + cName.replace(/[^A-Za-z0-9]/g, "") + "_" + ym + ".pdf");
+}
+function deliverPdf(blob, name) {
+  var file = null;
+  try { file = new File([blob], name, { type: "application/pdf" }); } catch(err) {}
+  if(file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: name }).catch(function(err){
+      if(!err || err.name !== "AbortError") downloadBlob(blob, name);
+    });
+  } else {
+    downloadBlob(blob, name);
+  }
+}
+function downloadBlob(blob, name) {
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+}
+
+/* Minimal dependency-free PDF writer (Helvetica) */
+var PDF_W_REG = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584];
+var PDF_W_BOLD = [278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584];
+function PdfDoc() { this.pages = [[]]; this.p = 0; this.W = 595; this.H = 842; }
+function pdfSafe(t) { return String(t).replace(/[^\x20-\x7E]/g, "?"); }
+function pdfEsc(t) { return pdfSafe(t).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)"); }
+function pdfCol(hex) {
+  var n = parseInt(hex.slice(1), 16);
+  return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255].map(function(v){ return v.toFixed(3); }).join(" ");
+}
+PdfDoc.prototype.add = function(op) { this.pages[this.p].push(op); };
+PdfDoc.prototype.addPage = function() { this.pages.push([]); this.p = this.pages.length - 1; };
+PdfDoc.prototype.setPage = function(i) { this.p = i; };
+PdfDoc.prototype.width = function(t, size, bold) {
+  var tbl = bold ? PDF_W_BOLD : PDF_W_REG, w = 0;
+  pdfSafe(t).split("").forEach(function(ch){ w += tbl[ch.charCodeAt(0) - 32]; });
+  return w * size / 1000;
+};
+PdfDoc.prototype.fit = function(t, maxW, size, bold) {
+  t = pdfSafe(t);
+  if(this.width(t, size, bold) <= maxW) return t;
+  while(t.length > 1 && this.width(t + "...", size, bold) > maxW) t = t.slice(0, -1);
+  return t + "...";
+};
+PdfDoc.prototype.text = function(t, x, y, o) {
+  o = o || {};
+  var size = o.size || 10, w = this.width(t, size, o.bold);
+  if(o.align === "right") x -= w; else if(o.align === "center") x -= w / 2;
+  this.add("BT /" + (o.bold ? "F2" : "F1") + " " + size + " Tf " + pdfCol(o.color || "#000000") + " rg " + x.toFixed(2) + " " + (this.H - y).toFixed(2) + " Td (" + pdfEsc(t) + ") Tj ET");
+};
+PdfDoc.prototype.rect = function(x, y, w, h, fill, stroke) {
+  var ops = "";
+  if(fill) ops += pdfCol(fill) + " rg ";
+  if(stroke) ops += pdfCol(stroke) + " RG 0.6 w ";
+  ops += x.toFixed(2) + " " + (this.H - y - h).toFixed(2) + " " + w.toFixed(2) + " " + h.toFixed(2) + " re " + (fill && stroke ? "B" : (fill ? "f" : "S"));
+  this.add(ops);
+};
+PdfDoc.prototype.line = function(x1, y1, x2, y2, color, wid) {
+  this.add(pdfCol(color || "#cccccc") + " RG " + (wid || 0.5) + " w " + x1.toFixed(2) + " " + (this.H - y1).toFixed(2) + " m " + x2.toFixed(2) + " " + (this.H - y2).toFixed(2) + " l S");
+};
+PdfDoc.prototype.build = function() {
+  var n = this.pages.length, objs = [], kids = [], i;
+  for(i = 0; i < n; i++) kids.push((5 + 2 * i) + " 0 R");
+  objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+  objs[2] = "<< /Type /Pages /Kids [" + kids.join(" ") + "] /Count " + n + " >>";
+  objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+  objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+  for(i = 0; i < n; i++) {
+    var stream = this.pages[i].join("\n");
+    objs[5 + 2 * i] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + this.W + " " + this.H + "] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents " + (6 + 2 * i) + " 0 R >>";
+    objs[6 + 2 * i] = "<< /Length " + stream.length + " >>\nstream\n" + stream + "\nendstream";
+  }
+  var out = "%PDF-1.4\n", offs = [];
+  for(i = 1; i < objs.length; i++) { offs[i] = out.length; out += i + " 0 obj\n" + objs[i] + "\nendobj\n"; }
+  var xref = out.length;
+  out += "xref\n0 " + objs.length + "\n0000000000 65535 f \n";
+  for(i = 1; i < objs.length; i++) out += ("0000000000" + offs[i]).slice(-10) + " 00000 n \n";
+  out += "trailer\n<< /Size " + objs.length + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF";
+  return new Blob([out], { type: "application/pdf" });
+};
+
+function buildStatementPdf(ym) {
+  var cName = cur.firstName || cur.name;
+  var pr = periodRange(ym);
+  var opening = 0, purchases = 0, expenses = 0, paySum = 0, rows = [];
+
+  exps.forEach(function(x){
+    var d = expDate(x);
+    var paid = x.pb == cName ? Number(x.amt) : 0;
+    var share = x.al.indexOf(cName) > -1 ? Number(x.amt) / x.al.length : 0;
+    if(!paid && !share) return;
+    if(d < pr.start) { opening += paid - share; }
+    else if(d <= pr.end) {
+      purchases += paid; expenses += share;
+      rows.push({ d: d, id: Number(x.id), desc: x.desc + (x.vendor ? " - " + x.vendor : ""), by: x.pb, purch: paid, exp: share, pay: 0, eff: paid - share });
+    }
+  });
+  payments.forEach(function(p){
+    if(p.from != cName && p.to != cName) return;
+    var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
+    if(p.date < pr.start) { opening += eff; }
+    else if(p.date <= pr.end) {
+      paySum += eff;
+      rows.push({ d: p.date, id: Number(p.id), desc: p.from == cName ? "Payment to " + p.to : "Payment from " + p.from, by: p.from, purch: 0, exp: 0, pay: eff, eff: eff });
+    }
+  });
+  rows.sort(function(a, b){ return a.d < b.d ? -1 : (a.d > b.d ? 1 : a.id - b.id); });
+  var closing = opening + purchases - expenses + paySum;
+
+  var GREEN = "#059669", RED = "#dc2626", NAVY = "#1e3a8a", GRAY = "#6b7280", INK = "#111827";
+  function signed(n) { return (n >= -0.004 ? "+" : "-") + money(Math.abs(n)); }
+  function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
+  var doc = new PdfDoc();
+
+  // Header band
+  doc.rect(0, 0, 595, 80, NAVY);
+  doc.text("ROOM 110 MESS", 40, 44, { size: 22, bold: true, color: "#ffffff" });
+  doc.text("Statement of Account", 40, 63, { size: 11, color: "#dbeafe" });
+  doc.text("STATEMENT PERIOD", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
+  doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
+  doc.text("Generated " + fmtDate(todayISO()), 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
+
+  // Account holder
+  doc.text("ACCOUNT HOLDER", 40, 106, { size: 8, bold: true, color: GRAY });
+  doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 124, { size: 15, bold: true, color: INK });
+
+  // Account summary box
+  var bx = 40, by = 140, bw = 515;
+  doc.rect(bx, by, bw, 22, "#eff6ff", "#bfdbfe");
+  doc.text("ACCOUNT SUMMARY", bx + 12, by + 15, { size: 9, bold: true, color: NAVY });
+  var sumRows = [
+    ["Opening Balance", signed(opening), sgnCol(opening)],
+    ["+ Current Purchases (paid by you)", "+" + money(purchases), GREEN],
+    ["- Current Expenses (your share)", "-" + money(expenses), RED],
+    ["+/- Previous Payments (made - received)", signed(paySum), sgnCol(paySum)]
+  ];
+  var ry = by + 22;
+  sumRows.forEach(function(r){
+    doc.rect(bx, ry, bw, 24, null, "#e5e7eb");
+    doc.text(r[0], bx + 12, ry + 16, { size: 10, color: INK });
+    doc.text("AED " + r[1], bx + bw - 12, ry + 16, { size: 10, bold: true, align: "right", color: r[2] });
+    ry += 24;
+  });
+  doc.rect(bx, ry, bw, 30, "#f1f5f9", "#cbd5e1");
+  doc.text("Current Month Balance", bx + 12, ry + 19, { size: 11, bold: true, color: INK });
+  var tag = Math.abs(closing) < 0.005 ? "Settled" : (closing < 0 ? "Payable (you owe)" : "Receivable (you get)");
+  doc.text("AED " + money(Math.abs(closing)) + "  " + tag, bx + bw - 12, ry + 19, { size: 12, bold: true, align: "right", color: Math.abs(closing) < 0.005 ? GRAY : sgnCol(closing) });
+  ry += 30;
+  doc.text("Balance sign:  + Receivable (amount you get)    - Payable (amount you owe)", bx, ry + 14, { size: 8, color: GRAY });
+
+  // Transactions table
+  var cols = [56, 150, 58, 60, 60, 56, 75], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"];
+  var xs = [], cx = 40;
+  cols.forEach(function(w){ xs.push(cx); cx += w; });
+  var ty = ry + 34;
+  doc.text("TRANSACTIONS", 40, ty, { size: 9, bold: true, color: NAVY });
+  ty += 8;
+
+  function drawHead(y) {
+    doc.rect(40, y, 515, 20, NAVY);
+    heads.forEach(function(h, i){
+      if(i < 3) doc.text(h, xs[i] + 5, y + 14, { size: 8.5, bold: true, color: "#ffffff" });
+      else doc.text(h, xs[i] + cols[i] - 5, y + 14, { size: 8.5, bold: true, color: "#ffffff", align: "right" });
+    });
+    return y + 20;
+  }
+  function drawRow(y, cells, opt) {
+    opt = opt || {};
+    if(opt.fill) doc.rect(40, y, 515, 18, opt.fill);
+    doc.line(40, y + 18, 555, y + 18, "#e5e7eb", 0.4);
+    cells.forEach(function(c, i){
+      if(c === null || c === "") return;
+      var txt = typeof c === "object" ? c.t : c, col = typeof c === "object" ? c.c : INK;
+      if(i < 3) doc.text(doc.fit(txt, cols[i] - 8, 8, opt.bold), xs[i] + 5, y + 12.5, { size: 8, bold: opt.bold, color: col });
+      else doc.text(txt, xs[i] + cols[i] - 5, y + 12.5, { size: 8, bold: opt.bold, align: "right", color: col });
+    });
+    return y + 18;
+  }
+  function ensure(y) {
+    if(y + 18 > 790) { doc.addPage(); return drawHead(40); }
+    return y;
+  }
+
+  ty = drawHead(ty);
+  var run = opening;
+  ty = drawRow(ty, [fmtDate(pr.start), "Opening Balance", "", "", "", "", { t: signed(opening), c: sgnCol(opening) }], { fill: "#f8fafc", bold: true });
+  rows.forEach(function(r, i){
+    ty = ensure(ty);
+    run += r.eff;
+    ty = drawRow(ty, [
+      fmtDate(r.d), r.desc, r.by,
+      r.purch > 0.004 ? { t: money(r.purch), c: GREEN } : "",
+      r.exp > 0.004 ? { t: money(r.exp), c: RED } : "",
+      Math.abs(r.pay) > 0.004 ? { t: signed(r.pay), c: sgnCol(r.pay) } : "",
+      { t: signed(run), c: sgnCol(run) }
+    ], { fill: i % 2 ? "#f8fafc" : null });
+  });
+  if(!rows.length) {
+    ty = ensure(ty);
+    ty = drawRow(ty, ["", "No transactions in this period", "", "", "", "", ""]);
+  }
+  ty = ensure(ty);
+  drawRow(ty, [fmtDate(pr.end), "Closing Balance", "", { t: money(purchases), c: GREEN }, { t: money(expenses), c: RED }, { t: signed(paySum), c: sgnCol(paySum) }, { t: signed(closing), c: sgnCol(closing) }], { fill: "#eff6ff", bold: true });
+
+  // Footer on every page
+  var total = doc.pages.length;
+  for(var pg = 0; pg < total; pg++) {
+    doc.setPage(pg);
+    doc.line(40, 810, 555, 810, "#d1d5db", 0.5);
+    doc.text("Room 110 Mess - Statement for " + cName + " - " + ym, 40, 824, { size: 8, color: GRAY });
+    doc.text("Page " + (pg + 1) + " of " + total, 555, 824, { size: 8, color: GRAY, align: "right" });
+  }
+  return doc.build();
+}
+
 function openEditProfileModal() { document.getElementById("editProfileModal").className = "modal-overlay"; }
 function openCreateUserModal() { document.getElementById("createUserModal").className = "modal-overlay"; }
 function openEditUserModal(id) {
@@ -1409,6 +1840,8 @@ function closeModals() {
   document.getElementById("createUserModal").className = "modal-overlay hide";
   document.getElementById("editUserModal").className = "modal-overlay hide";
   document.getElementById("serviceManagerModal").className = "modal-overlay hide";
+  document.getElementById("paymentModal").className = "modal-overlay hide";
+  document.getElementById("statementModal").className = "modal-overlay hide";
 }
 
 /* CHAT FUNCTIONS (FULL-SCREEN WHATSAPP STYLE) */
@@ -1788,6 +2221,9 @@ function openServiceManager(type) {
   } else if(type === 'contacts') {
     title.innerText = "Manage Emergency Contacts";
     renderContactManagerContent();
+  } else if(type === 'vendors') {
+    title.innerText = "Vendor Management";
+    renderVendorManagerContent();
   }
 }
 
@@ -1869,6 +2305,30 @@ function deleteGroup(idx) {
   renderGroupManagerContent();
 }
 
+function renderVendorManagerContent() {
+  var body = document.getElementById("serviceManagerBody");
+  var formContainer = document.getElementById("serviceManagerFormContainer");
+  body.innerHTML = vendors.map(function(v, idx){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(v.name)+'</div>'+(v.phone ? '<div style="font-size:11px;color:#6b7280">'+escHtml(v.phone)+'</div>' : '')+'</div><button class="btn btn-s" style="background:#dc2626" onclick="deleteVendor('+idx+')">Delete</button></div>';
+  }).join('') || '<div style="color:#6b7280;font-style:italic">No vendors yet. Add one below.</div>';
+  formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Vendor Name</label><input id="newVenName" placeholder="e.g. Lulu Hypermarket" style="margin-bottom:8px"><label>Phone (optional)</label><input id="newVenPhone" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewVendor()">Add Vendor</button></div>';
+}
+function addNewVendor() {
+  var name = document.getElementById("newVenName").value.trim();
+  var phone = document.getElementById("newVenPhone").value.trim();
+  if(!name) return alert("Enter vendor name");
+  if(vendors.some(function(v){ return v.name.toLowerCase() === name.toLowerCase(); })) return alert("Vendor already exists");
+  vendors.push({ name: name, phone: phone });
+  save();
+  renderVendorManagerContent();
+}
+function deleteVendor(idx) {
+  if(!confirm("Delete this vendor?")) return;
+  vendors.splice(idx, 1);
+  save();
+  renderVendorManagerContent();
+}
+
 function renderContactManagerContent() {
   var body = document.getElementById("serviceManagerBody");
   var formContainer = document.getElementById("serviceManagerFormContainer");
@@ -1942,11 +2402,15 @@ function deleteUserFromModal(){
 
 function addEx(e){
   e.preventDefault();
-  var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value,st=document.getElementById("stype").value;
+  var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
+  var dateVal=document.getElementById("expDate").value || todayISO();
+  var vendor=document.getElementById("expVendor").value;
   var al=getSplitMembers().al;
   if(!al.length)return alert("No members to charge. Select at least 1 member who is not on vacation.");
-  exps.unshift({id:Date.now(),amt:a,desc:d,pb:pb,al:al,dt:new Date().toLocaleDateString()});
+  exps.unshift({id:Date.now(),amt:a,desc:d,vendor:vendor,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()});
   document.getElementById("amt").value="";
+  document.getElementById("expDate").value=todayISO();
+  document.getElementById("expVendor").value="";
   save();tab(2);
 }
 
@@ -2006,7 +2470,8 @@ function stats(){
     var uName = u.firstName || u.name;
     var pd=exps.filter(function(x){return x.pb==uName}).reduce(function(s,x){return s+Number(x.amt)},0);
     var sh=exps.reduce(function(s,x){return x.al.indexOf(uName)>-1?s+(Number(x.amt)/x.al.length):s},0);
-    return {name:uName,pd:pd,sh:sh,net:pd-sh};
+    var adj=payments.reduce(function(s,p){return s+(p.from==uName?Number(p.amt):0)-(p.to==uName?Number(p.amt):0)},0);
+    return {name:uName,pd:pd,sh:sh,adj:adj,net:pd-sh+adj};
   });
   return {tot:tot,st:st};
 }
@@ -2057,8 +2522,7 @@ function render(){
   // Monthly Dashboard Render (private: only the logged-in member's own figures, current month)
   var nowD = new Date();
   var monthExps = exps.filter(function(x){
-    var d = new Date(Number(x.id));
-    return d.getMonth() === nowD.getMonth() && d.getFullYear() === nowD.getFullYear();
+    return expDate(x).slice(0, 7) === todayISO().slice(0, 7);
   });
   var myPurchases = monthExps.reduce(function(t,x){
     return x.pb == cName ? t + Number(x.amt) : t;
@@ -2199,7 +2663,16 @@ function render(){
     if(stypeSel.value !== prevSt) stypeSel.value = "a";
   }
   onSplitTypeChange();
-  document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses recorded yet. Tap (+) in the dock to add one!</div>";
+
+  var expDateEl = document.getElementById("expDate");
+  if(expDateEl && !expDateEl.value) expDateEl.value = todayISO();
+  var vSel = document.getElementById("expVendor");
+  var prevVen = vSel.value;
+  var vOpts = '<option value="">-- No vendor --</option>' + vendors.map(function(v){ return '<option value="'+escHtml(v.name)+'">'+escHtml(v.name)+'</option>'; }).join('');
+  var vChanged = vSel._lastHtml !== vOpts;
+  setHtmlIfChanged(vSel, vOpts);
+  if(vChanged && prevVen) vSel.value = prevVen;
+  renderExpensesTab();
 
   // Render WhatsApp style chat contacts & active pane
   renderChatContactsList();
