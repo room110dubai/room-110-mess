@@ -42,30 +42,31 @@ body{
 
 .wrap{max-width:750px;margin:auto;padding:16px 14px 115px;width:100%}
 .wrap.chat-fullscreen-wrap, .wrap.notif-fullscreen-wrap{max-width:100%;padding:0;margin:0}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06);transition:background 0.25s,border-color 0.25s}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,0.06);transition:background 0.25s,border-color 0.25s}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
 input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px;height:46px}
 input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn{width:100%;background:#1e3a8a;color:#fff;border:0;padding:13px;border-radius:10px;font-weight:700;margin-top:16px;cursor:pointer;font-size:14px}
 .btn:hover{background:#1d4ed8}
 .btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px;height:auto}
+.btn:disabled, .btn-s:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(40%); pointer-events: none; }
 
-/* Curved Header Card matching profile card style */
+/* Curved Header Card matching profile card style - Reduced Gap */
 .header-curved-box {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 18px;
   padding: 16px 20px;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.top-left-box { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-.top-logo { width: 95px; height: auto; display: block; }
-.live-datetime { font-size: 11.5px; color: #111; font-weight: 700; }
+.top-left-box { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; }
+.top-logo { width: 95px; height: auto; display: block; margin-left: 0; padding-left: 0; }
+.live-datetime { font-size: 11.5px; color: #111; font-weight: 700; margin-left: 0; text-align: left; }
 
 /* Apple Instagram Liquid Glass Floating Bottom Dock */
 .floating-dock {
@@ -460,7 +461,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
   border: 1px solid #e5e7eb;
   border-radius: 18px;
   padding: 16px 20px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   display: flex;
   align-items: center;
@@ -519,7 +520,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
 <!-- MAIN DASHBOARD SCREEN -->
 <div id="appBox" class="hide" style="width:100%">
-  <!-- CURVED BORDER HEADER CARD -->
+  <!-- CURVED BORDER HEADER CARD WITH FLUSH ALIGNMENT -->
   <div class="header-curved-box">
     <div class="top-left-box">
       <svg class="top-logo" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
@@ -584,13 +585,12 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </div>
       </div>
 
-      <!-- PAYMENT OVERDUE SECTION (Home Screen, always visible) -->
+      <!-- PAYMENT OVERDUE SECTION (Home Screen, info only without button) -->
       <div class="card" id="homeOverdueCard" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
         <div>
           <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
           <div id="homeOverdueAmt" style="font-size:18px;font-weight:900;color:#dc2626;margin-top:2px">AED 0.00</div>
         </div>
-        <button class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Pay Now</button>
       </div>
 
       <!-- MONTHLY FINANCIAL DASHBOARD -->
@@ -646,6 +646,15 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <!-- TAB 2: EXPENSES -->
     <div id="v2" class="hide">
+      <!-- SEPARATE PAYMENT OVERDUE SECTION WITH CONDITIONAL PAY NOW BUTTON -->
+      <div class="card" id="expTabOverdueBox" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
+          <div id="expTabOverdueAmt" style="font-size:18px;font-weight:900;color:#dc2626;margin-top:2px">AED 0.00</div>
+        </div>
+        <button id="expPayNowBtn" class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Pay Now</button>
+      </div>
+
       <div class="card" style="padding:16px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
           <div>
@@ -656,15 +665,6 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Select Period</div>
             <select id="expensePeriodSelect" onchange="onExpensePeriodChange()" style="padding:6px 10px;font-size:12px;font-weight:700;color:#1e3a8a;background:#f8fafc"></select>
           </div>
-        </div>
-
-        <!-- PAYMENT OVERDUE SECTION (Expenses Tab, always visible, with Payment button next to it) -->
-        <div id="expTabOverdueBox" style="display:flex;justify-content:space-between;align-items:center;background:#fef2f2;border:1px solid #fecaca;padding:12px 14px;border-radius:12px;margin-top:14px">
-          <div>
-            <div style="font-size:9px;font-weight:700;color:#b91c1c;text-transform:uppercase">Payment Overdue (Prev Month)</div>
-            <div id="expTabOverdueAmt" style="font-size:16px;font-weight:900;color:#dc2626;margin-top:1px">AED 0.00</div>
-          </div>
-          <button class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Payment</button>
         </div>
 
         <div style="display:flex;gap:10px;margin-top:14px">
@@ -681,7 +681,6 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
           <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(selectedExpYM)"><i class="fa-solid fa-file-pdf"></i> Statement</button>
-          <!-- Payment button moved near overdue, second button row now has Statement only or other actions -->
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
           <button style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openStatementModal()">Older statements</button>
@@ -1791,6 +1790,17 @@ function renderExpensesTab() {
   var overdueAmtEl = document.getElementById("expTabOverdueAmt");
   if(overdueAmtEl) {
     overdueAmtEl.innerText = "AED " + money(overdueAmt);
+  }
+  
+  var payNowBtn = document.getElementById("expPayNowBtn");
+  if(payNowBtn) {
+    if(overdueAmt > 0) {
+      payNowBtn.removeAttribute("disabled");
+      payNowBtn.style.opacity = "1";
+    } else {
+      payNowBtn.setAttribute("disabled", "true");
+      payNowBtn.style.opacity = "0.45";
+    }
   }
 
   var entries = [], purchTotal = 0, shareTotal = 0, purchCnt = 0, shareCnt = 0;
@@ -2919,7 +2929,7 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Render Payment Overdue card on Home screen (always visible)
+  // Render Payment Overdue card on Home screen (info only, without button)
   var currentYM = todayISO().slice(0, 7);
   var homeOverdue = calculatePreviousMonthOverdue(cName, currentYM);
   var homeOverdueCard = document.getElementById("homeOverdueCard");
