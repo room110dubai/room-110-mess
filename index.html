@@ -41,7 +41,7 @@ body{
 .wrap, .login-box, #loginFooter, #appBox { position: relative; z-index: 2; }
 
 .wrap{max-width:750px;margin:auto;padding:16px 14px 115px;width:100%}
-.wrap.chat-fullscreen-wrap{max-width:100%;padding:0;margin:0}
+.wrap.chat-fullscreen-wrap, .wrap.notif-fullscreen-wrap{max-width:100%;padding:0;margin:0}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06);transition:background 0.25s,border-color 0.25s}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
 input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px}
@@ -177,7 +177,7 @@ body.dark-page input, body.dark-page select {
   border-color: #334155;
   color: #f8fafc;
 }
-body.dark-page .cks, body.dark-page .chat-container, body.dark-page .chat-sidebar, body.dark-page .prof-bal-box, body.dark-page .modal-content {
+body.dark-page .cks, body.dark-page .chat-container, body.dark-page .chat-sidebar, body.dark-page .prof-bal-box, body.dark-page .modal-content, body.dark-page .notif-container {
   background: #0f172a !important;
   border-color: #334155 !important;
   color: #f8fafc !important;
@@ -197,7 +197,7 @@ body.dark-page .chat-contact-item:hover, body.dark-page .chat-contact-item.activ
 }
 body.dark-page .ck { color: #cbd5e1; }
 body.dark-page .msg-other {
-  background: #1e293b;
+  background: #1e3a8a;
   color: #f8fafc;
   border-color: #334155;
 }
@@ -304,6 +304,55 @@ th{color:#111}
 .msg-reactions { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
 .reaction-pill { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 11px; cursor: pointer; }
 .readonly-notice { text-align: center; padding: 12px; font-size: 12px; font-weight: 600; color: #6b7280; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+/* Full-Screen Notification Center UI */
+.notif-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 62px);
+  width: 100%;
+  background: #fff;
+  overflow: hidden;
+  padding-bottom: 96px;
+}
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f0f2f5;
+  border-bottom: 1px solid #e2e8f0;
+}
+.notif-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.notif-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.notif-card.unread {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+body.dark-page .notif-card {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+body.dark-page .notif-card.unread {
+  background: rgba(30, 58, 138, 0.25) !important;
+  border-color: #1e3a8a !important;
+}
 
 /* Context Menu Modal for Message Actions */
 .msg-action-menu { position: fixed; background: #fff; border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.22); padding: 8px; z-index: 10005; display: flex; flex-direction: column; gap: 4px; min-width: 170px; border: 1px solid #e5e7eb; }
@@ -514,6 +563,11 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="sync-dot-container" onclick="loadCloudData()" title="Tap to refresh cloud data">
         <span id="cloudDot" class="sync-dot"></span>
       </div>
+      <!-- NOTIFICATION BELL -->
+      <button class="btn btn-s" style="background:#f3f4f6;color:#111;padding:8px 10px;display:flex;align-items:center;justify-content:center;position:relative" onclick="openNotifications()" title="Notifications">
+        <i class="fa-solid fa-bell" style="font-size:16px;color:#1e3a8a"></i>
+        <span id="notifBadge" class="dock-dot hide" style="right:6px;top:6px"></span>
+      </button>
       <button class="btn btn-s" style="background:#25d366;padding:8px 10px;display:flex;align-items:center;justify-content:center" onclick="wa()" title="Copy WhatsApp Report">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff">
           <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
@@ -602,9 +656,9 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <strong style="font-size:16px;color:#111">Expenses</strong>
             <div style="font-size:12px;color:#6b7280">Your purchases &amp; shares</div>
           </div>
-          <div style="text-align:right">
-            <div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Current Period</div>
-            <div id="expPeriod" style="font-size:12px;font-weight:700;color:#1e3a8a;margin-top:2px">-</div>
+          <div style="text-align:right; min-width: 140px;">
+            <div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Select Period</div>
+            <select id="expensePeriodSelect" onchange="onExpensePeriodChange()" style="padding:6px 10px;font-size:12px;font-weight:700;color:#1e3a8a;background:#f8fafc"></select>
           </div>
         </div>
         <div style="display:flex;gap:10px;margin-top:14px">
@@ -620,9 +674,8 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(todayISO().slice(0,7))"><i class="fa-solid fa-file-pdf"></i> Statement</button>
+          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(selectedExpYM)"><i class="fa-solid fa-file-pdf"></i> Statement</button>
           <button class="btn btn-s" style="flex:1;margin:0;background:#059669" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Payment</button>
-          <button class="btn btn-s" style="flex:1;margin:0" onclick="tab(3)">+ Add</button>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
           <button style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openStatementModal()">Older statements</button>
@@ -634,7 +687,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <div id="expList"></div>
       </div>
       <div class="card hide" id="payListCard">
-        <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payments This Period</div>
+        <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Verified Payments This Period</div>
         <div id="payList"></div>
       </div>
     </div>
@@ -845,6 +898,23 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       </div>
     </div>
     </div>
+
+    <!-- FULL-SCREEN NOTIFICATION CENTER SECTION -->
+    <div id="vNotif" class="hide">
+      <div class="notif-container">
+        <div class="notif-header">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:7px 11px" onclick="closeNotifications()">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h3 style="color:#111;font-size:18px">Notifications</h3>
+          </div>
+          <button class="btn btn-s" style="background:#e2e8f0;color:#111;font-size:11px;padding:6px 10px" onclick="markAllNotificationsRead()">Mark all read</button>
+        </div>
+        <div id="notifListScroll" class="notif-scroll"></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- MODALS -->
@@ -925,7 +995,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
       <h3 style="color:#111;margin-bottom:6px">Record Payment</h3>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Money you paid to a room mate to settle your dues.</p>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Money you paid to a room mate to settle your dues. Requires verification by recipient.</p>
       <form onsubmit="savePayment(event)">
         <label>Paid To</label>
         <select id="payTo" style="margin-bottom:12px"></select>
@@ -933,7 +1003,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <input id="payAmt" type="number" step="0.01" min="0.01" required style="margin-bottom:12px" placeholder="0.00">
         <label>Date</label>
         <input id="payDate" type="date" required style="margin-bottom:16px">
-        <button class="btn" style="margin-top:0;background:#059669">Save Payment</button>
+        <button class="btn" style="margin-top:0;background:#059669">Submit Payment for Approval</button>
       </form>
     </div>
   </div>
@@ -1040,6 +1110,7 @@ setRandomBackground();
 var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:"",lastActive:Date.now()}];
 var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [];
+var notifications = JSON.parse(localStorage.getItem("r110_notif")||"null") || [];
 var categories = JSON.parse(localStorage.getItem("r110_cat")||"null") || ["Groceries", "Cinema", "Utilities", "Gas", "Maintenance", "Food"];
 function normalizeGroups(arr) {
   return (Array.isArray(arr) ? arr : []).map(function(g){
@@ -1058,6 +1129,7 @@ var emergencyContacts = JSON.parse(localStorage.getItem("r110_ec")||"null") || [
 var vendors = JSON.parse(localStorage.getItem("r110_ven")||"null") || [];
 var payments = JSON.parse(localStorage.getItem("r110_pay")||"null") || [];
 var expView = "mine";
+var selectedExpYM = todayISO().slice(0, 7);
 var lastSel = JSON.parse(localStorage.getItem("r110_last")||"null") || {};
 var lastSuperSave = 0;
 ensureSuperAdmin();
@@ -1091,7 +1163,6 @@ function getOnlineStatusInfo(userObj) {
     return { isOnline: false, text: "Offline" };
   }
   var diffMs = Date.now() - Number(userObj.lastActive);
-  // Active within last 5 minutes (300,000 ms)
   if(diffMs <= 300000) {
     return { isOnline: true, text: "Online" };
   }
@@ -1133,7 +1204,7 @@ function fetchLiveWeather() {
     });
 }
 fetchLiveWeather();
-setInterval(fetchLiveWeather, 600000); // refresh every 10 minutes
+setInterval(fetchLiveWeather, 600000);
 
 // Super Admin Automated Welcome Message Initialization
 function checkSuperAdminWelcome() {
@@ -1256,6 +1327,10 @@ function loadCloudData(){
         exps = data.exps;
         localStorage.setItem("r110_e", JSON.stringify(exps));
       }
+      if(data && Array.isArray(data.notifications)) {
+        notifications = data.notifications;
+        localStorage.setItem("r110_notif", JSON.stringify(notifications));
+      }
       if(data && data.msgs && data.msgs.length) {
         var prevCount = msgs.length;
         var cName = cur ? (cur.firstName || cur.name) : "";
@@ -1335,7 +1410,6 @@ function setCloudStatus(status) {
   }
 }
 
-// 3 seconds real-time poll refresh
 loadCloudData();
 setInterval(loadCloudData, 3000);
 
@@ -1365,6 +1439,7 @@ function save(){
   localStorage.setItem("r110_u", JSON.stringify(users));
   localStorage.setItem("r110_e", JSON.stringify(exps));
   localStorage.setItem("r110_m", JSON.stringify(msgs));
+  localStorage.setItem("r110_notif", JSON.stringify(notifications));
   localStorage.setItem("r110_cat", JSON.stringify(categories));
   localStorage.setItem("r110_grp", JSON.stringify(groups));
   localStorage.setItem("r110_ven", JSON.stringify(vendors));
@@ -1374,7 +1449,7 @@ function save(){
 
   if(CLOUD_URL){
     setCloudStatus('syncing');
-    var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
+    var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, notifications: notifications, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
     fetch(CLOUD_URL, {
       method: "POST",
       mode: "no-cors",
@@ -1386,6 +1461,20 @@ function save(){
       setCloudStatus('error');
     });
   }
+}
+
+function addNotification(targetUser, title, body, type, meta) {
+  notifications.unshift({
+    id: Date.now() + Math.random(),
+    targetUser: targetUser, // recipient member name or "all"
+    title: title,
+    body: body,
+    type: type, // 'expense', 'payment_request', 'payment_verified', 'statement'
+    meta: meta || null,
+    time: Date.now(),
+    read: false
+  });
+  save();
 }
 
 function login(e){
@@ -1458,7 +1547,86 @@ function tab(n){
       v.className = "hide";
     }
   }
+  document.getElementById("vNotif").className = "hide";
   render();
+}
+
+/* FULL-SCREEN NOTIFICATION CENTER */
+function openNotifications() {
+  var mainWrap = document.getElementById("mainWrap");
+  mainWrap.className = "wrap notif-fullscreen-wrap";
+  for(var i=1; i<=5; i++) {
+    document.getElementById("v"+i).className = "hide";
+  }
+  document.getElementById("vNotif").className = "";
+  renderNotificationsList();
+}
+
+function closeNotifications() {
+  tab(1);
+}
+
+function markAllNotificationsRead() {
+  var cName = cur.firstName || cur.name;
+  notifications.forEach(function(n){
+    if(n.targetUser === "all" || n.targetUser === cName) {
+      n.read = true;
+    }
+  });
+  save();
+  renderNotificationsList();
+}
+
+function renderNotificationsList() {
+  var container = document.getElementById("notifListScroll");
+  var cName = cur.firstName || cur.name;
+  var myNotifs = notifications.filter(function(n){
+    return n.targetUser === "all" || n.targetUser === cName;
+  });
+
+  container.innerHTML = myNotifs.map(function(n){
+    var timeStr = new Date(n.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    var actionsHtml = "";
+    
+    if(n.type === 'payment_request' && !n.verified && n.targetUser === cName) {
+      actionsHtml = '<div style="display:flex;gap:8px;margin-top:6px">' +
+                    '<button class="btn btn-s" style="background:#059669;padding:6px 12px" onclick="verifyPaymentRequest(' + n.meta.paymentId + ', true, ' + n.id + ')">Verify & Approve</button>' +
+                    '<button class="btn btn-s" style="background:#dc2626;padding:6px 12px" onclick="verifyPaymentRequest(' + n.meta.paymentId + ', false, ' + n.id + ')">Reject</button>' +
+                    '</div>';
+    } else if(n.type === 'payment_request' && n.verified) {
+      actionsHtml = '<div style="font-size:11px;color:#059669;font-weight:700;margin-top:4px"><i class="fa-solid fa-check"></i> Approved & Verified</div>';
+    }
+
+    return '<div class="notif-card ' + (!n.read ? 'unread' : '') + '">' +
+           '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+           '<div style="font-weight:700;font-size:14px;color:#111">' + escHtml(n.title) + '</div>' +
+           '<div style="font-size:10px;color:#6b7280">' + timeStr + '</div>' +
+           '</div>' +
+           '<div style="font-size:13px;color:#374151;line-height:1.4">' + escHtml(n.body) + '</div>' +
+           actionsHtml +
+           '</div>';
+  }).join('') || '<div style="text-align:center;color:#6b7280;font-size:13px;margin-top:30px">No notifications right now.</div>';
+
+  // Mark displayed as read
+  myNotifs.forEach(function(n){ n.read = true; });
+  save();
+  updateNotifBadge();
+}
+
+function updateNotifBadge() {
+  if(!cur) return;
+  var cName = cur.firstName || cur.name;
+  var unreadCount = notifications.filter(function(n){
+    return (n.targetUser === "all" || n.targetUser === cName) && !n.read;
+  }).length;
+  var badge = document.getElementById("notifBadge");
+  if(badge) {
+    if(unreadCount > 0) {
+      badge.className = "dock-dot";
+    } else {
+      badge.className = "dock-dot hide";
+    }
+  }
 }
 
 /* PROFILE SUB-PAGES (Instagram style menu) */
@@ -1504,7 +1672,7 @@ function toggleVacation() {
   save();
 }
 
-/* EXPENSE SPLIT (All / custom group / specific members, vacation members excluded) */
+/* EXPENSE SPLIT */
 function getSplitMembers() {
   var selEl = document.getElementById("stype");
   var st = selEl ? selEl.value : "a";
@@ -1553,12 +1721,35 @@ function periodRange(ym) {
 /* ===== EXPENSES TAB ===== */
 function setExpView(v) { expView = (expView === v) ? "mine" : v; renderExpensesTab(); }
 
+function populateExpensePeriodDropdown() {
+  var earliest = todayISO().slice(0, 7);
+  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  payments.forEach(function(p){ var m = p.date.slice(0, 7); if(m < earliest) earliest = m; });
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
+  for(var i = 0; i < 36; i++) {
+    var ym = y + "-" + pad2(m + 1);
+    if(ym < earliest && i > 3) break;
+    opts += '<option value="' + ym + '" ' + (ym === selectedExpYM ? 'selected' : '') + '>' + MONTHS[m] + ' ' + y + '</option>';
+    m--; if(m < 0) { m = 11; y--; }
+  }
+  var sel = document.getElementById("expensePeriodSelect");
+  if(sel) setHtmlIfChanged(sel, opts);
+}
+
+function onExpensePeriodChange() {
+  var sel = document.getElementById("expensePeriodSelect");
+  if(sel) {
+    selectedExpYM = sel.value;
+    renderExpensesTab();
+  }
+}
+
 function renderExpensesTab() {
   if(!cur) return;
   var cName = cur.firstName || cur.name;
-  var ym = todayISO().slice(0, 7);
+  populateExpensePeriodDropdown();
+  var ym = selectedExpYM;
   var pr = periodRange(ym);
-  document.getElementById("expPeriod").innerText = fmtDate(pr.start) + " - " + fmtDate(pr.end);
 
   var entries = [], purchTotal = 0, shareTotal = 0, purchCnt = 0, shareCnt = 0;
   exps.forEach(function(x){
@@ -1580,7 +1771,7 @@ function renderExpensesTab() {
   document.getElementById("expAllBtn").className = isSuper() ? "" : "hide";
   document.getElementById("tilePurch").className = "exp-tile" + (expView === "purchases" ? " active" : "");
   document.getElementById("tileExp").className = "exp-tile" + (expView === "expenses" ? " active" : "");
-  var titles = { mine: "Your activity", purchases: "Purchases only (tap the tile again for all)", expenses: "Expenses only (tap the tile again for all)", all: "Everyone's expenses (Super Admin)" };
+  var titles = { mine: "Your activity (" + MONTHS[Number(ym.slice(5,7))-1] + " " + ym.slice(0,4) + ")", purchases: "Purchases only", expenses: "Expenses only", all: "Everyone's expenses (Super Admin)" };
   document.getElementById("expListTitle").innerText = titles[expView];
 
   entries.sort(function(a, b){
@@ -1613,13 +1804,14 @@ function renderExpensesTab() {
   });
   document.getElementById("expList").innerHTML = html || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded in this period.</div>';
 
+  // Only show verified payments in the Expenses tab list
   var myPays = payments.filter(function(p){
-    return (p.from == cName || p.to == cName) && p.date.slice(0, 7) === ym;
+    return p.verified && (p.from == cName || p.to == cName) && p.date.slice(0, 7) === ym;
   }).sort(function(a, b){ return a.date < b.date ? 1 : -1; });
   document.getElementById("payListCard").className = myPays.length ? "card" : "card hide";
   document.getElementById("payList").innerHTML = myPays.map(function(p){
     var sent = p.from == cName;
-    return '<div class="exp-row"><div><div class="exp-row-title">' + (sent ? 'Paid to ' + escHtml(p.to) : 'Received from ' + escHtml(p.from)) + '</div><div class="exp-row-sub">' + fmtDate(p.date) + '</div></div>' +
+    return '<div class="exp-row"><div><div class="exp-row-title">' + (sent ? 'Paid to ' + escHtml(p.to) : 'Received from ' + escHtml(p.from)) + ' (Verified)</div><div class="exp-row-sub">' + fmtDate(p.date) + '</div></div>' +
            '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt" style="color:' + (sent ? '#dc2626' : '#059669') + '">' + (sent ? '-' : '+') + 'AED ' + money(p.amt) + '</div>' +
            ((sent || isSuper()) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')">X</button>' : '') + '</div></div>';
   }).join('');
@@ -1628,24 +1820,62 @@ function renderExpensesTab() {
 /* ===== PAYMENTS ===== */
 function openPaymentModal() {
   var cName = cur.firstName || cur.name;
-  document.getElementById("payTo").innerHTML = users.map(memberName).filter(function(n){ return n !== cName; }).map(function(n){
+  // Exclude Super Admin & self from recipient list
+  var recipients = users.filter(function(u){
+    var uName = memberName(u);
+    return u.r !== "superadmin" && uName !== cName;
+  });
+  document.getElementById("payTo").innerHTML = recipients.map(function(u){
+    var n = memberName(u);
     return '<option value="' + escHtml(n) + '">' + escHtml(n) + '</option>';
-  }).join('');
+  }).join('') || '<option value="">No valid room mates available</option>';
   document.getElementById("payAmt").value = "";
   document.getElementById("payDate").value = todayISO();
   document.getElementById("paymentModal").className = "modal-overlay";
 }
+
 function savePayment(e) {
   e.preventDefault();
   var to = document.getElementById("payTo").value;
   var amt = parseFloat(document.getElementById("payAmt").value);
   var date = document.getElementById("payDate").value || todayISO();
+  var cName = cur.firstName || cur.name;
   if(!to) return alert("No room mate to pay.");
   if(!(amt > 0)) return alert("Enter a valid amount");
-  payments.push({ id: Date.now(), date: date, from: cur.firstName || cur.name, to: to, amt: amt });
+  
+  var newPay = { id: Date.now(), date: date, from: cName, to: to, amt: amt, verified: false };
+  payments.push(newPay);
+
+  // Send notification to recipient for verification
+  addNotification(to, "Payment Verification Needed", cName + " recorded a payment of AED " + money(amt) + " sent to you. Please verify and approve.", "payment_request", { paymentId: newPay.id });
+
   closeModals();
   save();
+  alert("Payment submitted successfully! Waiting for " + to + " to verify and approve.");
 }
+
+function verifyPaymentRequest(paymentId, approved, notifId) {
+  var p = payments.find(function(x){ return x.id == paymentId; });
+  var n = notifications.find(function(x){ return x.id == notifId; });
+  if(p) {
+    if(approved) {
+      p.verified = true;
+      addNotification(p.from, "Payment Approved", cur.firstName + " verified and approved your payment of AED " + money(p.amt) + ".", "payment_verified");
+      alert("Payment approved successfully!");
+    } else {
+      payments = payments.filter(function(x){ return x.id != paymentId; });
+      addNotification(p.from, "Payment Rejected", cur.firstName + " rejected your payment record of AED " + money(p.amt) + ".", "payment_verified");
+      alert("Payment record rejected.");
+    }
+  }
+  if(n) {
+    n.verified = approved;
+    n.read = true;
+  }
+  save();
+  renderNotificationsList();
+}
+
 function delPay(id) {
   if(confirm("Delete this payment?")) { payments = payments.filter(function(p){ return p.id != id; }); save(); }
 }
@@ -1654,7 +1884,7 @@ function delPay(id) {
 function openStatementModal() {
   var earliest = todayISO().slice(0, 7);
   exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
-  payments.forEach(function(p){ var m = p.date.slice(0, 7); if(m < earliest) earliest = m; });
+  payments.forEach(function(p){ if(p.verified) { var m = p.date.slice(0, 7); if(m < earliest) earliest = m; } });
   var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
   for(var i = 0; i < 36; i++) {
     var ym = y + "-" + pad2(m + 1);
@@ -1674,8 +1904,11 @@ function openStatement(ym) {
   var blob = buildStatementPdf(ym);
   var url = URL.createObjectURL(blob);
   var w = window.open(url, "_blank");
-  if(!w) window.location.href = url;   // pop-up blocked: open in this tab instead
+  if(!w) window.location.href = url;
   setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
+  
+  // Notify user & room
+  addNotification(cur.firstName || cur.name, "Statement Generated", "Your PDF statement for " + ym + " was successfully generated.", "statement");
 }
 
 /* Minimal dependency-free PDF writer (Helvetica) */
@@ -1756,7 +1989,7 @@ function buildStatementPdf(ym) {
     }
   });
   payments.forEach(function(p){
-    if(p.from != cName && p.to != cName) return;
+    if(!p.verified || (p.from != cName && p.to != cName)) return;
     var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
     if(p.date < pr.start) { opening += eff; }
     else if(p.date <= pr.end) {
@@ -1772,7 +2005,6 @@ function buildStatementPdf(ym) {
   function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
   var doc = new PdfDoc();
 
-  // Header band
   doc.rect(0, 0, 595, 80, NAVY);
   doc.text("ROOM 110 MESS", 40, 44, { size: 22, bold: true, color: "#ffffff" });
   doc.text("Statement of Account", 40, 63, { size: 11, color: "#dbeafe" });
@@ -1780,11 +2012,9 @@ function buildStatementPdf(ym) {
   doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
   doc.text("Generated " + fmtDate(todayISO()), 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
 
-  // Account holder
   doc.text("ACCOUNT HOLDER", 40, 106, { size: 8, bold: true, color: GRAY });
   doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 124, { size: 15, bold: true, color: INK });
 
-  // Account summary box
   var bx = 40, by = 140, bw = 515;
   doc.rect(bx, by, bw, 22, "#eff6ff", "#bfdbfe");
   doc.text("ACCOUNT SUMMARY", bx + 12, by + 15, { size: 9, bold: true, color: NAVY });
@@ -1792,7 +2022,7 @@ function buildStatementPdf(ym) {
     ["Opening Balance", signed(opening), sgnCol(opening)],
     ["+ Current Purchases (paid by you)", "+" + money(purchases), GREEN],
     ["- Current Expenses (your share)", "-" + money(expenses), RED],
-    ["+/- Previous Payments (made - received)", signed(paySum), sgnCol(paySum)]
+    ["+/- Previous Payments (verified)", signed(paySum), sgnCol(paySum)]
   ];
   var ry = by + 22;
   sumRows.forEach(function(r){
@@ -1808,7 +2038,6 @@ function buildStatementPdf(ym) {
   ry += 30;
   doc.text("Balance sign:  + Receivable (amount you get)    - Payable (amount you owe)", bx, ry + 14, { size: 8, color: GRAY });
 
-  // Transactions table
   var cols = [56, 150, 58, 60, 60, 56, 75], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"];
   var xs = [], cx = 40;
   cols.forEach(function(w){ xs.push(cx); cx += w; });
@@ -1862,7 +2091,6 @@ function buildStatementPdf(ym) {
   ty = ensure(ty);
   drawRow(ty, [fmtDate(pr.end), "Closing Balance", "", { t: money(purchases), c: GREEN }, { t: money(expenses), c: RED }, { t: signed(paySum), c: sgnCol(paySum) }, { t: signed(closing), c: sgnCol(closing) }], { fill: "#eff6ff", bold: true });
 
-  // Footer on every page
   var total = doc.pages.length;
   for(var pg = 0; pg < total; pg++) {
     doc.setPage(pg);
@@ -1947,7 +2175,6 @@ function renderChatContactsList() {
 
   var items = [];
 
-  // 1. Super Admin Official Announcements & Statement Reminders Channel
   if("super admin room 110 announcements statements".includes(filter)) {
     var h1 = '<div class="chat-contact-item '+(activeChatTarget==='superadmin_channel'?'active':'')+'" onclick="selectChatTarget(\'superadmin_channel\')">';
     h1 += '<div class="contact-avatar" style="background:#d97706"><i class="fa-solid fa-bullhorn"></i><span class="online-dot"></span></div>';
@@ -1956,7 +2183,6 @@ function renderChatContactsList() {
     items.push({ ts: lastChatTime(function(m){ return m.target === 'superadmin_channel'; }), html: h1 });
   }
 
-  // 2. Default Group Chat Item (Room 110)
   if("room 110".includes(filter)) {
     var h2 = '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget(\'group_room110\')">';
     h2 += '<div class="contact-avatar" style="background:#1e3a8a"><i class="fa-solid fa-users"></i></div>';
@@ -1965,10 +2191,9 @@ function renderChatContactsList() {
     items.push({ ts: lastChatTime(function(m){ return m.target === 'group_room110' || !m.target; }), html: h2 });
   }
 
-  // 3. Individual Members List (Direct 1-on-1 Chats with real online status)
   users.forEach(function(u){
     var uName = u.firstName || u.name;
-    if(uName === cName) return; // skip self
+    if(uName === cName) return;
     if(!uName.toLowerCase().includes(filter)) return;
 
     var statusInfo = getOnlineStatusInfo(u);
@@ -1984,7 +2209,6 @@ function renderChatContactsList() {
     });
   });
 
-  // Most recent conversation first (ties keep their original order)
   items.forEach(function(it, idx){ it.idx = idx; });
   items.sort(function(a, b){ return (b.ts - a.ts) || (a.idx - b.idx); });
 
@@ -1993,7 +2217,6 @@ function renderChatContactsList() {
 }
 
 function renderChatActivePane() {
-  var cName = cur.firstName || cur.name;
   var nameEl = document.getElementById("activeChatName");
   var statusEl = document.getElementById("activeChatStatus");
   var avatarEl = document.getElementById("activeChatAvatar");
@@ -2002,7 +2225,6 @@ function renderChatActivePane() {
   var inputForm = document.getElementById("chatInputForm");
   var readOnlyNotice = document.getElementById("chatReadOnlyNotice");
 
-  // Default visibility for input vs read-only
   inputForm.className = "chat-input-bar";
   readOnlyNotice.className = "readonly-notice hide";
   if(isSuper()) {
@@ -2020,7 +2242,6 @@ function renderChatActivePane() {
     badgeEl.style.background = "#fef3c7";
     badgeEl.style.color = "#92400e";
 
-    // Regular users cannot send messages to the Super Admin announcement channel
     if(!isSuper()) {
       inputForm.className = "chat-input-bar hide";
       readOnlyNotice.className = "readonly-notice";
@@ -2082,7 +2303,6 @@ function renderChatMessages() {
       senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+m.sender+'</div>';
     }
 
-    // WhatsApp Tick Status Logic
     var ticksHtml = '';
     if(isMe && !m.isSystem) {
       if(m.isRead) {
@@ -2160,7 +2380,6 @@ function sendActiveChatMsg(e) {
   renderChatMessages();
 }
 
-/* PRESS AND HOLD CONTEXT MENU FOR MESSAGES (EDIT, DELETE WITHIN 5 MINS, EMOJI REACTIONS) */
 function openMsgMenu(e, msgId, isMe) {
   if(e && e.preventDefault) e.preventDefault();
   var existing = document.getElementById("activeMsgMenu");
@@ -2170,7 +2389,7 @@ function openMsgMenu(e, msgId, isMe) {
   if(!msg) return;
 
   var nowEpoch = Date.now();
-  var canDeleteOrEdit = (isMe || (isSuper() && msg.isSystem)) && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000); // 5 mins = 300,000 ms
+  var canDeleteOrEdit = (isMe || (isSuper() && msg.isSystem)) && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000);
 
   var menu = document.createElement("div");
   menu.id = "activeMsgMenu";
@@ -2180,7 +2399,6 @@ function openMsgMenu(e, msgId, isMe) {
   menu.style.top = Math.max(10, Math.min(posY, window.innerHeight - 190)) + "px";
   menu.style.left = Math.max(10, Math.min(posX, window.innerWidth - 185)) + "px";
 
-  // Emoji Reaction Picker Row
   var emojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
   var emojiRow = '<div class="emoji-picker-row">';
   emojis.forEach(function(em){
@@ -2197,7 +2415,6 @@ function openMsgMenu(e, msgId, isMe) {
   menu.innerHTML = actionButtons;
   document.body.appendChild(menu);
 
-  // Close menu on outside click
   setTimeout(function(){
     window.addEventListener('click', function closeMenu(ev){
       if(!menu.contains(ev.target)) {
@@ -2465,8 +2682,18 @@ function addEx(e){
   var note=document.getElementById("expNote").value.trim();
   var al=getSplitMembers().al;
   if(!al.length)return alert("No members to charge. Select at least 1 member who is not on vacation.");
-  exps.unshift({id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()});
-  // remember the last selections so the next entry starts from them
+  
+  var newExp = {id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()};
+  exps.unshift(newExp);
+  
+  // Add notification to room members involved in split
+  al.forEach(function(memName){
+    var uObj = users.find(function(us){ return memberName(us) === memName; });
+    if(uObj) {
+      addNotification(memName, "New Expense Added", pb + " added AED " + money(a) + " for " + d + ".", "expense");
+    }
+  });
+
   lastSel = {desc:d, vendor:vendor, pby:pb, stype:document.getElementById("stype").value};
   localStorage.setItem("r110_last", JSON.stringify(lastSel));
   document.getElementById("amt").value="";
@@ -2587,11 +2814,13 @@ function finishProfileUpdate(){
 
 function stats(){
   var tot=exps.reduce(function(s,x){return s+Number(x.amt)},0);
+  // Only count verified payments towards balances
+  var verifiedPayments = payments.filter(function(p){ return p.verified; });
   var st=users.map(function(u){
     var uName = u.firstName || u.name;
     var pd=exps.filter(function(x){return x.pb==uName}).reduce(function(s,x){return s+Number(x.amt)},0);
     var sh=exps.reduce(function(s,x){return x.al.indexOf(uName)>-1?s+(Number(x.amt)/x.al.length):s},0);
-    var adj=payments.reduce(function(s,p){return s+(p.from==uName?Number(p.amt):0)-(p.to==uName?Number(p.amt):0)},0);
+    var adj=verifiedPayments.reduce(function(s,p){return s+(p.from==uName?Number(p.amt):0)-(p.to==uName?Number(p.amt):0)},0);
     return {name:uName,pd:pd,sh:sh,adj:adj,net:pd-sh+adj};
   });
   return {tot:tot,st:st};
@@ -2625,6 +2854,7 @@ function render(){
   }
 
   updateDateTime();
+  updateNotifBadge();
   document.getElementById("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
   document.getElementById("profRole").innerText = roleLabel(cur.r);
   document.getElementById("membersRow").classList.toggle("hide", !isSuper());
@@ -2646,7 +2876,7 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Monthly Dashboard Render (private: only the logged-in member's own figures, current month)
+  // Monthly Dashboard Render (current calendar month)
   var nowD = new Date();
   var monthExps = exps.filter(function(x){
     return expDate(x).slice(0, 7) === todayISO().slice(0, 7);
@@ -2661,7 +2891,6 @@ function render(){
   document.getElementById("dashPaid").innerText = "AED " + myPurchases.toFixed(2);
   document.getElementById("dashShare").innerText = "AED " + forMe.toFixed(2);
 
-  // Net after expenses: what I paid minus my share of every expense (red = payable, green = receivable)
   var myShareTotal = monthExps.reduce(function(t,x){
     return x.al.indexOf(cName) > -1 ? t + (Number(x.amt) / x.al.length) : t;
   }, 0);
@@ -2725,7 +2954,6 @@ function render(){
     }
   }
 
-  // Populate Category Select in Add Expense Form
   var descSelect = document.getElementById("desc");
   if(descSelect) {
     var currentSelectedCat = descSelect.value;
@@ -2734,7 +2962,6 @@ function render(){
     }).join(''));
   }
 
-  // Render Emergency Contacts List on Profile Tab
   var ecContainer = document.getElementById("emergencyContactsListContainer");
   if(ecContainer) {
     ecContainer.innerHTML = emergencyContacts.map(function(ec){
@@ -2742,7 +2969,6 @@ function render(){
     }).join('') || '<div style="font-size:12px;color:#6b7280;font-style:italic">No emergency contacts.</div>';
   }
 
-  // Monthly Donut Chart (updates in place, no re-spin)
   var bothZero = !(myPurchases > 0) && !(forMe > 0);
   var chartVals = bothZero ? [1, 0] : [myPurchases, forMe];
   var chartCols = bothZero ? ['#d1d5db', '#d1d5db'] : ['#10b981', '#f59e0b'];
@@ -2774,7 +3000,6 @@ function render(){
   setHtmlIfChanged(document.getElementById("pby"), users.map(function(u){var uN = memberName(u); return "<option value='"+uN+"' "+(uN==prevPby?"selected":"")+">"+uN+"</option>"}).join(""));
   setHtmlIfChanged(document.getElementById("cbox"), users.filter(isMess).map(function(u){var uN = memberName(u); var vac = !!u.vacation; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(vac?"disabled":(unchecked.indexOf(uN)>-1?"":"checked"))+"><span>"+uN+(vac?" 🏖️ (Vacation)":"")+"</span></label>"}).join(""));
 
-  // Split Between: All / custom groups / specific members
   var stypeSel = document.getElementById("stype");
   var prevSt = stypeSel.value || "a";
   var stOpts = '<option value="a">All Room 110 Members</option>';
@@ -2802,14 +3027,13 @@ function render(){
   if(vChanged && prevVen) vSel.value = prevVen;
   renderExpensesTab();
 
-  // Render WhatsApp style chat contacts & active pane
   renderChatContactsList();
   if(document.getElementById("chatMainPane").className.indexOf("hide") === -1) {
     renderChatActivePane();
   }
 
   if(isSuper()) {
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700">VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700">NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
   }
 }
 if(cur) openDashboard();
