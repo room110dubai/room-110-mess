@@ -44,11 +44,11 @@ body{
 .wrap.chat-fullscreen-wrap, .wrap.notif-fullscreen-wrap{max-width:100%;padding:0;margin:0}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06);transition:background 0.25s,border-color 0.25s}
 label{display:block;font-size:12px;color:#374151;margin:10px 0 4px;font-weight:600}
-input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px}
+input,select{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:12px;border-radius:10px;font-size:14px;height:46px}
 input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn{width:100%;background:#1e3a8a;color:#fff;border:0;padding:13px;border-radius:10px;font-weight:700;margin-top:16px;cursor:pointer;font-size:14px}
 .btn:hover{background:#1d4ed8}
-.btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px}
+.btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px;height:auto}
 
 /* Top Bar Fixed Alignment */
 .top{
@@ -173,9 +173,9 @@ body.dark-page td, body.dark-page label {
   border-bottom-color: #334155;
 }
 body.dark-page input, body.dark-page select {
-  background: #0f172a;
-  border-color: #334155;
-  color: #f8fafc;
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
 }
 body.dark-page .cks, body.dark-page .chat-container, body.dark-page .chat-sidebar, body.dark-page .prof-bal-box, body.dark-page .modal-content, body.dark-page .notif-container {
   background: #0f172a !important;
@@ -218,12 +218,7 @@ body.dark-page .dock-item.active {
 body.dark-page .dock-item svg { stroke: #ffffff; }
 body.dark-page .dock-item.active svg.fill-active { fill: #ffffff; }
 
-/* ===== Dark mode fixes: inline colours/backgrounds that the class rules could not override ===== */
-body.dark-page input, body.dark-page select {
-  background: #0f172a !important;
-  border-color: #334155 !important;
-  color: #f8fafc !important;
-}
+/* ===== Dark mode fixes ===== */
 body.dark-page input::placeholder { color: #64748b; }
 body.dark-page [style*="color:#111"] { color: #f8fafc !important; }
 body.dark-page [style*="color:#374151"] { color: #cbd5e1 !important; }
@@ -253,7 +248,7 @@ th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151
 th{color:#111}
 .g{color:#059669;font-weight:700}.r{color:#dc2626;font-weight:700}.hide{display:none!important}
 .cks{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#f9fafb;padding:10px;border-radius:8px;margin-top:8px;border:1px solid #e5e7eb}
-.ck{display:flex;align-items:center;gap:6px;font-size:13px;color:#374151}.ck input{width:16px;height:16px}
+.ck{display:flex;align-items:center;gap:6px;font-size:13px;color:#374151}.ck input{width:16px;height:auto}
 
 .login-box{
   width:100%;
@@ -354,7 +349,6 @@ body.dark-page .notif-card.unread {
   border-color: #1e3a8a !important;
 }
 
-/* Context Menu Modal for Message Actions */
 .msg-action-menu { position: fixed; background: #fff; border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.22); padding: 8px; z-index: 10005; display: flex; flex-direction: column; gap: 4px; min-width: 170px; border: 1px solid #e5e7eb; }
 .msg-action-btn { background: none; border: none; padding: 8px 12px; text-align: left; font-size: 13px; font-weight: 600; color: #374151; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .msg-action-btn:hover { background: #f3f4f6; }
@@ -403,7 +397,6 @@ body.dark-page .notif-card.unread {
   color: #4b5563;
 }
 
-/* Sync Status Dot Indicator */
 .sync-dot-container {
   display: flex;
   align-items: center;
@@ -435,7 +428,6 @@ body.dark-page .notif-card.unread {
   animation: pulse-blink 1s infinite ease-in-out;
 }
 
-/* Instagram-style profile menu */
 .prof-menu-row { display:flex; align-items:center; justify-content:space-between; padding:14px 2px; border-bottom:1px solid #f3f4f6; cursor:pointer; }
 .prof-menu-row:last-child { border-bottom:none; }
 .prof-row-left { display:flex; align-items:center; gap:14px; font-size:15px; font-weight:600; color:#111; }
@@ -446,7 +438,6 @@ body.dark-page .prof-menu-row { border-bottom-color:#334155; }
 body.dark-page .prof-row-left { color:#f8fafc; }
 body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
 
-/* Expenses tab */
 .exp-tile { flex:1; border:2px solid transparent; border-radius:14px; padding:12px; background:#f8fafc; cursor:pointer; min-width:0; }
 .exp-tile.active { border-color:#1e3a8a; background:#eff6ff; }
 .exp-tile-label { font-size:10px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.4px; }
@@ -467,7 +458,6 @@ textarea:focus { border-color:#1e3a8a; outline:none; }
 body.dark-page textarea { background:#0f172a !important; border-color:#334155 !important; color:#f8fafc !important; }
 .exp-ic { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
 
-/* Welcome Profile Card */
 .welcome-profile-card {
   background: #fff;
   border: 1px solid #e5e7eb;
@@ -579,7 +569,6 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
   <div id="mainWrap" class="wrap">
     <!-- TAB 1: HOME -->
     <div id="v1">
-      <!-- WELCOME PROFILE CARD -->
       <div class="welcome-profile-card">
         <div style="display:flex;align-items:center;gap:12px">
           <div style="position:relative">
@@ -595,6 +584,15 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
           <div id="liveWeatherTemp" style="font-size:18px;font-weight:900;color:#111">--°C</div>
           <div style="font-size:9px;color:#6b7280;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Dubai</div>
         </div>
+      </div>
+
+      <!-- PAYMENT OVERDUE SECTION (Home Screen, right before Monthly Dashboard) -->
+      <div class="card" id="homeOverdueCard" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
+          <div id="homeOverdueAmt" style="font-size:18px;font-weight:900;color:#dc2626;margin-top:2px">AED 0.00</div>
+        </div>
+        <button class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Pay Now</button>
       </div>
 
       <!-- MONTHLY FINANCIAL DASHBOARD -->
@@ -661,6 +659,16 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <select id="expensePeriodSelect" onchange="onExpensePeriodChange()" style="padding:6px 10px;font-size:12px;font-weight:700;color:#1e3a8a;background:#f8fafc"></select>
           </div>
         </div>
+
+        <!-- PAYMENT OVERDUE SECTION (Expenses Tab, right before expenses list) -->
+        <div id="expTabOverdueBox" style="display:flex;justify-content:space-between;align-items:center;background:#fef2f2;border:1px solid #fecaca;padding:12px 14px;border-radius:12px;margin-top:14px">
+          <div>
+            <div style="font-size:9px;font-weight:700;color:#b91c1c;text-transform:uppercase">Payment Overdue (Prev Month)</div>
+            <div id="expTabOverdueAmt" style="font-size:16px;font-weight:900;color:#dc2626;margin-top:1px">AED 0.00</div>
+          </div>
+          <button class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Payment</button>
+        </div>
+
         <div style="display:flex;gap:10px;margin-top:14px">
           <div id="tilePurch" class="exp-tile active" onclick="setExpView('purchases')">
             <div class="exp-tile-label">Current Purchases</div>
@@ -696,7 +704,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <div id="v3" class="card hide">
       <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
       <form onsubmit="addEx(event)">
-        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" placeholder="0.00" required>
+        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" inputmode="decimal" placeholder="0.00" required>
         <label>Date</label><input id="expDate" type="date" required>
         <label>Items / Category</label>
         <select id="desc" required style="margin-bottom:6px"></select>
@@ -782,7 +790,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </div>
       </div>
 
-      <!-- PROFILE MENU (headings only) -->
+      <!-- PROFILE MENU -->
       <div class="card" style="padding:6px 18px">
         <div class="prof-menu-row" onclick="openProfPage('ec')">
           <div class="prof-row-left"><span class="prof-row-icon" style="background:#fee2e2;color:#dc2626"><i class="fa-solid fa-phone-volume"></i></span>Emergency Contacts</div>
@@ -1000,7 +1008,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <label>Paid To</label>
         <select id="payTo" style="margin-bottom:12px"></select>
         <label>Amount (AED)</label>
-        <input id="payAmt" type="number" step="0.01" min="0.01" required style="margin-bottom:12px" placeholder="0.00">
+        <input id="payAmt" type="number" step="0.01" min="0.01" inputmode="decimal" required style="margin-bottom:12px" placeholder="0.00">
         <label>Date</label>
         <input id="payDate" type="date" required style="margin-bottom:16px">
         <button class="btn" style="margin-top:0;background:#059669">Submit Payment for Approval</button>
@@ -1027,7 +1035,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <h3 style="color:#111;margin-bottom:12px">Edit Expense</h3>
       <form onsubmit="saveEditedExp(event)">
         <input type="hidden" id="eeId">
-        <label>Amount (AED)</label><input id="eeAmt" type="number" step="0.01" required style="margin-bottom:10px">
+        <label>Amount (AED)</label><input id="eeAmt" type="number" step="0.01" inputmode="decimal" required style="margin-bottom:10px">
         <label>Date</label><input id="eeDate" type="date" required style="margin-bottom:10px">
         <label>Category</label><select id="eeDesc" style="margin-bottom:10px"></select>
         <label>Vendor</label><select id="eeVendor" style="margin-bottom:10px"></select>
@@ -1139,11 +1147,9 @@ var monthlyChartInstance = null;
 var categoryChartInstance = null;
 var editingGroupIdx = -1;
 
-// Active Chat Session state: "group_room110", "superadmin_channel", or member name
 var activeChatTarget = "group_room110";
 var longPressTimer = null;
 
-// Heartbeat to update current user's real active timestamp
 function pingUserActivity(shouldSave) {
   if(!cur) return;
   var now = Date.now();
@@ -1175,7 +1181,6 @@ function getOnlineStatusInfo(userObj) {
   return { isOnline: false, text: "Last seen " + d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + " at " + timeStr };
 }
 
-// Live Real-Time Weather Fetch for Dubai
 function weatherIcon(code, isDay) {
   if(code === 0) return isDay ? "☀️" : "🌙";
   if(code <= 2) return isDay ? "⛅" : "☁️";
@@ -1206,7 +1211,6 @@ function fetchLiveWeather() {
 fetchLiveWeather();
 setInterval(fetchLiveWeather, 600000);
 
-// Super Admin Automated Welcome Message Initialization
 function checkSuperAdminWelcome() {
   var hasGroupWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "group_room110"; });
   var hasAdminWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "superadmin_channel"; });
@@ -1551,7 +1555,6 @@ function tab(n){
   render();
 }
 
-/* FULL-SCREEN NOTIFICATION CENTER */
 function openNotifications() {
   var mainWrap = document.getElementById("mainWrap");
   mainWrap.className = "wrap notif-fullscreen-wrap";
@@ -1628,7 +1631,6 @@ function updateNotifBadge() {
   }
 }
 
-/* PROFILE SUB-PAGES (Instagram style menu) */
 var PROF_PAGES = ["ec","members","services","vacation","appearance"];
 function openProfPage(name) {
   document.getElementById("profMenu").className = "hide";
@@ -1662,7 +1664,6 @@ function setHtmlIfChanged(el, html) {
 }
 function memberName(u) { return u.firstName || u.name; }
 
-/* VACATION MODE */
 function toggleVacation() {
   var on = document.getElementById("vacationToggle").checked;
   var idx = users.findIndex(function(x){ return x.u === cur.u; });
@@ -1671,11 +1672,15 @@ function toggleVacation() {
   save();
 }
 
-/* EXPENSE SPLIT */
 function getSplitMembers() {
   var selEl = document.getElementById("stype");
   var st = selEl ? selEl.value : "a";
   var onVac = users.filter(function(u){ return u.vacation; }).map(memberName);
+  
+  var messUsers = users.filter(isMess).slice().sort(function(a, b){
+    return memberName(a).localeCompare(memberName(b));
+  });
+
   if(st === "c") {
     var checked = Array.prototype.map.call(document.querySelectorAll(".mck:checked"), function(c){ return c.value; });
     return { al: checked, vac: onVac };
@@ -1684,16 +1689,17 @@ function getSplitMembers() {
   if(st && st.indexOf("g:") === 0) {
     var gname = decodeURIComponent(st.slice(2));
     var g = groups.filter(function(x){ return x.name === gname; })[0];
-    var existing = users.filter(isMess).map(memberName);
+    var existing = messUsers.map(memberName);
     pool = ((g && g.members) || []).filter(function(n){ return existing.indexOf(n) > -1; });
   } else {
-    pool = users.filter(isMess).map(memberName);
+    pool = messUsers.map(memberName);
   }
   return {
     al: pool.filter(function(n){ return onVac.indexOf(n) === -1; }),
     vac: pool.filter(function(n){ return onVac.indexOf(n) > -1; })
   };
 }
+
 function onSplitTypeChange() {
   var st = document.getElementById("stype").value;
   document.getElementById("cbox").className = (st === "c") ? "cks" : "cks hide";
@@ -1704,7 +1710,6 @@ function onSplitTypeChange() {
   document.getElementById("splitHint").innerHTML = h;
 }
 
-/* ===== DATE HELPERS ===== */
 var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function pad2(n) { return n < 10 ? "0" + n : "" + n; }
 function toISO(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
@@ -1717,7 +1722,31 @@ function periodRange(ym) {
   return { start: ym + "-01", end: ym + "-" + pad2(new Date(y, m, 0).getDate()) };
 }
 
-/* ===== EXPENSES TAB ===== */
+function calculatePreviousMonthOverdue(cName, ym) {
+  var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7));
+  m--; if(m < 0) { m = 11; y--; }
+  var prevYM = y + "-" + pad2(m + 1);
+  var pr = periodRange(prevYM);
+
+  var opening = 0, purchases = 0, expenses = 0, paySum = 0;
+  exps.forEach(function(x){
+    var d = expDate(x);
+    var paid = x.pb == cName ? Number(x.amt) : 0;
+    var share = x.al.indexOf(cName) > -1 ? Number(x.amt) / x.al.length : 0;
+    if(!paid && !share) return;
+    if(d < pr.start) { opening += paid - share; }
+    else if(d <= pr.end) { purchases += paid; expenses += share; }
+  });
+  payments.forEach(function(p){
+    if(!p.verified || (p.from != cName && p.to != cName)) return;
+    var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
+    if(p.date < pr.start) { opening += eff; }
+    else if(p.date <= pr.end) { paySum += eff; }
+  });
+  var netPrev = opening + purchases - expenses + paySum;
+  return netPrev < -0.005 ? Math.abs(netPrev) : 0;
+}
+
 function setExpView(v) { expView = (expView === v) ? "mine" : v; renderExpensesTab(); }
 
 function populateExpensePeriodDropdown() {
@@ -1749,6 +1778,18 @@ function renderExpensesTab() {
   populateExpensePeriodDropdown();
   var ym = selectedExpYM;
   var pr = periodRange(ym);
+
+  var overdueAmt = calculatePreviousMonthOverdue(cName, ym);
+  var overdueBox = document.getElementById("expTabOverdueBox");
+  var overdueAmtEl = document.getElementById("expTabOverdueAmt");
+  if(overdueBox && overdueAmtEl) {
+    if(overdueAmt > 0.005) {
+      overdueBox.style.display = "flex";
+      overdueAmtEl.innerText = "AED " + money(overdueAmt);
+    } else {
+      overdueBox.style.display = "none";
+    }
+  }
 
   var entries = [], purchTotal = 0, shareTotal = 0, purchCnt = 0, shareCnt = 0;
   exps.forEach(function(x){
@@ -1815,7 +1856,6 @@ function renderExpensesTab() {
   }).join('');
 }
 
-/* ===== PAYMENTS ===== */
 function openPaymentModal() {
   var cName = cur.firstName || cur.name;
   var recipients = users.filter(function(u){
@@ -1876,7 +1916,6 @@ function delPay(id) {
   if(confirm("Delete this payment?")) { payments = payments.filter(function(p){ return p.id != id; }); save(); }
 }
 
-/* ===== STATEMENT (PDF) ===== */
 function openStatementModal() {
   var earliest = todayISO().slice(0, 7);
   exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
@@ -1906,7 +1945,6 @@ function openStatement(ym) {
   addNotification(cur.firstName || cur.name, "Statement Generated", "Your PDF statement for " + ym + " was successfully generated.", "statement");
 }
 
-/* Minimal dependency-free PDF writer (Helvetica) */
 var PDF_W_REG = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584];
 var PDF_W_BOLD = [278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584];
 function PdfDoc() { this.pages = [[]]; this.p = 0; this.W = 595; this.H = 842; }
@@ -2120,7 +2158,6 @@ function closeModals() {
   document.getElementById("editExpModal").className = "modal-overlay hide";
 }
 
-/* CHAT FUNCTIONS (FULL-SCREEN WHATSAPP STYLE) */
 function selectChatTarget(target) {
   activeChatTarget = target;
   forceChatScroll = true;
@@ -2466,7 +2503,6 @@ function deleteMessage(msgId) {
   if(menu) menu.remove();
 }
 
-/* ADMIN SERVICES MANAGER */
 function openServiceManager(type) {
   if(!isAdminLike()) {
     alert("Access restricted to Admins only.");
@@ -2728,7 +2764,7 @@ function openEditExp(id) {
   document.getElementById("eeVendor").innerHTML = '<option value="">-- No vendor --</option>' + optList(vendors.map(function(v){ return v.name; }), x.vendor || "");
   document.getElementById("eeNote").value = x.note || "";
   document.getElementById("eePby").innerHTML = optList(users.map(memberName), x.pb);
-  var names = users.filter(isMess).map(memberName);
+  var names = users.filter(isMess).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
   x.al.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
   document.getElementById("eeCbox").innerHTML = names.map(function(n){
     return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (x.al.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
@@ -2869,6 +2905,20 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
+  // Render Payment Overdue card on Home screen
+  var currentYM = todayISO().slice(0, 7);
+  var homeOverdue = calculatePreviousMonthOverdue(cName, currentYM);
+  var homeOverdueCard = document.getElementById("homeOverdueCard");
+  var homeOverdueAmtEl = document.getElementById("homeOverdueAmt");
+  if(homeOverdueCard && homeOverdueAmtEl) {
+    if(homeOverdue > 0.005) {
+      homeOverdueCard.style.display = "flex";
+      homeOverdueAmtEl.innerText = "AED " + money(homeOverdue);
+    } else {
+      homeOverdueCard.style.display = "none";
+    }
+  }
+
   var nowD = new Date();
   var monthExps = exps.filter(function(x){
     return expDate(x).slice(0, 7) === todayISO().slice(0, 7);
@@ -2987,16 +3037,24 @@ function render(){
   }
 
   var prevPby = document.getElementById("pby").value || cName;
-  var unchecked = Array.prototype.map.call(document.querySelectorAll(".mck:not(:checked):not(:disabled)"), function(c){ return c.value; });
-  setHtmlIfChanged(document.getElementById("pby"), users.map(function(u){var uN = memberName(u); return "<option value='"+uN+"' "+(uN==prevPby?"selected":"")+">"+uN+"</option>"}).join(""));
-  setHtmlIfChanged(document.getElementById("cbox"), users.filter(isMess).map(function(u){var uN = memberName(u); var vac = !!u.vacation; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(vac?"disabled":(unchecked.indexOf(uN)>-1?"":"checked"))+"><span>"+uN+(vac?" 🏖️ (Vacation)":"")+"</span></label>"}).join(""));
+  var sortedMessUsers = users.filter(isMess).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
+  
+  setHtmlIfChanged(document.getElementById("pby"), sortedMessUsers.map(function(u){var uN = memberName(u); return "<option value='"+uN+"' "+(uN==prevPby?"selected":"")+">"+uN+"</option>"}).join(""));
+  
+  // Specific members checkboxes: default empty/unchecked and sorted alphabetically
+  var cboxEl = document.getElementById("cbox");
+  var checkboxesHtml = sortedMessUsers.map(function(u){
+    var uN = memberName(u); 
+    var vac = !!u.vacation; 
+    return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(vac?"disabled":"")+"><span>"+uN+(vac?" 🏖️ (Vacation)":"")+"</span></label>";
+  }).join("");
+  setHtmlIfChanged(cboxEl, checkboxesHtml);
 
   var stypeSel = document.getElementById("stype");
   var prevSt = stypeSel.value || "a";
   var stOpts = '<option value="a">All Room 110 Members</option>';
-  var existingNames = users.filter(isMess).map(memberName);
   groups.forEach(function(g){
-    var live = (g.members || []).filter(function(n){ return existingNames.indexOf(n) > -1; });
+    var live = (g.members || []).filter(function(n){ return sortedMessUsers.map(memberName).indexOf(n) > -1; });
     if(live.length) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
   });
   stOpts += '<option value="c">Select Specific Members</option>';
