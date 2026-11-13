@@ -1466,10 +1466,10 @@ function save(){
 function addNotification(targetUser, title, body, type, meta) {
   notifications.unshift({
     id: Date.now() + Math.random(),
-    targetUser: targetUser, // recipient member name or "all"
+    targetUser: targetUser,
     title: title,
     body: body,
-    type: type, // 'expense', 'payment_request', 'payment_verified', 'statement'
+    type: type,
     meta: meta || null,
     time: Date.now(),
     read: false
@@ -1607,7 +1607,6 @@ function renderNotificationsList() {
            '</div>';
   }).join('') || '<div style="text-align:center;color:#6b7280;font-size:13px;margin-top:30px">No notifications right now.</div>';
 
-  // Mark displayed as read
   myNotifs.forEach(function(n){ n.read = true; });
   save();
   updateNotifBadge();
@@ -1804,7 +1803,6 @@ function renderExpensesTab() {
   });
   document.getElementById("expList").innerHTML = html || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded in this period.</div>';
 
-  // Only show verified payments in the Expenses tab list
   var myPays = payments.filter(function(p){
     return p.verified && (p.from == cName || p.to == cName) && p.date.slice(0, 7) === ym;
   }).sort(function(a, b){ return a.date < b.date ? 1 : -1; });
@@ -1820,7 +1818,6 @@ function renderExpensesTab() {
 /* ===== PAYMENTS ===== */
 function openPaymentModal() {
   var cName = cur.firstName || cur.name;
-  // Exclude Super Admin & self from recipient list
   var recipients = users.filter(function(u){
     var uName = memberName(u);
     return u.r !== "superadmin" && uName !== cName;
@@ -1846,7 +1843,6 @@ function savePayment(e) {
   var newPay = { id: Date.now(), date: date, from: cName, to: to, amt: amt, verified: false };
   payments.push(newPay);
 
-  // Send notification to recipient for verification
   addNotification(to, "Payment Verification Needed", cName + " recorded a payment of AED " + money(amt) + " sent to you. Please verify and approve.", "payment_request", { paymentId: newPay.id });
 
   closeModals();
@@ -1907,7 +1903,6 @@ function openStatement(ym) {
   if(!w) window.location.href = url;
   setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
   
-  // Notify user & room
   addNotification(cur.firstName || cur.name, "Statement Generated", "Your PDF statement for " + ym + " was successfully generated.", "statement");
 }
 
@@ -2686,7 +2681,6 @@ function addEx(e){
   var newExp = {id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()};
   exps.unshift(newExp);
   
-  // Add notification to room members involved in split
   al.forEach(function(memName){
     var uObj = users.find(function(us){ return memberName(us) === memName; });
     if(uObj) {
@@ -2814,7 +2808,6 @@ function finishProfileUpdate(){
 
 function stats(){
   var tot=exps.reduce(function(s,x){return s+Number(x.amt)},0);
-  // Only count verified payments towards balances
   var verifiedPayments = payments.filter(function(p){ return p.verified; });
   var st=users.map(function(u){
     var uName = u.firstName || u.name;
@@ -2876,7 +2869,6 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Monthly Dashboard Render (current calendar month)
   var nowD = new Date();
   var monthExps = exps.filter(function(x){
     return expDate(x).slice(0, 7) === todayISO().slice(0, 7);
@@ -2911,7 +2903,6 @@ function render(){
     netEl.style.color = "#059669";
   }
 
-  // Category Breakdown Render (list + chart)
   var catTotals = {};
   exps.forEach(function(x){
     var cat = x.desc || "Other";
@@ -3033,7 +3024,7 @@ function render(){
   }
 
   if(isSuper()) {
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700">VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700">NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
   }
 }
 if(cur) openDashboard();
