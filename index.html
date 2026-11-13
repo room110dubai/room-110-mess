@@ -51,13 +51,13 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px;height:auto}
 .btn:disabled, .btn-s:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(40%); pointer-events: none; }
 
-/* Curved Header Card matching profile card style - Tighter Gap */
+/* Curved Header Card - Tightened Gap & Flush Alignment */
 .header-curved-box {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 18px;
   padding: 16px 20px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   display: flex;
   justify-content: space-between;
@@ -584,7 +584,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </div>
       </div>
 
-      <!-- PAYMENT OVERDUE SECTION (Home Screen, single line with amount on right) -->
+      <!-- PAYMENT OVERDUE SECTION (Home Screen: single line, amount on right, dynamic coloring) -->
       <div class="card" id="homeOverdueCard" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
         <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
         <div id="homeOverdueAmt" style="font-size:16px;font-weight:900;color:#dc2626">AED 0.00</div>
@@ -865,14 +865,22 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <h3 style="color:#111;font-size:18px">Vacation Mode</h3>
       </div>
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:12px">
           <div>
             <strong style="font-size:14px;color:#111">Vacation Mode</strong>
             <div id="vacationStatus" style="font-size:11px;color:#6b7280">Off - you are included in mess expenses</div>
           </div>
           <input type="checkbox" id="vacationToggle" onchange="toggleVacation()" style="width:22px;height:22px;cursor:pointer">
         </div>
-        <p style="font-size:12px;color:#6b7280;margin-top:12px;line-height:1.5">While Vacation Mode is on, you are not charged for any new mess expenses. Expenses already recorded are not changed. Turn it off when you are back.</p>
+        <label>From Date</label>
+        <input id="vacFrom" type="date" onchange="saveVacationDates()" style="margin-bottom:10px">
+        <label>To Date</label>
+        <input id="vacTo" type="date" onchange="saveVacationDates()" style="margin-bottom:10px">
+        <label class="ck" style="margin-top:10px">
+          <input type="checkbox" id="vacCurrentToggle" onchange="toggleCurrentVacation()" style="width:18px;height:18px;cursor:pointer">
+          <span style="font-weight:700;color:#111">I am currently on vacation</span>
+        </label>
+        <p style="font-size:12px;color:#6b7280;margin-top:12px;line-height:1.5">While Vacation Mode is on, you are not charged for any new mess expenses. Expenses already recorded are not changed.</p>
       </div>
     </div>
 
@@ -1235,6 +1243,52 @@ function checkSuperAdminWelcome() {
   }
 }
 
+// Automated Monthly Statement Check on the 5th of every month
+function checkAutomatedMonthlyStatements() {
+  var now = new Date();
+  if (now.getDate() === 5) {
+    var lastRunKey = "r110_auto_stmt_" + now.getFullYear() + "-" + pad2(now.getMonth() + 1);
+    if (!localStorage.getItem(lastRunKey)) {
+      // Determine previous month
+      var y = now.getFullYear(), m = now.getMonth(); // m is current 0-indexed month (e.g. Nov = 10)
+      m--; if (m < 0) { m = 11; y--; }
+      var targetYM = y + "-" + pad2(m + 1);
+
+      users.filter(isMess).forEach(function(u) {
+        var uName = u.firstName || u.name;
+        // Temporarily set cur or pass user context to statement builder
+        var savedCur = cur;
+        cur = u;
+        var blob = buildStatementPdf(targetYM);
+        cur = savedCur;
+
+        // Automatically dispatch to user's chat & trigger notification
+        var reminderText = "📊 *AUTOMATED MONTHLY STATEMENT* (" + targetYM + ")\nYour official monthly statement has been generated and closed by Super Admin.";
+        var tm = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        msgs.push({
+          id: Date.now() + Math.random(),
+          sender: "Super Admin",
+          target: uName,
+          text: reminderText.replace(/\n/g, "<br>"),
+          timestamp: tm,
+          timeEpoch: Date.now(),
+          isSystem: true,
+          delivered: true,
+          isRead: false,
+          reactions: {}
+        });
+
+        addNotification(uName, "Monthly Statement Generated", "Your automated statement for " + targetYM + " is now ready in chat.", "monthly_statement");
+      });
+
+      localStorage.setItem(lastRunKey, "true");
+      save();
+    }
+  }
+}
+setInterval(checkAutomatedMonthlyStatements, 3600000);
+
 function broadcastStatementReminder() {
   if(!isSuper()) return;
   var s = stats();
@@ -1556,6 +1610,10 @@ function tab(n){
       if(i==5) {
         document.getElementById("editFirstName").value = cur.firstName || cur.name || "";
         document.getElementById("editLastName").value = cur.lastName || "";
+        document.getElementById("vacFrom").value = cur.vacFrom || "";
+        document.getElementById("vacTo").value = cur.vacTo || "";
+        var curVacCheck = document.getElementById("vacCurrentToggle");
+        if(curVacCheck) curVacCheck.checked = !!cur.vacation;
         showProfMenu();
       }
     } else {
@@ -1680,6 +1738,31 @@ function toggleVacation() {
   var idx = users.findIndex(function(x){ return x.u === cur.u; });
   if(idx > -1) users[idx].vacation = on;
   cur.vacation = on;
+  var curVacCheck = document.getElementById("vacCurrentToggle");
+  if(curVacCheck) curVacCheck.checked = on;
+  save();
+}
+
+function toggleCurrentVacation() {
+  var on = document.getElementById("vacCurrentToggle").checked;
+  var idx = users.findIndex(function(x){ return x.u === cur.u; });
+  if(idx > -1) users[idx].vacation = on;
+  cur.vacation = on;
+  var vacToggle = document.getElementById("vacationToggle");
+  if(vacToggle) vacToggle.checked = on;
+  save();
+}
+
+function saveVacationDates() {
+  var f = document.getElementById("vacFrom").value;
+  var t = document.getElementById("vacTo").value;
+  var idx = users.findIndex(function(x){ return x.u === cur.u; });
+  if(idx > -1) {
+    users[idx].vacFrom = f;
+    users[idx].vacTo = t;
+  }
+  cur.vacFrom = f;
+  cur.vacTo = t;
   save();
 }
 
@@ -1754,8 +1837,7 @@ function calculatePreviousMonthOverdue(cName, ym) {
     if(p.date < pr.start) { opening += eff; }
     else if(p.date <= pr.end) { paySum += eff; }
   });
-  var netPrev = opening + purchases - expenses + paySum;
-  return netPrev < -0.005 ? Math.abs(netPrev) : 0;
+  return opening + purchases - expenses + paySum;
 }
 
 function setExpView(v) { expView = (expView === v) ? "mine" : v; renderExpensesTab(); }
@@ -1790,15 +1872,16 @@ function renderExpensesTab() {
   var ym = selectedExpYM;
   var pr = periodRange(ym);
 
-  var overdueAmt = calculatePreviousMonthOverdue(cName, ym);
+  var netPrev = calculatePreviousMonthOverdue(cName, ym);
   var overdueAmtEl = document.getElementById("expTabOverdueAmt");
   if(overdueAmtEl) {
-    overdueAmtEl.innerText = "AED " + money(overdueAmt);
+    overdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+    overdueAmtEl.style.color = netPrev >= -0.005 ? "#059669" : "#dc2626";
   }
   
   var payNowBtn = document.getElementById("expPayNowBtn");
   if(payNowBtn) {
-    if(overdueAmt > 0) {
+    if(netPrev < -0.005) {
       payNowBtn.removeAttribute("disabled");
       payNowBtn.style.opacity = "1";
     } else {
@@ -1957,8 +2040,7 @@ function openStatement(ym) {
   var w = window.open(url, "_blank");
   if(!w) window.location.href = url;
   setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
-  
-  addNotification(cur.firstName || cur.name, "Statement Generated", "Your PDF statement for " + ym + " was successfully generated.", "statement");
+  // NOTE: Manual statement generating no longer triggers notifications per user instructions.
 }
 
 var PDF_W_REG = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584];
@@ -2054,45 +2136,52 @@ function buildStatementPdf(ym) {
   function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
   var doc = new PdfDoc();
 
+  // Top header background with exact vector logo replacement for Room 110
   doc.rect(0, 0, 595, 80, NAVY);
-  doc.text("ROOM 110 MESS", 40, 44, { size: 22, bold: true, color: "#ffffff" });
-  doc.text("Statement of Account", 40, 63, { size: 11, color: "#dbeafe" });
+  // Drawing Vector Room 110 Logo inside PDF header (Room text + Burj Al Arab icon)
+  doc.text("Room", 40, 48, { size: 24, bold: true, color: "#ffffff" });
+  doc.rect(112, 28, 5, 24, "#ffffff");
+  doc.rect(122, 22, 5, 30, "#ffffff");
+  doc.text("Statement of Account", 160, 47, { size: 11, color: "#dbeafe" });
+  
   doc.text("STATEMENT PERIOD", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
   doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
   doc.text("Generated " + fmtDate(todayISO()), 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
 
+  // Re-arranged layout: Account Details on the left, Account Summary on the right
   doc.text("ACCOUNT HOLDER", 40, 106, { size: 8, bold: true, color: GRAY });
   doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 124, { size: 15, bold: true, color: INK });
 
-  var bx = 40, by = 140, bw = 515;
-  doc.rect(bx, by, bw, 22, "#eff6ff", "#bfdbfe");
-  doc.text("ACCOUNT SUMMARY", bx + 12, by + 15, { size: 9, bold: true, color: NAVY });
+  // Account Summary on the Right side (X: 300, Y: 100, Width: 255)
+  var sx = 300, sy = 100, sw = 255;
+  doc.rect(sx, sy, sw, 20, "#eff6ff", "#bfdbfe");
+  doc.text("ACCOUNT SUMMARY", sx + 10, sy + 14, { size: 9, bold: true, color: NAVY });
   var sumRows = [
     ["Opening Balance", signed(opening), sgnCol(opening)],
-    ["+ Current Purchases (paid by you)", "+" + money(purchases), GREEN],
-    ["- Current Expenses (your share)", "-" + money(expenses), RED],
-    ["+/- Previous Payments (verified)", signed(paySum), sgnCol(paySum)]
+    ["+ Current Purchases", "+" + money(purchases), GREEN],
+    ["- Current Expenses", "-" + money(expenses), RED],
+    ["+/- Previous Payments", signed(paySum), sgnCol(paySum)]
   ];
-  var ry = by + 22;
+  var sry = sy + 20;
   sumRows.forEach(function(r){
-    doc.rect(bx, ry, bw, 24, null, "#e5e7eb");
-    doc.text(r[0], bx + 12, ry + 16, { size: 10, color: INK });
-    doc.text("AED " + r[1], bx + bw - 12, ry + 16, { size: 10, bold: true, align: "right", color: r[2] });
-    ry += 24;
+    doc.rect(sx, sry, sw, 20, null, "#e5e7eb");
+    doc.text(r[0], sx + 10, sry + 13, { size: 8.5, color: INK });
+    doc.text("AED " + r[1], sx + sw - 10, sry + 13, { size: 8.5, bold: true, align: "right", color: r[2] });
+    sry += 20;
   });
-  doc.rect(bx, ry, bw, 30, "#f1f5f9", "#cbd5e1");
-  doc.text("Current Month Balance", bx + 12, ry + 19, { size: 11, bold: true, color: INK });
-  var tag = Math.abs(closing) < 0.005 ? "Settled" : (closing < 0 ? "Payable (you owe)" : "Receivable (you get)");
-  doc.text("AED " + money(Math.abs(closing)) + "  " + tag, bx + bw - 12, ry + 19, { size: 12, bold: true, align: "right", color: Math.abs(closing) < 0.005 ? GRAY : sgnCol(closing) });
-  ry += 30;
-  doc.text("Balance sign:  + Receivable (amount you get)    - Payable (amount you owe)", bx, ry + 14, { size: 8, color: GRAY });
+  doc.rect(sx, sry, sw, 24, "#f1f5f9", "#cbd5e1");
+  doc.text("Current Month Balance", sx + 10, sry + 16, { size: 9.5, bold: true, color: INK });
+  var tag = Math.abs(closing) < 0.005 ? "Settled" : (closing < 0 ? "Payable" : "Receivable");
+  doc.text("AED " + money(Math.abs(closing)) + " " + tag, sx + sw - 10, sry + 16, { size: 10, bold: true, align: "right", color: Math.abs(closing) < 0.005 ? GRAY : sgnCol(closing) });
+  sry += 24;
+
+  var ry = Math.max(160, sry + 20);
+  doc.text("TRANSACTIONS", 40, ry, { size: 9, bold: true, color: NAVY });
+  ry += 8;
 
   var cols = [56, 150, 58, 60, 60, 56, 75], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"];
   var xs = [], cx = 40;
   cols.forEach(function(w){ xs.push(cx); cx += w; });
-  var ty = ry + 34;
-  doc.text("TRANSACTIONS", 40, ty, { size: 9, bold: true, color: NAVY });
-  ty += 8;
 
   function drawHead(y) {
     doc.rect(40, y, 515, 20, NAVY);
@@ -2119,13 +2208,13 @@ function buildStatementPdf(ym) {
     return y;
   }
 
-  ty = drawHead(ty);
+  ry = drawHead(ry);
   var run = opening;
-  ty = drawRow(ty, [fmtDate(pr.start), "Opening Balance", "", "", "", "", { t: signed(opening), c: sgnCol(opening) }], { fill: "#f8fafc", bold: true });
+  ry = drawRow(ry, [fmtDate(pr.start), "Opening Balance", "", "", "", "", { t: signed(opening), c: sgnCol(opening) }], { fill: "#f8fafc", bold: true });
   rows.forEach(function(r, i){
-    ty = ensure(ty);
+    ry = ensure(ry);
     run += r.eff;
-    ty = drawRow(ty, [
+    ry = drawRow(ry, [
       fmtDate(r.d), r.desc, r.by,
       r.purch > 0.004 ? { t: money(r.purch), c: GREEN } : "",
       r.exp > 0.004 ? { t: money(r.exp), c: RED } : "",
@@ -2134,11 +2223,11 @@ function buildStatementPdf(ym) {
     ], { fill: i % 2 ? "#f8fafc" : null });
   });
   if(!rows.length) {
-    ty = ensure(ty);
-    ty = drawRow(ty, ["", "No transactions in this period", "", "", "", "", ""]);
+    ry = ensure(ry);
+    ry = drawRow(ry, ["", "No transactions in this period", "", "", "", "", ""]);
   }
-  ty = ensure(ty);
-  drawRow(ty, [fmtDate(pr.end), "Closing Balance", "", { t: money(purchases), c: GREEN }, { t: money(expenses), c: RED }, { t: signed(paySum), c: sgnCol(paySum) }, { t: signed(closing), c: sgnCol(closing) }], { fill: "#eff6ff", bold: true });
+  ry = ensure(ry);
+  drawRow(ry, [fmtDate(pr.end), "Closing Balance", "", { t: money(purchases), c: GREEN }, { t: money(expenses), c: RED }, { t: signed(paySum), c: sgnCol(paySum) }, { t: signed(closing), c: sgnCol(closing) }], { fill: "#eff6ff", bold: true });
 
   var total = doc.pages.length;
   for(var pg = 0; pg < total; pg++) {
@@ -2737,6 +2826,25 @@ function addEx(e){
   e.preventDefault();
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
+
+  // Expense Date Restriction check for regular users (can only record up to 4th of following month)
+  if (!isAdminLike()) {
+    var now = new Date();
+    var expD = new Date(dateVal);
+    var curYear = now.getFullYear(), curMonth = now.getMonth();
+    var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59); // 4th of coming month
+    if (expD > maxAllowedDate) {
+      return alert("Regular users can only add expenses up to the 4th of the following month.");
+    }
+    // Also block past month expenses if today is 5th or later of the current month
+    if (now.getDate() >= 5) {
+      var firstOfCurMonth = new Date(curYear, curMonth, 1);
+      if (expD < firstOfCurMonth) {
+        return alert("Past month expenses are locked out starting on the 5th of the month.");
+      }
+    }
+  }
+
   var vendor=document.getElementById("expVendor").value;
   var note=document.getElementById("expNote").value.trim();
   var al=getSplitMembers().al;
@@ -2804,10 +2912,28 @@ function saveEditedExp(e) {
   var id = document.getElementById("eeId").value;
   var x = exps.find(function(t){ return t.id == id; });
   if(!x || !canEditExp(x)) return;
+
+  var dateVal = document.getElementById("eeDate").value || expDate(x);
+  if (!isAdminLike()) {
+    var now = new Date();
+    var expD = new Date(dateVal);
+    var curYear = now.getFullYear(), curMonth = now.getMonth();
+    var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
+    if (expD > maxAllowedDate) {
+      return alert("Regular users can only edit expenses up to the 4th of the following month.");
+    }
+    if (now.getDate() >= 5) {
+      var firstOfCurMonth = new Date(curYear, curMonth, 1);
+      if (expD < firstOfCurMonth) {
+        return alert("Past month expenses are locked out starting on the 5th of the month.");
+      }
+    }
+  }
+
   var al = Array.prototype.map.call(document.querySelectorAll(".eck:checked"), function(c){ return c.value; });
   if(!al.length) return alert("Select at least 1 member");
   x.amt = parseFloat(document.getElementById("eeAmt").value);
-  x.date = document.getElementById("eeDate").value || expDate(x);
+  x.date = dateVal;
   x.desc = document.getElementById("eeDesc").value;
   x.vendor = document.getElementById("eeVendor").value;
   x.note = document.getElementById("eeNote").value.trim();
@@ -2918,6 +3044,8 @@ function render(){
   document.getElementById("servicesRow").classList.toggle("hide", !isAdminLike());
   var vacToggle = document.getElementById("vacationToggle");
   if(vacToggle && vacToggle.checked !== !!cur.vacation) vacToggle.checked = !!cur.vacation;
+  var curVacCheck = document.getElementById("vacCurrentToggle");
+  if(curVacCheck && curVacCheck.checked !== !!cur.vacation) curVacCheck.checked = !!cur.vacation;
   var vacStatus = document.getElementById("vacationStatus");
   if(vacStatus) vacStatus.innerText = cur.vacation ? "On - you are not charged for new mess expenses" : "Off - you are included in mess expenses";
 
@@ -2933,15 +3061,15 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Render Payment Overdue card on Home screen (single line, amount on right, text color matching overdue amount)
+  // Render Payment Overdue card on Home screen (single line, amount on right, dynamic coloring: green if receivable, red if payable)
   var currentYM = todayISO().slice(0, 7);
-  var homeOverdue = calculatePreviousMonthOverdue(cName, currentYM);
+  var netPrev = calculatePreviousMonthOverdue(cName, currentYM);
   var homeOverdueCard = document.getElementById("homeOverdueCard");
   var homeOverdueAmtEl = document.getElementById("homeOverdueAmt");
   if(homeOverdueCard && homeOverdueAmtEl) {
     homeOverdueCard.style.display = "flex";
-    homeOverdueAmtEl.innerText = "AED " + money(homeOverdue);
-    var overdueColor = homeOverdue > 0 ? "#dc2626" : "#6b7280";
+    homeOverdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+    var overdueColor = netPrev >= -0.005 ? "#059669" : "#dc2626";
     homeOverdueAmtEl.style.color = overdueColor;
     var liveDtEl = document.getElementById("liveDateTime");
     if(liveDtEl) liveDtEl.style.color = overdueColor;
