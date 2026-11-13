@@ -538,9 +538,9 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
               <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Expenses For Me (Paid by Roommates)</div>
               <div id="dashShare" style="font-size:15px;font-weight:900;color:#d97706;margin-top:1px">AED 0.00</div>
             </div>
-            <div id="dashNetRow">
-              <div id="dashNetLabel" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Net Receivable</div>
-              <div id="dashNet" style="font-size:15px;font-weight:900;color:#059669;margin-top:1px">AED 0.00</div>
+            <div style="padding-top:8px;border-top:1px solid #e5e7eb">
+              <div id="dashNetLabel" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase">Net Payable / Receivable</div>
+              <div id="dashNet" style="font-size:20px;font-weight:900;margin-top:1px;color:#6b7280">AED 0.00</div>
             </div>
           </div>
           <div style="width:110px;height:110px;position:relative;display:flex;align-items:center;justify-content:center">
@@ -554,6 +554,9 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <strong style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Expenses by Category</strong>
           <i class="fa-solid fa-chart-pie" style="color:#6b7280;font-size:12px"></i>
+        </div>
+        <div id="catChartWrap" style="position:relative;height:190px;margin-bottom:12px;display:none">
+          <canvas id="categoryPieChart"></canvas>
         </div>
         <div id="categoryBreakdownList" style="display:flex;flex-direction:column;gap:8px">
           <div style="font-size:12px;color:#6b7280;font-style:italic">No category data available yet.</div>
@@ -591,10 +594,9 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
         <select id="desc" required style="margin-bottom:6px"></select>
         <label>Paid By</label><select id="pby"></select>
         <label>Split Between</label>
-        <select id="stype" onchange="document.getElementById('cbox').className=this.value=='c'?'cks':'cks hide'">
-          <option value="a">All Room 110 Members</option><option value="c">Select Specific Members</option>
-        </select>
+        <select id="stype" onchange="onSplitTypeChange()"></select>
         <div id="cbox" class="cks hide"></div>
+        <div id="splitHint" style="font-size:12px;color:#6b7280;margin-top:8px;line-height:1.5"></div>
         <button class="btn">Save Expense</button>
       </form>
     </div>
@@ -684,6 +686,10 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
         </div>
+        <div class="prof-menu-row" onclick="openProfPage('vacation')">
+          <div class="prof-row-left"><span class="prof-row-icon" style="background:#cffafe;color:#0891b2"><i class="fa-solid fa-umbrella-beach"></i></span>Vacation Mode</div>
+          <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
+        </div>
         <div class="prof-menu-row" onclick="openProfPage('appearance')">
           <div class="prof-row-left"><span class="prof-row-icon" style="background:#ede9fe;color:#7c3aed"><i class="fa-solid fa-circle-half-stroke"></i></span>Appearance</div>
           <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
@@ -738,6 +744,24 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
             <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- PAGE: VACATION MODE -->
+    <div id="profPage_vacation" class="hide">
+      <div class="prof-page-head">
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 style="color:#111;font-size:18px">Vacation Mode</h3>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb">
+          <div>
+            <strong style="font-size:14px;color:#111">Vacation Mode</strong>
+            <div id="vacationStatus" style="font-size:11px;color:#6b7280">Off - you are included in mess expenses</div>
+          </div>
+          <input type="checkbox" id="vacationToggle" onchange="toggleVacation()" style="width:22px;height:22px;cursor:pointer">
+        </div>
+        <p style="font-size:12px;color:#6b7280;margin-top:12px;line-height:1.5">While Vacation Mode is on, you are not charged for any new mess expenses. Expenses already recorded are not changed. Turn it off when you are back.</p>
       </div>
     </div>
 
@@ -900,7 +924,13 @@ var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstNa
 var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [];
 var categories = JSON.parse(localStorage.getItem("r110_cat")||"null") || ["Groceries", "Cinema", "Utilities", "Gas", "Maintenance", "Food"];
-var groups = JSON.parse(localStorage.getItem("r110_grp")||"null") || ["Mess Group", "Movie Buddies"];
+function normalizeGroups(arr) {
+  return (Array.isArray(arr) ? arr : []).map(function(g){
+    if(typeof g === "string") return { name: g, members: [] };
+    return { name: String((g && g.name) || ""), members: Array.isArray(g && g.members) ? g.members : [] };
+  }).filter(function(g){ return g.name; });
+}
+var groups = normalizeGroups(JSON.parse(localStorage.getItem("r110_grp")||"null"));
 var emergencyContacts = JSON.parse(localStorage.getItem("r110_ec")||"null") || [
   {name: "Gas Delivery", number: "+971501234567"},
   {name: "Groceries Shop", number: "+971509876543"},
@@ -911,6 +941,8 @@ var emergencyContacts = JSON.parse(localStorage.getItem("r110_ec")||"null") || [
 var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null;
+var categoryChartInstance = null;
+var editingGroupIdx = -1;
 
 // Active Chat Session state: "group_room110", "superadmin_channel", or member name
 var activeChatTarget = "group_room110";
@@ -1128,6 +1160,10 @@ function loadCloudData(){
         categories = data.categories;
         localStorage.setItem("r110_cat", JSON.stringify(categories));
       }
+      if(data && Array.isArray(data.groups)) {
+        groups = normalizeGroups(data.groups);
+        localStorage.setItem("r110_grp", JSON.stringify(groups));
+      }
       if(data && data.emergencyContacts) {
         emergencyContacts = data.emergencyContacts;
         localStorage.setItem("r110_ec", JSON.stringify(emergencyContacts));
@@ -1202,7 +1238,7 @@ function save(){
 
   if(CLOUD_URL){
     setCloudStatus('syncing');
-    var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, categories: categories, emergencyContacts: emergencyContacts});
+    var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, categories: categories, emergencyContacts: emergencyContacts, groups: groups});
     fetch(CLOUD_URL, {
       method: "POST",
       mode: "no-cors",
@@ -1289,7 +1325,7 @@ function tab(n){
 }
 
 /* PROFILE SUB-PAGES (Instagram style menu) */
-var PROF_PAGES = ["ec","members","services","appearance"];
+var PROF_PAGES = ["ec","members","services","vacation","appearance"];
 function openProfPage(name) {
   document.getElementById("profMenu").className = "hide";
   PROF_PAGES.forEach(function(k){
@@ -1303,6 +1339,56 @@ function showProfMenu() {
     document.getElementById("profPage_" + k).className = "hide";
   });
   window.scrollTo(0, 0);
+}
+
+function escHtml(t) {
+  return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function setHtmlIfChanged(el, html) {
+  if(el && el._lastHtml !== html) { el.innerHTML = html; el._lastHtml = html; }
+}
+function memberName(u) { return u.firstName || u.name; }
+
+/* VACATION MODE */
+function toggleVacation() {
+  var on = document.getElementById("vacationToggle").checked;
+  var idx = users.findIndex(function(x){ return x.u === cur.u; });
+  if(idx > -1) users[idx].vacation = on;
+  cur.vacation = on;
+  save();
+}
+
+/* EXPENSE SPLIT (All / custom group / specific members, vacation members excluded) */
+function getSplitMembers() {
+  var selEl = document.getElementById("stype");
+  var st = selEl ? selEl.value : "a";
+  var onVac = users.filter(function(u){ return u.vacation; }).map(memberName);
+  if(st === "c") {
+    var checked = Array.prototype.map.call(document.querySelectorAll(".mck:checked"), function(c){ return c.value; });
+    return { al: checked, vac: onVac };
+  }
+  var pool;
+  if(st && st.indexOf("g:") === 0) {
+    var gname = decodeURIComponent(st.slice(2));
+    var g = groups.filter(function(x){ return x.name === gname; })[0];
+    var existing = users.map(memberName);
+    pool = ((g && g.members) || []).filter(function(n){ return existing.indexOf(n) > -1; });
+  } else {
+    pool = users.map(memberName);
+  }
+  return {
+    al: pool.filter(function(n){ return onVac.indexOf(n) === -1; }),
+    vac: pool.filter(function(n){ return onVac.indexOf(n) > -1; })
+  };
+}
+function onSplitTypeChange() {
+  var st = document.getElementById("stype").value;
+  document.getElementById("cbox").className = (st === "c") ? "cks" : "cks hide";
+  var sp = getSplitMembers();
+  var h = "";
+  if(st !== "c") h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
+  if(sp.vac.length) h += (h ? "<br>" : "") + "🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
+  document.getElementById("splitHint").innerHTML = h;
 }
 
 function openEditProfileModal() { document.getElementById("editProfileModal").className = "modal-overlay"; }
@@ -1697,6 +1783,7 @@ function openServiceManager(type) {
     renderCategoryManagerContent();
   } else if(type === 'groups') {
     title.innerText = "Manage Custom Groups";
+    editingGroupIdx = -1;
     renderGroupManagerContent();
   } else if(type === 'contacts') {
     title.innerText = "Manage Emergency Contacts";
@@ -1735,25 +1822,49 @@ function renderGroupManagerContent() {
   var body = document.getElementById("serviceManagerBody");
   var formContainer = document.getElementById("serviceManagerFormContainer");
 
-  body.innerHTML = groups.map(function(g){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+g+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup(\''+g+'\')">Delete</button></div>';
-  }).join('') || '<div style="color:#6b7280;font-style:italic">No groups found.</div>';
+  body.innerHTML = groups.map(function(g, idx){
+    var names = (g.members || []).map(escHtml).join(", ") || "No members";
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+names+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')">Edit</button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')">Delete</button></div></div>';
+  }).join('') || '<div style="color:#6b7280;font-style:italic">No groups yet. Create one below.</div>';
 
-  formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Group</label><input id="newGrpInput" placeholder="Group name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewGroup()">Add Group</button></div>';
+  var eg = editingGroupIdx > -1 ? groups[editingGroupIdx] : null;
+  var checks = users.map(function(u){
+    var n = memberName(u);
+    var on = eg && (eg.members || []).indexOf(n) > -1;
+    return '<label class="ck"><input type="checkbox" class="gmck" value="'+escHtml(n)+'" '+(on ? 'checked' : '')+'><span>'+escHtml(n)+'</span></label>';
+  }).join('');
+
+  formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>'+(eg ? 'Edit Group' : 'Create New Group')+'</label><input id="newGrpInput" placeholder="Group name" value="'+escHtml(eg ? eg.name : '')+'" style="margin-bottom:8px"><label>Members</label><div class="cks" style="margin-bottom:10px">'+checks+'</div><button class="btn" style="margin-top:0" onclick="saveGroup()">'+(eg ? 'Save Group' : 'Create Group')+'</button>'+(eg ? '<button class="btn" style="margin-top:8px;background:#6b7280" onclick="cancelGroupEdit()">Cancel</button>' : '')+'</div>';
 }
 
-function addNewGroup() {
-  var val = document.getElementById("newGrpInput").value.trim();
-  if(!val) return alert("Enter group name");
-  if(groups.includes(val)) return alert("Group already exists");
-  groups.push(val);
+function saveGroup() {
+  var name = document.getElementById("newGrpInput").value.trim();
+  if(!name) return alert("Enter group name");
+  var members = Array.prototype.map.call(document.querySelectorAll(".gmck:checked"), function(c){ return c.value; });
+  if(!members.length) return alert("Select at least 1 member");
+  var dup = groups.some(function(g, i){ return g.name.toLowerCase() === name.toLowerCase() && i !== editingGroupIdx; });
+  if(dup) return alert("Group already exists");
+  if(editingGroupIdx > -1) groups[editingGroupIdx] = { name: name, members: members };
+  else groups.push({ name: name, members: members });
+  editingGroupIdx = -1;
   save();
   renderGroupManagerContent();
 }
 
-function deleteGroup(name) {
-  if(groups.length <= 1) return alert("Cannot delete all groups!");
-  groups = groups.filter(function(g){ return g !== name; });
+function editGroup(idx) {
+  editingGroupIdx = idx;
+  renderGroupManagerContent();
+}
+
+function cancelGroupEdit() {
+  editingGroupIdx = -1;
+  renderGroupManagerContent();
+}
+
+function deleteGroup(idx) {
+  if(!confirm("Delete this group?")) return;
+  groups.splice(idx, 1);
+  editingGroupIdx = -1;
   save();
   renderGroupManagerContent();
 }
@@ -1832,8 +1943,8 @@ function deleteUserFromModal(){
 function addEx(e){
   e.preventDefault();
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value,st=document.getElementById("stype").value;
-  var al=st=="a"?users.map(function(x){return x.firstName || x.name}):Array.from(document.querySelectorAll(".mck:checked")).map(function(c){return c.value});
-  if(!al.length)return alert("Select at least 1 member");
+  var al=getSplitMembers().al;
+  if(!al.length)return alert("No members to charge. Select at least 1 member who is not on vacation.");
   exps.unshift({id:Date.now(),amt:a,desc:d,pb:pb,al:al,dt:new Date().toLocaleDateString()});
   document.getElementById("amt").value="";
   save();tab(2);
@@ -1930,6 +2041,10 @@ function render(){
   updateDateTime();
   document.getElementById("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
   document.getElementById("profRole").innerText = (cur.r === "admin") ? "Admin" : "Member";
+  var vacToggle = document.getElementById("vacationToggle");
+  if(vacToggle && vacToggle.checked !== !!cur.vacation) vacToggle.checked = !!cur.vacation;
+  var vacStatus = document.getElementById("vacationStatus");
+  if(vacStatus) vacStatus.innerText = cur.vacation ? "On - you are not charged for new mess expenses" : "Off - you are included in mess expenses";
 
   var s=stats();
   document.getElementById("tot").innerText="AED "+s.tot.toFixed(2);
@@ -1951,44 +2066,80 @@ function render(){
   var forMe = monthExps.reduce(function(t,x){
     return (x.pb != cName && x.al.indexOf(cName) > -1) ? t + (Number(x.amt) / x.al.length) : t;
   }, 0);
-  var myMonthShare = monthExps.reduce(function(t,x){
-    return x.al.indexOf(cName) > -1 ? t + (Number(x.amt) / x.al.length) : t;
-  }, 0);
-  var myMonthNet = myPurchases - myMonthShare;
   document.getElementById("dashMonthLabel").innerText = nowD.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   document.getElementById("dashPaid").innerText = "AED " + myPurchases.toFixed(2);
   document.getElementById("dashShare").innerText = "AED " + forMe.toFixed(2);
-  var dashNetLabelEl = document.getElementById("dashNetLabel");
-  var dashNetEl = document.getElementById("dashNet");
-  if(myMonthNet < 0) {
-    dashNetLabelEl.innerText = "Net Payable";
-    dashNetEl.innerText = "AED " + Math.abs(myMonthNet).toFixed(2);
-    dashNetEl.style.color = "#dc2626";
+
+  // Net after expenses: what I paid minus my share of every expense (red = payable, green = receivable)
+  var myShareTotal = monthExps.reduce(function(t,x){
+    return x.al.indexOf(cName) > -1 ? t + (Number(x.amt) / x.al.length) : t;
+  }, 0);
+  var myNet = myPurchases - myShareTotal;
+  var netEl = document.getElementById("dashNet");
+  var netLabelEl = document.getElementById("dashNetLabel");
+  if(Math.abs(myNet) < 0.005) {
+    netLabelEl.innerText = "Net Settled";
+    netEl.innerText = "AED 0.00";
+    netEl.style.color = "#6b7280";
+  } else if(myNet < 0) {
+    netLabelEl.innerText = "Net Payable (You Owe)";
+    netEl.innerText = "AED " + Math.abs(myNet).toFixed(2);
+    netEl.style.color = "#dc2626";
   } else {
-    dashNetLabelEl.innerText = "Net Receivable";
-    dashNetEl.innerText = "AED " + myMonthNet.toFixed(2);
-    dashNetEl.style.color = "#059669";
+    netLabelEl.innerText = "Net Receivable (You Get)";
+    netEl.innerText = "AED " + myNet.toFixed(2);
+    netEl.style.color = "#059669";
   }
 
-  // Category Breakdown Render
+  // Category Breakdown Render (list + chart)
   var catTotals = {};
   exps.forEach(function(x){
     var cat = x.desc || "Other";
     catTotals[cat] = (catTotals[cat] || 0) + Number(x.amt);
   });
+  var catNames = Object.keys(catTotals).sort(function(a,b){ return catTotals[b] - catTotals[a]; });
+  var catPalette = ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316','#64748b'];
   var catHtml = "";
-  for(var catName in catTotals){
-    catHtml += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151"><i class="fa-solid fa-tag" style="color:#2563eb;margin-right:6px"></i>'+catName+'</span><span style="color:#111;font-weight:700">AED '+catTotals[catName].toFixed(2)+'</span></div>';
-  }
+  catNames.forEach(function(catName, ci){
+    var col = catPalette[ci % catPalette.length];
+    catHtml += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+col+';margin-right:8px"></span>'+escHtml(catName)+'</span><span style="color:#111;font-weight:700">AED '+catTotals[catName].toFixed(2)+'</span></div>';
+  });
   document.getElementById("categoryBreakdownList").innerHTML = catHtml || '<div style="font-size:12px;color:#6b7280;font-style:italic">No category data available yet.</div>';
+
+  var catWrap = document.getElementById("catChartWrap");
+  if(catWrap) catWrap.style.display = catNames.length ? "block" : "none";
+  if(window.Chart && catNames.length) {
+    var catVals = catNames.map(function(n){ return catTotals[n]; });
+    var catCols = catNames.map(function(n, ci){ return catPalette[ci % catPalette.length]; });
+    if(categoryChartInstance) {
+      categoryChartInstance.data.labels = catNames;
+      categoryChartInstance.data.datasets[0].data = catVals;
+      categoryChartInstance.data.datasets[0].backgroundColor = catCols;
+      categoryChartInstance.update('none');
+    } else {
+      categoryChartInstance = new Chart(document.getElementById('categoryPieChart').getContext('2d'), {
+        type: 'doughnut',
+        data: { labels: catNames, datasets: [{ data: catVals, backgroundColor: catCols, borderWidth: 0 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '55%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: function(c){ return c.label + ': AED ' + Number(c.parsed).toFixed(2); } } }
+          }
+        }
+      });
+    }
+  }
 
   // Populate Category Select in Add Expense Form
   var descSelect = document.getElementById("desc");
   if(descSelect) {
     var currentSelectedCat = descSelect.value;
-    descSelect.innerHTML = categories.map(function(c){
+    setHtmlIfChanged(descSelect, categories.map(function(c){
       return '<option value="'+c+'" '+(c===currentSelectedCat?'selected':'')+'>'+c+'</option>';
-    }).join('');
+    }).join(''));
   }
 
   // Render Emergency Contacts List on Profile Tab
@@ -2027,9 +2178,27 @@ function render(){
   }
 
   var prevPby = document.getElementById("pby").value || cName;
-  var unchecked = Array.prototype.map.call(document.querySelectorAll(".mck:not(:checked)"), function(c){ return c.value; });
-  document.getElementById("pby").innerHTML=users.map(function(u){var uN = u.firstName || u.name; return "<option value='"+uN+"' "+(uN==prevPby?"selected":"")+">"+uN+"</option>"}).join("");
-  document.getElementById("cbox").innerHTML=users.map(function(u){var uN = u.firstName || u.name; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(unchecked.indexOf(uN)>-1?"":"checked")+"><span>"+uN+"</span></label>"}).join("");
+  var unchecked = Array.prototype.map.call(document.querySelectorAll(".mck:not(:checked):not(:disabled)"), function(c){ return c.value; });
+  setHtmlIfChanged(document.getElementById("pby"), users.map(function(u){var uN = memberName(u); return "<option value='"+uN+"' "+(uN==prevPby?"selected":"")+">"+uN+"</option>"}).join(""));
+  setHtmlIfChanged(document.getElementById("cbox"), users.map(function(u){var uN = memberName(u); var vac = !!u.vacation; return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(vac?"disabled":(unchecked.indexOf(uN)>-1?"":"checked"))+"><span>"+uN+(vac?" 🏖️ (Vacation)":"")+"</span></label>"}).join(""));
+
+  // Split Between: All / custom groups / specific members
+  var stypeSel = document.getElementById("stype");
+  var prevSt = stypeSel.value || "a";
+  var stOpts = '<option value="a">All Room 110 Members</option>';
+  var existingNames = users.map(memberName);
+  groups.forEach(function(g){
+    var live = (g.members || []).filter(function(n){ return existingNames.indexOf(n) > -1; });
+    if(live.length) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
+  });
+  stOpts += '<option value="c">Select Specific Members</option>';
+  var stChanged = stypeSel._lastHtml !== stOpts;
+  setHtmlIfChanged(stypeSel, stOpts);
+  if(stChanged) {
+    stypeSel.value = prevSt;
+    if(stypeSel.value !== prevSt) stypeSel.value = "a";
+  }
+  onSplitTypeChange();
   document.getElementById("hlist").innerHTML=exps.length?exps.map(function(x){return "<div class='card' style='display:flex;justify-content:space-between;align-items:center'><div><b>"+x.desc+"</b><div style='font-size:12px;color:#6b7280'>Paid by "+x.pb+" • "+x.dt+" • ("+x.al.length+" members)</div></div><div><b>AED "+Number(x.amt).toFixed(2)+"</b> "+(cur.r=="admin"?"<button class='btn btn-s' style='background:#dc2626;margin-left:6px' onclick='delEx("+x.id+")'>X</button>":"")+"</div></div>"}).join(""):"<div class='card'>No expenses recorded yet. Tap (+) in the dock to add one!</div>";
 
   // Render WhatsApp style chat contacts & active pane
@@ -2041,7 +2210,7 @@ function render(){
   var admSec = document.getElementById("adminSection");
   if(cur.r=="admin"){
     admSec.className="";
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+(u.firstName || u.name)+" "+(u.lastName || "")+"</b><div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | Role: "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+(u.firstName || u.name)+" "+(u.lastName || "")+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+u.u+" | Pass: "+u.p+" | Role: "+u.r+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
   } else {
     admSec.className="hide";
   }
