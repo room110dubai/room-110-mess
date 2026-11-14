@@ -51,13 +51,20 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px;height:auto}
 .btn:disabled, .btn-s:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(40%); pointer-events: none; }
 
-/* Curved Header Card - Tightened Gap & Flush Alignment */
+/* Sticky Curved Header Card with Proper Top Lock & Height Alignment */
+.header-sticky-container {
+  position: sticky;
+  top: 0;
+  z-index: 998;
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto 4px auto;
+}
 .header-curved-box {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 18px;
   padding: 16px 20px;
-  margin-bottom: 4px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   display: flex;
   justify-content: space-between;
@@ -122,7 +129,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 }
 .dock-dot {
   position: absolute;
-  bottom: 10px;
+  top: 10px;
   right: 22%;
   width: 7px;
   height: 7px;
@@ -263,12 +270,12 @@ th{color:#111}
 .logo-svg{width:100%;max-width:340px;height:auto;margin:0 auto 6px;display:block}
 .footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:600}
 
-/* Full-Screen WhatsApp Style Chat UI */
+/* Full-Screen WhatsApp Style Chat UI with Corrected Viewport Calculation */
 #v4 { padding: 0; margin: 0; border: none; border-radius: 0; box-shadow: none; background: transparent; }
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 62px);
+  height: calc(100vh - 110px);
   width: 100%;
   background: #fff;
   overflow: hidden;
@@ -297,11 +304,11 @@ th{color:#111}
 .reaction-pill { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 11px; cursor: pointer; }
 .readonly-notice { text-align: center; padding: 12px; font-size: 12px; font-weight: 600; color: #6b7280; background: #f8fafc; border-top: 1px solid #e2e8f0; }
 
-/* Full-Screen Notification Center UI */
+/* Full-Screen Notification Center UI with Corrected Viewport Calculation */
 .notif-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 62px);
+  height: calc(100vh - 110px);
   width: 100%;
   background: #fff;
   overflow: hidden;
@@ -519,48 +526,50 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
 <!-- MAIN DASHBOARD SCREEN -->
 <div id="appBox" class="hide" style="width:100%">
-  <!-- CURVED BORDER HEADER CARD WITH PERFECT FLUSH ALIGNMENT -->
-  <div class="header-curved-box">
-    <div class="top-left-box">
-      <svg class="top-logo" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="150" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="130" letter-spacing="-3" fill="#1e3a8a">Room</text>
-        <path d="M 383 44 L 425 22 L 425 152 L 405 152 L 405 50 L 383 50 Z" fill="#1e3a8a"/>
-        <path d="M 419 56 C 385 84, 387 128, 395 152 L 431 152 C 438 125, 436 84, 419 56 Z" fill="none" stroke="#1e3a8a" stroke-width="8.5" stroke-linecap="round"/>
-        <path d="M 392 80 L 435 83" stroke="#1e3a8a" stroke-width="5.5" stroke-linecap="round"/>
-        <line x1="395" y1="95" x2="423" y2="95" stroke="#1e3a8a" stroke-width="4.5"/>
-        <line x1="392" y1="109" x2="423" y2="109" stroke="#1e3a8a" stroke-width="4.5"/>
-        <line x1="391" y1="123" x2="423" y2="123" stroke="#1e3a8a" stroke-width="4.5"/>
-        <line x1="393" y1="137" x2="423" y2="137" stroke="#1e3a8a" stroke-width="4.5"/>
-        <path d="M 451 44 L 493 22 L 493 152 L 473 152 L 473 50 L 451 50 Z" fill="#1e3a8a"/>
-        <path d="M 489 66 L 489 152 L 515 152 C 519 122, 511 86, 489 66 Z" fill="none" stroke="#1e3a8a" stroke-width="8"/>
-        <line x1="491" y1="88" x2="505" y2="88" stroke="#1e3a8a" stroke-width="4.2"/>
-        <line x1="491" y1="100" x2="509" y2="100" stroke="#1e3a8a" stroke-width="4.2"/>
-        <line x1="491" y1="112" x2="512" y2="112" stroke="#1e3a8a" stroke-width="4.2"/>
-        <line x1="491" y1="124" x2="513" y2="124" stroke="#1e3a8a" stroke-width="4.2"/>
-        <line x1="491" y1="136" x2="513" y2="136" stroke="#1e3a8a" stroke-width="4.2"/>
-        <path d="M 573 36 C 540 44, 530 78, 530 105 C 530 136, 549 154, 582 154 C 615 154, 634 136, 634 105 C 634 78, 624 44, 591 36" fill="none" stroke="#1e3a8a" stroke-width="18.5" stroke-linecap="round"/>
-        <path d="M 581 6 L 583 6 L 584 38 L 586 38 L 586 62 L 589 62 L 589 90 L 593 90 L 593 120 L 597 120 L 597 153 L 567 153 L 567 120 L 571 120 L 571 90 L 575 90 L 575 62 L 578 62 L 578 38 L 580 38 Z" fill="#1e3a8a"/>
-        <line x1="582" y1="62" x2="582" y2="152" stroke="#fff" stroke-width="2.2"/>
-        <line x1="576" y1="95" x2="576" y2="152" stroke="#fff" stroke-width="1.8"/>
-        <line x1="588" y1="110" x2="588" y2="152" stroke="#fff" stroke-width="1.8"/>
-        <path d="M 370 172 Q 517 130 663 172 Q 517 146 370 172 Z" fill="#1e3a8a"/>
-      </svg>
-      <div id="liveDateTime" class="live-datetime" style="font-weight:900!important">Loading date &amp; time...</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="sync-dot-container" onclick="loadCloudData()" title="Tap to refresh cloud data">
-        <span id="cloudDot" class="sync-dot"></span>
-      </div>
-      <!-- NOTIFICATION BELL -->
-      <button class="btn btn-s" style="background:#f3f4f6;color:#111;padding:8px 10px;display:flex;align-items:center;justify-content:center;position:relative" onclick="openNotifications()" title="Notifications">
-        <i class="fa-solid fa-bell" style="font-size:16px;color:#1e3a8a"></i>
-        <span id="notifBadge" class="dock-dot hide" style="right:6px;top:6px"></span>
-      </button>
-      <button class="btn btn-s" style="background:#25d366;padding:8px 10px;display:flex;align-items:center;justify-content:center" onclick="wa()" title="Copy WhatsApp Report">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff">
-          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+  <!-- STICKY CURVED BORDER HEADER CARD WITH PROPER TOP LOCK -->
+  <div class="header-sticky-container">
+    <div class="header-curved-box">
+      <div class="top-left-box">
+        <svg class="top-logo" viewBox="0 0 700 185" xmlns="http://www.w3.org/2000/svg">
+          <text x="0" y="150" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="130" letter-spacing="-3" fill="#1e3a8a">Room</text>
+          <path d="M 383 44 L 425 22 L 425 152 L 405 152 L 405 50 L 383 50 Z" fill="#1e3a8a"/>
+          <path d="M 419 56 C 385 84, 387 128, 395 152 L 431 152 C 438 125, 436 84, 419 56 Z" fill="none" stroke="#1e3a8a" stroke-width="8.5" stroke-linecap="round"/>
+          <path d="M 392 80 L 435 83" stroke="#1e3a8a" stroke-width="5.5" stroke-linecap="round"/>
+          <line x1="395" y1="95" x2="423" y2="95" stroke="#1e3a8a" stroke-width="4.5"/>
+          <line x1="392" y1="109" x2="423" y2="109" stroke="#1e3a8a" stroke-width="4.5"/>
+          <line x1="391" y1="123" x2="423" y2="123" stroke="#1e3a8a" stroke-width="4.5"/>
+          <line x1="393" y1="137" x2="423" y2="137" stroke="#1e3a8a" stroke-width="4.5"/>
+          <path d="M 451 44 L 493 22 L 493 152 L 473 152 L 473 50 L 451 50 Z" fill="#1e3a8a"/>
+          <path d="M 489 66 L 489 152 L 515 152 C 519 122, 511 86, 489 66 Z" fill="none" stroke="#1e3a8a" stroke-width="8"/>
+          <line x1="491" y1="88" x2="505" y2="88" stroke="#1e3a8a" stroke-width="4.2"/>
+          <line x1="491" y1="100" x2="509" y2="100" stroke="#1e3a8a" stroke-width="4.2"/>
+          <line x1="491" y1="112" x2="512" y2="112" stroke="#1e3a8a" stroke-width="4.2"/>
+          <line x1="491" y1="124" x2="513" y2="124" stroke="#1e3a8a" stroke-width="4.2"/>
+          <line x1="491" y1="136" x2="513" y2="136" stroke="#1e3a8a" stroke-width="4.2"/>
+          <path d="M 573 36 C 540 44, 530 78, 530 105 C 530 136, 549 154, 582 154 C 615 154, 634 136, 634 105 C 634 78, 624 44, 591 36" fill="none" stroke="#1e3a8a" stroke-width="18.5" stroke-linecap="round"/>
+          <path d="M 581 6 L 583 6 L 584 38 L 586 38 L 586 62 L 589 62 L 589 90 L 593 90 L 593 120 L 597 120 L 597 153 L 567 153 L 567 120 L 571 120 L 571 90 L 575 90 L 575 62 L 578 62 L 578 38 L 580 38 Z" fill="#1e3a8a"/>
+          <line x1="582" y1="62" x2="582" y2="152" stroke="#fff" stroke-width="2.2"/>
+          <line x1="576" y1="95" x2="576" y2="152" stroke="#fff" stroke-width="1.8"/>
+          <line x1="588" y1="110" x2="588" y2="152" stroke="#fff" stroke-width="1.8"/>
+          <path d="M 370 172 Q 517 130 663 172 Q 517 146 370 172 Z" fill="#1e3a8a"/>
         </svg>
-      </button>
+        <div id="liveDateTime" class="live-datetime" style="font-weight:900!important">Loading date &amp; time...</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="sync-dot-container" onclick="loadCloudData()" title="Tap to refresh cloud data">
+          <span id="cloudDot" class="sync-dot"></span>
+        </div>
+        <!-- NOTIFICATION BELL -->
+        <button class="btn btn-s" style="background:#f3f4f6;color:#111;padding:8px 10px;display:flex;align-items:center;justify-content:center;position:relative" onclick="openNotifications()" title="Notifications">
+          <i class="fa-solid fa-bell" style="font-size:16px;color:#1e3a8a"></i>
+          <span id="notifBadge" class="dock-dot hide" style="right:6px;top:6px"></span>
+        </button>
+        <button class="btn btn-s" style="background:#25d366;padding:8px 10px;display:flex;align-items:center;justify-content:center" onclick="wa()" title="Copy WhatsApp Report">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -584,9 +593,9 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </div>
       </div>
 
-      <!-- PAYMENT OVERDUE SECTION (Home Screen: single line, amount on right, dynamic coloring) -->
+      <!-- PAYMENT OVERDUE / RECEIVABLE CARD (Dynamic Labeling & Color Logic) -->
       <div class="card" id="homeOverdueCard" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
-        <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
+        <div id="homeOverdueTitle" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
         <div id="homeOverdueAmt" style="font-size:16px;font-weight:900;color:#dc2626">AED 0.00</div>
       </div>
 
@@ -643,10 +652,10 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <!-- TAB 2: EXPENSES -->
     <div id="v2" class="hide">
-      <!-- SEPARATE PAYMENT OVERDUE SECTION WITH CONDITIONAL PAY NOW BUTTON -->
+      <!-- SEPARATE OVERDUE / RECEIVABLE SECTION WITH CONDITIONAL PAY NOW BUTTON -->
       <div class="card" id="expTabOverdueBox" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
         <div>
-          <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
+          <div id="expTabOverdueTitle" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
           <div id="expTabOverdueAmt" style="font-size:18px;font-weight:900;color:#dc2626;margin-top:2px">AED 0.00</div>
         </div>
         <button id="expPayNowBtn" class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Pay Now</button>
@@ -691,20 +700,6 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="card hide" id="payListCard">
         <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Verified Payments This Period</div>
         <div id="payList"></div>
-      </div>
-
-      <!-- STATEMENT SECTION BELOW EXPENSES SECTION -->
-      <div class="card" style="padding:6px 18px">
-        <div class="prof-menu-row" onclick="toggleStatementsList()">
-          <div class="prof-row-left">
-            <span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-file-invoice"></i></span>
-            Statement
-          </div>
-          <i id="statementsArrowIcon" class="fa-solid fa-chevron-right prof-row-arrow"></i>
-        </div>
-        <div id="statementsListContainer" class="hide" style="padding:10px 0; border-top:1px solid #f3f4f6; margin-top:6px;">
-          <div id="autoStatementsList" style="display:flex;flex-direction:column;gap:8px;"></div>
-        </div>
       </div>
     </div>
 
@@ -963,7 +958,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <label>User ID</label>
         <input id="nid" required style="margin-bottom:12px" placeholder="user_id">
         <label>Password</label>
-        <input id="npass" required style="margin-bottom:12px" placeholder="Password">
+        <input id="npass" type="password" required style="margin-bottom:12px" placeholder="Password">
         <label>Role</label>
         <select id="nrole" style="margin-bottom:12px">
           <option value="user">Member</option>
@@ -988,8 +983,8 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <input id="eULastName" required style="margin-bottom:12px">
         <label>User ID</label>
         <input id="eUId" required style="margin-bottom:12px">
-        <label>Password</label>
-        <input id="eUPass" required style="margin-bottom:12px">
+        <label>Password (Leave blank to keep)</label>
+        <input id="eUPass" type="password" placeholder="New password" style="margin-bottom:12px">
         <label>Role</label>
         <select id="eURole" style="margin-bottom:12px">
           <option value="user">Member</option>
@@ -1073,11 +1068,11 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     </button>
     <button id="d4" class="dock-item" onclick="tab(4)" title="Chat">
       <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
-      <span id="chatUnreadDot" class="dock-dot"></span>
+      <span id="chatUnreadDot" class="dock-dot hide"></span>
     </button>
     <button id="d5" class="dock-item" onclick="tab(5)" title="Profile">
       <div id="dockAvatarContainer" class="dock-avatar"><span id="dockInitial">S</span></div>
-      <span class="dock-dot" style="right:18%;bottom:10px"></span>
+      <span id="profileNotifDot" class="dock-dot hide"></span>
     </button>
   </nav>
 </div>
@@ -1142,6 +1137,11 @@ var vendors = JSON.parse(localStorage.getItem("r110_ven")||"null") || [];
 vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
 
 var payments = JSON.parse(localStorage.getItem("r110_pay")||"null") || [];
+// Fix: Default legacy payments saved before verification feature to verified=true
+payments.forEach(function(p){
+  if(p.verified === undefined) p.verified = true;
+});
+
 var expView = "mine";
 var selectedExpYM = todayISO().slice(0, 7);
 var lastSel = JSON.parse(localStorage.getItem("r110_last")||"null") || {};
@@ -1166,7 +1166,7 @@ function pingUserActivity(shouldSave) {
   }
   localStorage.setItem("r110_u", JSON.stringify(users));
   localStorage.setItem("r110_saved_user", JSON.stringify(cur));
-  if(shouldSave) save();
+  if(shouldSave) save(false);
 }
 setInterval(function(){ pingUserActivity(false); }, 60000);
 
@@ -1257,12 +1257,13 @@ function checkSuperAdminWelcome() {
   }
 }
 
-// Automated Monthly Statement Check on the 5th of every month
+// Server-side guarded Automated Monthly Statement Check on the 5th of every month (Runs once globally)
 function checkAutomatedMonthlyStatements() {
   var now = new Date();
   if (now.getDate() === 5) {
-    var lastRunKey = "r110_auto_stmt_" + now.getFullYear() + "-" + pad2(now.getMonth() + 1);
-    if (!localStorage.getItem(lastRunKey)) {
+    var ymKey = now.getFullYear() + "-" + pad2(now.getMonth() + 1);
+    var globalRunKey = "r110_auto_stmt_executed_" + ymKey;
+    if (!localStorage.getItem(globalRunKey) && isSuper()) {
       var y = now.getFullYear(), m = now.getMonth();
       m--; if (m < 0) { m = 11; y--; }
       var targetYM = y + "-" + pad2(m + 1);
@@ -1272,16 +1273,18 @@ function checkAutomatedMonthlyStatements() {
         var savedCur = cur;
         cur = u;
         var blob = buildStatementPdf(targetYM);
+        var blobUrl = URL.createObjectURL(blob);
         cur = savedCur;
 
-        var reminderText = "📊 *AUTOMATED MONTHLY STATEMENT* (" + targetYM + ")\nYour official monthly statement has been generated and closed by Super Admin.";
         var tm = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        var msgText = "📊 *AUTOMATED MONTHLY STATEMENT* (" + targetYM + ")<br>Your official monthly statement has been generated.<br><br>" +
+                      '<a href="' + blobUrl + '" target="_blank" style="display:inline-block;background:#059669;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700"><i class="fa-solid fa-file-pdf"></i> Download ' + targetYM + ' Statement PDF</a>';
 
         msgs.push({
           id: Date.now() + Math.random(),
           sender: "Super Admin",
           target: uName,
-          text: reminderText.replace(/\n/g, "<br>"),
+          text: msgText,
           timestamp: tm,
           timeEpoch: Date.now(),
           isSystem: true,
@@ -1290,11 +1293,11 @@ function checkAutomatedMonthlyStatements() {
           reactions: {}
         });
 
-        addNotification(uName, "Monthly Statement Generated", "Your automated statement for " + targetYM + " is now ready in chat.", "monthly_statement");
+        addNotification(uName, "Monthly Statement Generated", "Your automated statement for " + targetYM + " is now ready in chat.", "monthly_statement", null, false);
       });
 
-      localStorage.setItem(lastRunKey, "true");
-      save();
+      localStorage.setItem(globalRunKey, "true");
+      save(true);
     }
   }
 }
@@ -1334,7 +1337,7 @@ function broadcastStatementReminder() {
     reactions: {}
   });
 
-  save();
+  save(true);
   renderChatMessages();
   triggerPushNotification("Room 110 Statement Reminder", "Super Admin sent a payment statement reminder.");
 }
@@ -1435,6 +1438,7 @@ function loadCloudData(){
       }
       if(data && Array.isArray(data.payments)) {
         payments = data.payments;
+        payments.forEach(function(p){ if(p.verified === undefined) p.verified = true; });
         localStorage.setItem("r110_pay", JSON.stringify(payments));
       }
       if(data && Array.isArray(data.groups)) {
@@ -1458,7 +1462,7 @@ function loadCloudData(){
       applyTheme();
       checkSuperAdminWelcome();
       render();
-      if(addedSuper && Date.now() - lastSuperSave > 15000) { lastSuperSave = Date.now(); save(); }
+      if(addedSuper && Date.now() - lastSuperSave > 15000) { lastSuperSave = Date.now(); save(false); }
     })
     .catch(function(err){
       setCloudStatus('error');
@@ -1481,7 +1485,7 @@ function setCloudStatus(status) {
 }
 
 loadCloudData();
-setInterval(loadCloudData, 3000);
+setInterval(loadCloudData, 6000); // Optimized polling interval to prevent race conditions
 
 function applyTheme(){
   var toggle = document.getElementById("darkModeToggle");
@@ -1504,7 +1508,7 @@ function toggleTheme(){
   applyTheme();
 }
 
-function save(){
+function save(syncToCloud){
   pingUserActivity(false);
   categories.sort(function(a,b){ return a.localeCompare(b); });
   vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
@@ -1520,7 +1524,7 @@ function save(){
   localStorage.setItem("r110_ec", JSON.stringify(emergencyContacts));
   render();
 
-  if(CLOUD_URL){
+  if(syncToCloud && CLOUD_URL){
     setCloudStatus('syncing');
     var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, notifications: notifications, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
     fetch(CLOUD_URL, {
@@ -1536,7 +1540,7 @@ function save(){
   }
 }
 
-function addNotification(targetUser, title, body, type, meta) {
+function addNotification(targetUser, title, body, type, meta, shouldSync) {
   notifications.unshift({
     id: Date.now() + Math.random(),
     targetUser: targetUser,
@@ -1547,7 +1551,7 @@ function addNotification(targetUser, title, body, type, meta) {
     time: Date.now(),
     read: false
   });
-  save();
+  save(!!shouldSync);
 }
 
 function login(e){
@@ -1565,7 +1569,7 @@ function login(e){
     }
     requestNotificationPermission();
     openDashboard();
-    save();
+    save(false);
   }
   else document.getElementById("err").innerText="Invalid User ID or Password";
 }
@@ -1614,7 +1618,9 @@ function tab(n){
       if(i==3) {
         var stypeEl = document.getElementById("stype");
         if(stypeEl) {
-          stypeEl.value = "a";
+          // Restore remembered selection or default
+          var remembered = lastSel.stype || "a";
+          stypeEl.value = remembered;
           onSplitTypeChange();
         }
       }
@@ -1656,7 +1662,7 @@ function markAllNotificationsRead() {
       n.read = true;
     }
   });
-  save();
+  save(false);
   renderNotificationsList();
 }
 
@@ -1691,23 +1697,37 @@ function renderNotificationsList() {
   }).join('') || '<div style="text-align:center;color:#6b7280;font-size:13px;margin-top:30px">No notifications right now.</div>';
 
   myNotifs.forEach(function(n){ n.read = true; });
-  save();
-  updateNotifBadge();
+  save(false);
+  updateDockBadges();
 }
 
-function updateNotifBadge() {
+function updateDockBadges() {
   if(!cur) return;
   var cName = cur.firstName || cur.name;
-  var unreadCount = notifications.filter(function(n){
+  
+  // Chat Unread Count
+  var unreadChats = msgs.filter(function(m){
+    var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') ||
+                 (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) ||
+                 (m.target === cName && m.sender === activeChatTarget);
+    return !m.isRead && m.sender !== cName;
+  }).length;
+  var chatDot = document.getElementById("chatUnreadDot");
+  if(chatDot) {
+    chatDot.className = unreadChats > 0 ? "dock-dot" : "dock-dot hide";
+  }
+
+  // Profile / Notification Unread Count
+  var unreadNotifs = notifications.filter(function(n){
     return (n.targetUser === "all" || n.targetUser === cName) && !n.read;
   }).length;
-  var badge = document.getElementById("notifBadge");
-  if(badge) {
-    if(unreadCount > 0) {
-      badge.className = "dock-dot";
-    } else {
-      badge.className = "dock-dot hide";
-    }
+  var notifBadge = document.getElementById("notifBadge");
+  if(notifBadge) {
+    notifBadge.className = unreadNotifs > 0 ? "dock-dot" : "dock-dot hide";
+  }
+  var profileNotifDot = document.getElementById("profileNotifDot");
+  if(profileNotifDot) {
+    profileNotifDot.className = unreadNotifs > 0 ? "dock-dot" : "dock-dot hide";
   }
 }
 
@@ -1725,40 +1745,6 @@ function showProfMenu() {
     document.getElementById("profPage_" + k).className = "hide";
   });
   window.scrollTo(0, 0);
-}
-
-function toggleStatementsList() {
-  var listContainer = document.getElementById("statementsListContainer");
-  var arrow = document.getElementById("statementsArrowIcon");
-  if(listContainer.className.indexOf("hide") > -1) {
-    listContainer.className = "";
-    arrow.className = "fa-solid fa-chevron-down prof-row-arrow";
-    renderAutoStatementsList();
-  } else {
-    listContainer.className = "hide";
-    arrow.className = "fa-solid fa-chevron-right prof-row-arrow";
-  }
-}
-
-function renderAutoStatementsList() {
-  var container = document.getElementById("autoStatementsList");
-  var months = [];
-  var earliest = todayISO().slice(0, 7);
-  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
-  var now = new Date(), y = now.getFullYear(), m = now.getMonth();
-  for(var i = 0; i < 12; i++) {
-    var ym = y + "-" + pad2(m + 1);
-    if(ym < earliest && i > 2) break;
-    months.push({ ym: ym, label: MONTHS[m] + ' ' + y });
-    m--; if(m < 0) { m = 11; y--; }
-  }
-
-  container.innerHTML = months.map(function(item){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6">' +
-           '<div style="font-weight:700;font-size:13px;color:#111">Statement (' + item.label + ')</div>' +
-           '<button class="btn btn-s" style="background:#dc2626;padding:6px 12px" onclick="openStatement(\'' + item.ym + '\')"><i class="fa-solid fa-file-pdf"></i> View PDF</button>' +
-           '</div>';
-  }).join('');
 }
 
 function isSuper() { return !!cur && cur.r === "superadmin"; }
@@ -1785,7 +1771,7 @@ function toggleVacation() {
   cur.vacation = on;
   var curVacCheck = document.getElementById("vacCurrentToggle");
   if(curVacCheck) curVacCheck.checked = on;
-  save();
+  save(true);
 }
 
 function toggleCurrentVacation() {
@@ -1795,7 +1781,7 @@ function toggleCurrentVacation() {
   cur.vacation = on;
   var vacToggle = document.getElementById("vacationToggle");
   if(vacToggle) vacToggle.checked = on;
-  save();
+  save(true);
 }
 
 function saveVacationDates() {
@@ -1808,7 +1794,7 @@ function saveVacationDates() {
   }
   cur.vacFrom = f;
   cur.vacTo = t;
-  save();
+  save(true);
 }
 
 function getSplitMembers() {
@@ -1840,8 +1826,15 @@ function getSplitMembers() {
 }
 
 function onSplitTypeChange() {
-  var st = document.getElementById("stype").value;
+  var stEl = document.getElementById("stype");
+  if(!stEl) return;
+  var st = stEl.value;
   document.getElementById("cbox").className = (st === "c") ? "cks" : "cks hide";
+  
+  // Persist split selection immediately
+  lastSel.stype = st;
+  localStorage.setItem("r110_last", JSON.stringify(lastSel));
+
   var sp = getSplitMembers();
   var h = "";
   if(st !== "c") h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
@@ -1882,6 +1875,17 @@ function calculatePreviousMonthOverdue(cName, ym) {
     if(p.date < pr.start) { opening += eff; }
     else if(p.date <= pr.end) { paySum += eff; }
   });
+  
+  // Fix: Also offset current month payments made toward settling previous dues
+  var curStart = ym + "-01";
+  payments.forEach(function(p){
+    if(!p.verified || (p.from != cName && p.to != cName)) return;
+    var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
+    if(p.date >= curStart && p.date <= todayISO()) {
+      paySum += eff;
+    }
+  });
+
   return opening + purchases - expenses + paySum;
 }
 
@@ -1919,9 +1923,18 @@ function renderExpensesTab() {
 
   var netPrev = calculatePreviousMonthOverdue(cName, ym);
   var overdueAmtEl = document.getElementById("expTabOverdueAmt");
-  if(overdueAmtEl) {
-    overdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
-    overdueAmtEl.style.color = netPrev >= -0.005 ? "#059669" : "#dc2626";
+  var overdueTitleEl = document.getElementById("expTabOverdueTitle");
+  
+  if(overdueAmtEl && overdueTitleEl) {
+    if(netPrev >= -0.005) {
+      overdueTitleEl.innerText = "Previous Balance Receivable";
+      overdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      overdueAmtEl.style.color = "#059669";
+    } else {
+      overdueTitleEl.innerText = "Payment Overdue (Prev Month)";
+      overdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      overdueAmtEl.style.color = "#dc2626";
+    }
   }
   
   var payNowBtn = document.getElementById("expPayNowBtn");
@@ -2027,10 +2040,10 @@ function savePayment(e) {
   var newPay = { id: Date.now(), date: date, from: cName, to: to, amt: amt, verified: false };
   payments.push(newPay);
 
-  addNotification(to, "Payment Verification Needed", cName + " recorded a payment of AED " + money(amt) + " sent to you. Please verify and approve.", "payment_request", { paymentId: newPay.id });
+  addNotification(to, "Payment Verification Needed", cName + " recorded a payment of AED " + money(amt) + " sent to you. Please verify and approve.", "payment_request", { paymentId: newPay.id }, true);
 
   closeModals();
-  save();
+  save(true);
   alert("Payment submitted successfully! Waiting for " + to + " to verify and approve.");
 }
 
@@ -2040,11 +2053,11 @@ function verifyPaymentRequest(paymentId, approved, notifId) {
   if(p) {
     if(approved) {
       p.verified = true;
-      addNotification(p.from, "Payment Approved", cur.firstName + " verified and approved your payment of AED " + money(p.amt) + ".", "payment_verified");
+      addNotification(p.from, "Payment Approved", cur.firstName + " verified and approved your payment of AED " + money(p.amt) + ".", "payment_verified", null, true);
       alert("Payment approved successfully!");
     } else {
       payments = payments.filter(function(x){ return x.id != paymentId; });
-      addNotification(p.from, "Payment Rejected", cur.firstName + " rejected your payment record of AED " + money(p.amt) + ".", "payment_verified");
+      addNotification(p.from, "Payment Rejected", cur.firstName + " rejected your payment record of AED " + money(p.amt) + ".", "payment_verified", null, true);
       alert("Payment record rejected.");
     }
   }
@@ -2052,12 +2065,12 @@ function verifyPaymentRequest(paymentId, approved, notifId) {
     n.verified = approved;
     n.read = true;
   }
-  save();
+  save(true);
   renderNotificationsList();
 }
 
 function delPay(id) {
-  if(confirm("Delete this payment?")) { payments = payments.filter(function(p){ return p.id != id; }); save(); }
+  if(confirm("Delete this payment?")) { payments = payments.filter(function(p){ return p.id != id; }); save(true); }
 }
 
 function openStatementModal() {
@@ -2180,7 +2193,6 @@ function buildStatementPdf(ym) {
   function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
   var doc = new PdfDoc();
 
-  // Top header background with clean "Room 110" text heading
   doc.rect(0, 0, 595, 80, NAVY);
   doc.text("Room 110", 40, 44, { size: 22, bold: true, color: "#ffffff" });
   doc.text("Statement of Account", 155, 47, { size: 11, color: "#dbeafe" });
@@ -2189,11 +2201,9 @@ function buildStatementPdf(ym) {
   doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
   doc.text("Generated " + fmtDate(todayISO()), 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
 
-  // Re-arranged layout: Account Details on the left, Account Summary on the right
   doc.text("ACCOUNT HOLDER", 40, 106, { size: 8, bold: true, color: GRAY });
   doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 124, { size: 15, bold: true, color: INK });
 
-  // Account Summary on the Right side (X: 300, Y: 100, Width: 255)
   var sx = 300, sy = 100, sw = 255;
   doc.rect(sx, sy, sw, 20, "#eff6ff", "#bfdbfe");
   doc.text("ACCOUNT SUMMARY", sx + 10, sy + 14, { size: 9, bold: true, color: NAVY });
@@ -2289,7 +2299,7 @@ function openEditUserModal(id) {
   document.getElementById("eUFirstName").value = user.firstName || user.name || "";
   document.getElementById("eULastName").value = user.lastName || "";
   document.getElementById("eUId").value = user.u;
-  document.getElementById("eUPass").value = user.p;
+  document.getElementById("eUPass").value = ""; // Masked for security
   document.getElementById("eURole").value = user.r;
   document.getElementById("eUMess").checked = user.mess !== false;
   document.getElementById("editUserModal").className = "modal-overlay";
@@ -2321,7 +2331,7 @@ function selectChatTarget(target) {
       updated = true;
     }
   });
-  if(updated) save();
+  if(updated) save(false);
   renderChatActivePane();
 }
 
@@ -2506,6 +2516,7 @@ function renderChatMessages() {
 
   if(wasAtBottom || forceChatScroll) scrollContainer.scrollTop = scrollContainer.scrollHeight;
   forceChatScroll = false;
+  updateDockBadges();
 }
 
 function startMsgLongPress(e, msgId, isMe) {
@@ -2560,7 +2571,7 @@ function sendActiveChatMsg(e) {
   msgs.push(newMsg);
   forceChatScroll = true;
   input.value = "";
-  save();
+  save(true);
   renderChatMessages();
 }
 
@@ -2625,7 +2636,7 @@ function reactToMessage(msgId, emoji) {
     msg.reactions[emoji].push(cName);
   }
 
-  save();
+  save(true);
   renderChatMessages();
   var menu = document.getElementById("activeMsgMenu");
   if(menu) menu.remove();
@@ -2638,7 +2649,7 @@ function promptEditMessage(msgId) {
   if(newText !== null && newText.trim() !== "") {
     msg.text = newText.trim().replace(/\n/g, "<br>");
     msg.edited = true;
-    save();
+    save(true);
     renderChatMessages();
   }
   var menu = document.getElementById("activeMsgMenu");
@@ -2648,7 +2659,7 @@ function promptEditMessage(msgId) {
 function deleteMessage(msgId) {
   if(confirm("Delete this message?")) {
     msgs = msgs.filter(function(m){ return m.id != msgId; });
-    save();
+    save(true);
     renderChatMessages();
   }
   var menu = document.getElementById("activeMsgMenu");
@@ -2698,14 +2709,14 @@ function addNewCategory() {
   if(categories.includes(val)) return alert("Category already exists");
   categories.push(val);
   categories.sort(function(a,b){ return a.localeCompare(b); });
-  save();
+  save(true);
   renderCategoryManagerContent();
 }
 
 function deleteCategory(name) {
   if(categories.length <= 1) return alert("Cannot delete all categories!");
   categories = categories.filter(function(c){ return c !== name; });
-  save();
+  save(true);
   renderCategoryManagerContent();
 }
 
@@ -2738,7 +2749,7 @@ function saveGroup() {
   if(editingGroupIdx > -1) groups[editingGroupIdx] = { name: name, members: members };
   else groups.push({ name: name, members: members });
   editingGroupIdx = -1;
-  save();
+  save(true);
   renderGroupManagerContent();
 }
 
@@ -2756,7 +2767,7 @@ function deleteGroup(idx) {
   if(!confirm("Delete this group?")) return;
   groups.splice(idx, 1);
   editingGroupIdx = -1;
-  save();
+  save(true);
   renderGroupManagerContent();
 }
 
@@ -2776,13 +2787,13 @@ function addNewVendor() {
   if(vendors.some(function(v){ return v.name.toLowerCase() === name.toLowerCase(); })) return alert("Vendor already exists");
   vendors.push({ name: name, phone: phone });
   vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
-  save();
+  save(true);
   renderVendorManagerContent();
 }
 function deleteVendor(idx) {
   if(!confirm("Delete this vendor?")) return;
   vendors.splice(idx, 1);
-  save();
+  save(true);
   renderVendorManagerContent();
 }
 
@@ -2804,13 +2815,13 @@ function addNewContact() {
   if(!name || !number) return alert("Enter both name and number");
   emergencyContacts.push({name: name, number: number});
   emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
-  save();
+  save(true);
   renderContactManagerContent();
 }
 
 function deleteContact(idx) {
   emergencyContacts.splice(idx, 1);
-  save();
+  save(true);
   renderContactManagerContent();
 }
 
@@ -2828,7 +2839,7 @@ function addU(e){
   document.getElementById("nid").value="";
   document.getElementById("npass").value="";
   closeModals();
-  save();
+  save(true);
 }
 
 function saveEditedUser(e){
@@ -2843,10 +2854,12 @@ function saveEditedUser(e){
   if(user){
     if(users.some(function(x){return x.u === u && x.id !== id})) return alert("User ID already exists!");
     if(user.r === "superadmin" && r !== "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("At least one Super Admin is required.");
-    user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; user.p = p; user.r = r;
+    user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; 
+    if(p) user.p = p; // Only update password if provided
+    user.r = r;
     user.mess = document.getElementById("eUMess").checked;
     closeModals();
-    save();
+    save(true);
   }
 }
 
@@ -2857,7 +2870,7 @@ function deleteUserFromModal(){
   if(users.length > 1 && confirm("Delete user?")){
     users = users.filter(function(x){return x.id !== id});
     closeModals();
-    save();
+    save(true);
   } else if(users.length <= 1) {
     alert("Cannot delete the last remaining user!");
   }
@@ -2868,20 +2881,13 @@ function addEx(e){
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
 
-  if (!isAdminLike()) {
-    var now = new Date();
-    var expD = new Date(dateVal);
-    var curYear = now.getFullYear(), curMonth = now.getMonth();
-    var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
-    if (expD > maxAllowedDate) {
-      return alert("Regular users can only add expenses up to the 4th of the following month.");
-    }
-    if (now.getDate() >= 5) {
-      var firstOfCurMonth = new Date(curYear, curMonth, 1);
-      if (expD < firstOfCurMonth) {
-        return alert("Past month expenses are locked out starting on the 5th of the month.");
-      }
-    }
+  // Universal date rule: No one (including Admins & Super Admins) can add expenses after the 4th of the next month
+  var now = new Date();
+  var expD = new Date(dateVal);
+  var curYear = now.getFullYear(), curMonth = now.getMonth();
+  var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
+  if (expD > maxAllowedDate) {
+    return alert("Expenses cannot be dated after the 4th of the following month.");
   }
 
   var vendor=document.getElementById("expVendor").value;
@@ -2892,10 +2898,11 @@ function addEx(e){
   var newExp = {id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()};
   exps.unshift(newExp);
   
+  var cName = cur.firstName || cur.name;
   al.forEach(function(memName){
-    var uObj = users.find(function(us){ return memberName(us) === memName; });
-    if(uObj) {
-      addNotification(memName, "New Expense Added", pb + " added AED " + money(a) + " for " + d + ".", "expense");
+    // Exclude the expense creator from receiving self-notification noise
+    if(memName !== pb && memName !== cName) {
+      addNotification(memName, "New Expense Added", pb + " added AED " + money(a) + " for " + d + ".", "expense", null, false);
     }
   });
 
@@ -2904,7 +2911,8 @@ function addEx(e){
   document.getElementById("amt").value="";
   document.getElementById("expNote").value="";
   document.getElementById("expDate").value=todayISO();
-  save();tab(2);
+  save(true);
+  tab(2);
 }
 
 function applyLastSelections(){
@@ -2953,20 +2961,12 @@ function saveEditedExp(e) {
   if(!x || !canEditExp(x)) return;
 
   var dateVal = document.getElementById("eeDate").value || expDate(x);
-  if (!isAdminLike()) {
-    var now = new Date();
-    var expD = new Date(dateVal);
-    var curYear = now.getFullYear(), curMonth = now.getMonth();
-    var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
-    if (expD > maxAllowedDate) {
-      return alert("Regular users can only edit expenses up to the 4th of the following month.");
-    }
-    if (now.getDate() >= 5) {
-      var firstOfCurMonth = new Date(curYear, curMonth, 1);
-      if (expD < firstOfCurMonth) {
-        return alert("Past month expenses are locked out starting on the 5th of the month.");
-      }
-    }
+  var now = new Date();
+  var expD = new Date(dateVal);
+  var curYear = now.getFullYear(), curMonth = now.getMonth();
+  var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
+  if (expD > maxAllowedDate) {
+    return alert("Expenses cannot be dated after the 4th of the following month.");
   }
 
   var al = Array.prototype.map.call(document.querySelectorAll(".eck:checked"), function(c){ return c.value; });
@@ -2979,12 +2979,12 @@ function saveEditedExp(e) {
   x.pb = document.getElementById("eePby").value;
   x.al = al;
   closeModals();
-  save();
+  save(true);
 }
 function delEx(id){
   var x = exps.find(function(t){ return t.id == id; });
   if(!x || !canEditExp(x)) return;
-  if(confirm("Delete expense?")){ exps = exps.filter(function(t){ return t.id != id; }); save(); }
+  if(confirm("Delete expense?")){ exps = exps.filter(function(t){ return t.id != id; }); save(true); }
 }
 
 function updateProfile(e){
@@ -3031,7 +3031,7 @@ function finishProfileUpdate(){
   }
   localStorage.setItem("r110_saved_user", JSON.stringify(cur));
   closeModals();
-  save();
+  save(true);
   alert("Profile updated successfully!");
 }
 
@@ -3076,7 +3076,7 @@ function render(){
   }
 
   updateDateTime();
-  updateNotifBadge();
+  updateDockBadges();
   document.getElementById("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
   document.getElementById("profRole").innerText = roleLabel(cur.r);
   document.getElementById("membersRow").classList.toggle("hide", !isSuper());
@@ -3100,18 +3100,26 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Render Payment Overdue card on Home screen (single line, amount on right, dynamic coloring)
+  // Render Payment Overdue / Receivable card on Home screen with dynamic labeling & coloring
   var currentYM = todayISO().slice(0, 7);
   var netPrev = calculatePreviousMonthOverdue(cName, currentYM);
   var homeOverdueCard = document.getElementById("homeOverdueCard");
   var homeOverdueAmtEl = document.getElementById("homeOverdueAmt");
-  if(homeOverdueCard && homeOverdueAmtEl) {
+  var homeOverdueTitleEl = document.getElementById("homeOverdueTitle");
+  
+  if(homeOverdueCard && homeOverdueAmtEl && homeOverdueTitleEl) {
     homeOverdueCard.style.display = "flex";
-    homeOverdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
-    var overdueColor = netPrev >= -0.005 ? "#059669" : "#dc2626";
-    homeOverdueAmtEl.style.color = overdueColor;
+    if(netPrev >= -0.005) {
+      homeOverdueTitleEl.innerText = "Previous Balance Receivable";
+      homeOverdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      homeOverdueAmtEl.style.color = "#059669";
+    } else {
+      homeOverdueTitleEl.innerText = "Payment Overdue (Prev Month)";
+      homeOverdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      homeOverdueAmtEl.style.color = "#dc2626";
+    }
     var liveDtEl = document.getElementById("liveDateTime");
-    if(liveDtEl) liveDtEl.style.color = "#6b7280"; // Corrected to match Welcome Back text color
+    if(liveDtEl) liveDtEl.style.color = "#6b7280";
   }
 
   var nowD = new Date();
@@ -3247,7 +3255,7 @@ function render(){
   setHtmlIfChanged(cboxEl, checkboxesHtml);
 
   var stypeSel = document.getElementById("stype");
-  var prevSt = stypeSel.value || "a";
+  var prevSt = stypeSel.value || lastSel.stype || "a";
   var stOpts = '<option value="a">All Room 110 Members</option>';
   groups.forEach(function(g){
     var live = (g.members || []).filter(function(n){ return sortedMessUsers.map(memberName).indexOf(n) > -1; });
@@ -3256,9 +3264,9 @@ function render(){
   stOpts += '<option value="c">Select Specific Members</option>';
   var stChanged = stypeSel._lastHtml !== stOpts;
   setHtmlIfChanged(stypeSel, stOpts);
-  if(stChanged) {
+  if(stChanged || !stypeSel.value) {
     stypeSel.value = prevSt;
-    if(stypeSel.value !== prevSt) stypeSel.value = "a";
+    if(!stypeSel.value) stypeSel.value = "a";
   }
   onSplitTypeChange();
 
@@ -3279,7 +3287,7 @@ function render(){
   }
 
   if(isSuper()) {
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>"}).join("");
   }
 }
 if(cur) openDashboard();
