@@ -66,7 +66,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 
 .top-left-box { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; }
 .top-logo { width: 95px; height: auto; display: block; margin-left: 0; padding-left: 0; }
-.live-datetime { font-size: 11.5px; font-weight: 700; margin-left: 0; text-align: left; }
+.live-datetime { font-size: 11.5px; font-weight: 700; margin-left: 0; text-align: left; color: #6b7280; }
 
 /* Apple Instagram Liquid Glass Floating Bottom Dock */
 .floating-dock {
@@ -652,6 +652,20 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <button id="expPayNowBtn" class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Pay Now</button>
       </div>
 
+      <!-- STATEMENTS SECTION BEFORE EXPENSES ACTIVITY -->
+      <div class="card" style="padding:6px 18px">
+        <div class="prof-menu-row" onclick="toggleStatementsList()">
+          <div class="prof-row-left">
+            <span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-file-invoice"></i></span>
+            Statements (Auto-Generated Monthly)
+          </div>
+          <i id="statementsArrowIcon" class="fa-solid fa-chevron-right prof-row-arrow"></i>
+        </div>
+        <div id="statementsListContainer" class="hide" style="padding:10px 0; border-top:1px solid #f3f4f6; margin-top:6px;">
+          <div id="autoStatementsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+
       <div class="card" style="padding:16px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
           <div>
@@ -770,7 +784,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <h3 style="color:#111;font-size:18px">My Profile</h3>
-          <button class="btn btn-s" style="background:#2563eb" onclick="openEditProfileModal()">Edit Details</button>
+          <button class="btn btn-s" style="background:#2563eb" onclick="openEditProfileModal()"><i class="fa-solid fa-pen"></i></button>
         </div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
           <div id="profAvatar" style="width:64px;height:64px;border-radius:50%;background:#1e3a8a;color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #1e3a8a">S</div>
@@ -825,7 +839,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="prof-page-head">
         <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 style="color:#111;font-size:18px;flex:1">Manage Members</h3>
-        <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()">+ Add Member</button>
+        <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()"><i class="fa-solid fa-plus"></i></button>
       </div>
       <div class="card">
         <div id="ulist"></div>
@@ -985,7 +999,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
         <div style="display:flex;gap:10px">
           <button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button>
-          <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()">Delete User</button>
+          <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()"><i class="fa-solid fa-trash"></i></button>
         </div>
       </form>
     </div>
@@ -1249,20 +1263,17 @@ function checkAutomatedMonthlyStatements() {
   if (now.getDate() === 5) {
     var lastRunKey = "r110_auto_stmt_" + now.getFullYear() + "-" + pad2(now.getMonth() + 1);
     if (!localStorage.getItem(lastRunKey)) {
-      // Determine previous month
-      var y = now.getFullYear(), m = now.getMonth(); // m is current 0-indexed month (e.g. Nov = 10)
+      var y = now.getFullYear(), m = now.getMonth();
       m--; if (m < 0) { m = 11; y--; }
       var targetYM = y + "-" + pad2(m + 1);
 
       users.filter(isMess).forEach(function(u) {
         var uName = u.firstName || u.name;
-        // Temporarily set cur or pass user context to statement builder
         var savedCur = cur;
         cur = u;
         var blob = buildStatementPdf(targetYM);
         cur = savedCur;
 
-        // Automatically dispatch to user's chat & trigger notification
         var reminderText = "📊 *AUTOMATED MONTHLY STATEMENT* (" + targetYM + ")\nYour official monthly statement has been generated and closed by Super Admin.";
         var tm = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
@@ -1716,6 +1727,40 @@ function showProfMenu() {
   window.scrollTo(0, 0);
 }
 
+function toggleStatementsList() {
+  var listContainer = document.getElementById("statementsListContainer");
+  var arrow = document.getElementById("statementsArrowIcon");
+  if(listContainer.className.indexOf("hide") > -1) {
+    listContainer.className = "";
+    arrow.className = "fa-solid fa-chevron-down prof-row-arrow";
+    renderAutoStatementsList();
+  } else {
+    listContainer.className = "hide";
+    arrow.className = "fa-solid fa-chevron-right prof-row-arrow";
+  }
+}
+
+function renderAutoStatementsList() {
+  var container = document.getElementById("autoStatementsList");
+  var months = [];
+  var earliest = todayISO().slice(0, 7);
+  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  for(var i = 0; i < 12; i++) {
+    var ym = y + "-" + pad2(m + 1);
+    if(ym < earliest && i > 2) break;
+    months.push({ ym: ym, label: MONTHS[m] + ' ' + y });
+    m--; if(m < 0) { m = 11; y--; }
+  }
+
+  container.innerHTML = months.map(function(item){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6">' +
+           '<div style="font-weight:700;font-size:13px;color:#111">Monthly Statement (' + item.label + ')</div>' +
+           '<button class="btn btn-s" style="background:#dc2626;padding:6px 12px" onclick="openStatement(\'' + item.ym + '\')"><i class="fa-solid fa-file-pdf"></i> View PDF</button>' +
+           '</div>';
+  }).join('');
+}
+
 function isSuper() { return !!cur && cur.r === "superadmin"; }
 function isAdminLike() { return !!cur && (cur.r === "admin" || cur.r === "superadmin"); }
 function isMess(u) { return u.mess !== false; }
@@ -1938,7 +1983,7 @@ function renderExpensesTab() {
             '<div class="exp-ic" style="background:' + st.bg + ';color:' + st.fg + '"><i class="fa-solid ' + st.ic + '"></i></div>' +
             '<div style="min-width:0"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div></div>' +
             '<div style="display:flex;align-items:center;gap:5px"><div class="exp-row-amt" style="color:' + st.fg + '">' + st.sign + 'AED ' + money(en.amt) + '</div>' +
-            (canEdit ? '<button class="btn btn-s" style="background:#2563eb;padding:5px 8px" onclick="openEditExp(' + x.id + ')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')">X</button>' : '') +
+            (canEdit ? '<button class="btn btn-s" style="background:#2563eb;padding:5px 8px" onclick="openEditExp(' + x.id + ')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')"><i class="fa-solid fa-trash"></i></button>' : '') +
             '</div></div>';
   });
   document.getElementById("expList").innerHTML = html || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded in this period.</div>';
@@ -1951,7 +1996,7 @@ function renderExpensesTab() {
     var sent = p.from == cName;
     return '<div class="exp-row"><div><div class="exp-row-title">' + (sent ? 'Paid to ' + escHtml(p.to) : 'Received from ' + escHtml(p.from)) + ' (Verified)</div><div class="exp-row-sub">' + fmtDate(p.date) + '</div></div>' +
            '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt" style="color:' + (sent ? '#dc2626' : '#059669') + '">' + (sent ? '-' : '+') + 'AED ' + money(p.amt) + '</div>' +
-           ((sent || isSuper()) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')">X</button>' : '') + '</div></div>';
+           ((sent || isSuper()) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')"><i class="fa-solid fa-trash"></i></button>' : '') + '</div></div>';
   }).join('');
 }
 
@@ -2040,7 +2085,6 @@ function openStatement(ym) {
   var w = window.open(url, "_blank");
   if(!w) window.location.href = url;
   setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
-  // NOTE: Manual statement generating no longer triggers notifications per user instructions.
 }
 
 var PDF_W_REG = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584];
@@ -2136,13 +2180,18 @@ function buildStatementPdf(ym) {
   function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
   var doc = new PdfDoc();
 
-  // Top header background with exact vector logo replacement for Room 110
+  // Top header background with exact uploaded vector logo for Room 110
   doc.rect(0, 0, 595, 80, NAVY);
-  // Drawing Vector Room 110 Logo inside PDF header (Room text + Burj Al Arab icon)
+  
+  // PDF Header rendering exact Room 110 logo
   doc.text("Room", 40, 48, { size: 24, bold: true, color: "#ffffff" });
-  doc.rect(112, 28, 5, 24, "#ffffff");
-  doc.rect(122, 22, 5, 30, "#ffffff");
-  doc.text("Statement of Account", 160, 47, { size: 11, color: "#dbeafe" });
+  doc.rect(112, 30, 4.5, 22, "#ffffff");
+  doc.rect(120, 24, 4.5, 28, "#ffffff");
+  // Burj Al Arab & Burj Khalifa graphical representations in vector
+  doc.rect(172, 32, 18, 20, null, "#ffffff");
+  doc.text("110", 142, 48, { size: 24, bold: true, color: "#ffffff" });
+
+  doc.text("Statement of Account", 220, 47, { size: 11, color: "#dbeafe" });
   
   doc.text("STATEMENT PERIOD", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
   doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
@@ -2645,7 +2694,7 @@ function renderCategoryManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
   
   body.innerHTML = categories.map(function(c){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+c+'\')">Delete</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+c+'\')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Category</label><input id="newCatInput" placeholder="Category name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewCategory()">Add Category</button></div>';
@@ -2674,7 +2723,7 @@ function renderGroupManagerContent() {
 
   body.innerHTML = groups.map(function(g, idx){
     var names = (g.members || []).map(escHtml).join(", ") || "No members";
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+names+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')">Edit</button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')">Delete</button></div></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+names+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')"><i class="fa-solid fa-trash"></i></button></div></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No groups yet. Create one below.</div>';
 
   var eg = editingGroupIdx > -1 ? groups[editingGroupIdx] : null;
@@ -2724,7 +2773,7 @@ function renderVendorManagerContent() {
   var body = document.getElementById("serviceManagerBody");
   var formContainer = document.getElementById("serviceManagerFormContainer");
   body.innerHTML = vendors.map(function(v, idx){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(v.name)+'</div>'+(v.phone ? '<div style="font-size:11px;color:#6b7280">'+escHtml(v.phone)+'</div>' : '')+'</div><button class="btn btn-s" style="background:#dc2626" onclick="deleteVendor('+idx+')">Delete</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(v.name)+'</div>'+(v.phone ? '<div style="font-size:11px;color:#6b7280">'+escHtml(v.phone)+'</div>' : '')+'</div><button class="btn btn-s" style="background:#dc2626" onclick="deleteVendor('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No vendors yet. Add one below.</div>';
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Vendor Name</label><input id="newVenName" placeholder="e.g. Lulu Hypermarket" style="margin-bottom:8px"><label>Phone (optional)</label><input id="newVenPhone" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewVendor()">Add Vendor</button></div>';
 }
@@ -2751,7 +2800,7 @@ function renderContactManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
 
   body.innerHTML = emergencyContacts.map(function(ec, idx){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><button class="btn btn-s" style="background:#dc2626" onclick="deleteContact('+idx+')">Delete</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><button class="btn btn-s" style="background:#dc2626" onclick="deleteContact('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No emergency contacts found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Contact Name</label><input id="newEcName" placeholder="e.g. Laundry" style="margin-bottom:8px"><label>Phone Number</label><input id="newEcNum" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewContact()">Add Contact</button></div>';
@@ -2827,16 +2876,14 @@ function addEx(e){
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
 
-  // Expense Date Restriction check for regular users (can only record up to 4th of following month)
   if (!isAdminLike()) {
     var now = new Date();
     var expD = new Date(dateVal);
     var curYear = now.getFullYear(), curMonth = now.getMonth();
-    var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59); // 4th of coming month
+    var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
     if (expD > maxAllowedDate) {
       return alert("Regular users can only add expenses up to the 4th of the following month.");
     }
-    // Also block past month expenses if today is 5th or later of the current month
     if (now.getDate() >= 5) {
       var firstOfCurMonth = new Date(curYear, curMonth, 1);
       if (expD < firstOfCurMonth) {
@@ -3072,7 +3119,7 @@ function render(){
     var overdueColor = netPrev >= -0.005 ? "#059669" : "#dc2626";
     homeOverdueAmtEl.style.color = overdueColor;
     var liveDtEl = document.getElementById("liveDateTime");
-    if(liveDtEl) liveDtEl.style.color = overdueColor;
+    if(liveDtEl) liveDtEl.style.color = "#6b7280"; // Corrected to match Welcome Back text color
   }
 
   var nowD = new Date();
@@ -3164,7 +3211,7 @@ function render(){
   if(ecContainer) {
     emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
     ecContainer.innerHTML = emergencyContacts.map(function(ec){
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:700;color:#111">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><a href="tel:'+ec.number+'" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a></div>';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:700;color:#111">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><div style="display:flex;gap:6px"><a href="tel:'+ec.number+'" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a></div></div>';
     }).join('') || '<div style="font-size:12px;color:#6b7280;font-style:italic">No emergency contacts.</div>';
   }
 
@@ -3240,7 +3287,7 @@ function render(){
   }
 
   if(isSuper()) {
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'>Edit</button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: "+escHtml(u.p)+" | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>"}).join("");
   }
 }
 if(cur) openDashboard();
