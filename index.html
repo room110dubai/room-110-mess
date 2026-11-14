@@ -652,20 +652,6 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <button id="expPayNowBtn" class="btn btn-s" style="background:#059669;margin:0" onclick="openPaymentModal()"><i class="fa-solid fa-money-bill-transfer"></i> Pay Now</button>
       </div>
 
-      <!-- STATEMENTS SECTION BEFORE EXPENSES ACTIVITY -->
-      <div class="card" style="padding:6px 18px">
-        <div class="prof-menu-row" onclick="toggleStatementsList()">
-          <div class="prof-row-left">
-            <span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-file-invoice"></i></span>
-            Statements (Auto-Generated Monthly)
-          </div>
-          <i id="statementsArrowIcon" class="fa-solid fa-chevron-right prof-row-arrow"></i>
-        </div>
-        <div id="statementsListContainer" class="hide" style="padding:10px 0; border-top:1px solid #f3f4f6; margin-top:6px;">
-          <div id="autoStatementsList" style="display:flex;flex-direction:column;gap:8px;"></div>
-        </div>
-      </div>
-
       <div class="card" style="padding:16px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
           <div>
@@ -705,6 +691,20 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="card hide" id="payListCard">
         <div style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Verified Payments This Period</div>
         <div id="payList"></div>
+      </div>
+
+      <!-- STATEMENT SECTION BELOW EXPENSES SECTION -->
+      <div class="card" style="padding:6px 18px">
+        <div class="prof-menu-row" onclick="toggleStatementsList()">
+          <div class="prof-row-left">
+            <span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-file-invoice"></i></span>
+            Statement
+          </div>
+          <i id="statementsArrowIcon" class="fa-solid fa-chevron-right prof-row-arrow"></i>
+        </div>
+        <div id="statementsListContainer" class="hide" style="padding:10px 0; border-top:1px solid #f3f4f6; margin-top:6px;">
+          <div id="autoStatementsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
       </div>
     </div>
 
@@ -1755,7 +1755,7 @@ function renderAutoStatementsList() {
 
   container.innerHTML = months.map(function(item){
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6">' +
-           '<div style="font-weight:700;font-size:13px;color:#111">Monthly Statement (' + item.label + ')</div>' +
+           '<div style="font-weight:700;font-size:13px;color:#111">Statement (' + item.label + ')</div>' +
            '<button class="btn btn-s" style="background:#dc2626;padding:6px 12px" onclick="openStatement(\'' + item.ym + '\')"><i class="fa-solid fa-file-pdf"></i> View PDF</button>' +
            '</div>';
   }).join('');
@@ -2180,18 +2180,10 @@ function buildStatementPdf(ym) {
   function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
   var doc = new PdfDoc();
 
-  // Top header background with exact uploaded vector logo for Room 110
+  // Top header background with clean "Room 110" text heading
   doc.rect(0, 0, 595, 80, NAVY);
-  
-  // PDF Header rendering exact Room 110 logo
-  doc.text("Room", 40, 48, { size: 24, bold: true, color: "#ffffff" });
-  doc.rect(112, 30, 4.5, 22, "#ffffff");
-  doc.rect(120, 24, 4.5, 28, "#ffffff");
-  // Burj Al Arab & Burj Khalifa graphical representations in vector
-  doc.rect(172, 32, 18, 20, null, "#ffffff");
-  doc.text("110", 142, 48, { size: 24, bold: true, color: "#ffffff" });
-
-  doc.text("Statement of Account", 220, 47, { size: 11, color: "#dbeafe" });
+  doc.text("Room 110", 40, 44, { size: 22, bold: true, color: "#ffffff" });
+  doc.text("Statement of Account", 155, 47, { size: 11, color: "#dbeafe" });
   
   doc.text("STATEMENT PERIOD", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
   doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
@@ -3108,7 +3100,7 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Render Payment Overdue card on Home screen (single line, amount on right, dynamic coloring: green if receivable, red if payable)
+  // Render Payment Overdue card on Home screen (single line, amount on right, dynamic coloring)
   var currentYM = todayISO().slice(0, 7);
   var netPrev = calculatePreviousMonthOverdue(cName, currentYM);
   var homeOverdueCard = document.getElementById("homeOverdueCard");
