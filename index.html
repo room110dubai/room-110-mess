@@ -51,7 +51,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .btn-s{width:auto;padding:8px 13px;font-size:12px;margin:0;border-radius:10px;height:auto}
 .btn:disabled, .btn-s:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(40%); pointer-events: none; }
 
-/* Sticky Curved Header Card with Proper Top Lock & Height Alignment */
+/* Sticky Curved Header Card */
 .header-sticky-container {
   position: sticky;
   top: 0;
@@ -990,10 +990,10 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
           <option value="admin">Admin</option>
           <option value="superadmin">Super Admin</option>
         </select>
-        <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
+        <label class="ck" style="margin-bottom:8px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
+        <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUActive"><span>Active account (can log in)</span></label>
         <div style="display:flex;gap:10px">
           <button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button>
-          <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()"><i class="fa-solid fa-user-slash"></i> Archive</button>
         </div>
       </form>
     </div>
@@ -1284,11 +1284,26 @@ function loadCloudData(){
         localStorage.setItem("r110_e", JSON.stringify(exps));
       }
       if(data && Array.isArray(data.notifications)) {
-        notifications = data.notifications;
+        var incomingNotifs = data.notifications;
+        incomingNotifs.forEach(function(inN){
+          var localExisting = notifications.find(function(ln){ return ln.id === inN.id; });
+          if(localExisting) {
+            inN.read = localExisting.read;
+            inN.verified = localExisting.verified;
+          }
+        });
+        notifications = incomingNotifs;
         localStorage.setItem("r110_notif", JSON.stringify(notifications));
       }
       if(data && data.msgs && data.msgs.length) {
-        msgs = data.msgs;
+        var incomingMsgs = data.msgs;
+        incomingMsgs.forEach(function(inM){
+          var localExisting = msgs.find(function(lm){ return lm.id === inM.id; });
+          if(localExisting) {
+            inM.isRead = localExisting.isRead;
+          }
+        });
+        msgs = incomingMsgs;
         localStorage.setItem("r110_m", JSON.stringify(msgs));
       }
       if(data && data.categories) {
@@ -1424,6 +1439,10 @@ function login(e){
   var u=document.getElementById("uid").value.trim().toLowerCase(),p=document.getElementById("upass").value.trim();
   cur=users.find(function(x){return x.u.toLowerCase()==u&&x.p==p});
   if(cur){
+    if(cur.active === false) {
+      document.getElementById("err").innerText="This account has been archived.";
+      return;
+    }
     if(!cur.firstName) {
       cur.firstName = cur.name || "Shyam";
       cur.lastName = cur.lastName || "Sathyan";
@@ -1661,7 +1680,7 @@ function saveVacationDates() {
 
 function isUserOnVacationOnDate(userObj, dateStr) {
   if(!userObj) return false;
-  if(userObj.vacation) return true; // manual toggle
+  if(userObj.vacation) return true;
   if(userObj.vacFrom && userObj.vacTo) {
     return dateStr >= userObj.vacFrom && dateStr <= userObj.vacTo;
   }
@@ -1673,7 +1692,7 @@ function getSplitMembers(expenseDate) {
   var st = selEl ? selEl.value : "a";
   var checkDate = expenseDate || todayISO();
   
-  var activeMessUsers = users.filter(isMess).slice().sort(function(a, b){
+  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a, b){
     return memberName(a).localeCompare(memberName(b));
   });
 
@@ -1752,7 +1771,53 @@ function calculatePreviousMonthOverdue(cName, ym) {
     else if(p.date <= pr.end) { paySum += eff; }
   });
 
+  if(ym === todayISO().slice(0, 7)) {
+    payments.forEach(function(p){
+      if(!p.verified || (p.from != cName && p.to != cName)) return;
+      if(p.date > pr.end && p.date <= todayISO())
+        paySum += (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
+    });
+  }
+
   return opening + purchases - expenses + paySum;
+}
+
+function broadcastStatementReminder() {
+  if(!isSuper()) return;
+  var s = stats();
+  var reminderText = "📊 *MONTHLY STATEMENT & PAYMENT REMINDER*\nTotal Room Spend: AED " + s.tot.toFixed(2) + "\n";
+  s.st.forEach(function(m){
+    if(m.net < 0) {
+      reminderText += "• " + m.name + ": Please settle AED " + Math.abs(m.net).toFixed(2) + "\n";
+    } else if(m.net > 0) {
+      reminderText += "• " + m.name + ": To receive +AED " + m.net.toFixed(2) + "\n";
+    }
+  });
+  reminderText += "Kindly clear dues promptly!";
+
+  var now = new Date();
+  var h = now.getHours();
+  var m = now.getMinutes();
+  var sSec = now.getSeconds();
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; h = h ? h : 12;
+  var tm = pad2(h) + ":" + pad2(m) + ":" + pad2(sSec) + " " + ampm;
+
+  msgs.push({
+    id: Date.now(),
+    sender: "Super Admin",
+    target: activeChatTarget,
+    text: escHtml(reminderText).replace(/\n/g, "<br>"),
+    timestamp: tm,
+    timeEpoch: Date.now(),
+    isSystem: true,
+    delivered: true,
+    isRead: false,
+    reactions: {}
+  });
+
+  save(true);
+  renderChatMessages();
 }
 
 function setExpView(v) { expView = (expView === v) ? "mine" : v; renderExpensesTab(); }
@@ -1882,6 +1947,7 @@ function renderExpensesTab() {
 function openPaymentModal() {
   var cName = cur.firstName || cur.name;
   var recipients = users.filter(function(u){
+    if(u.active === false) return false;
     var uName = memberName(u);
     return u.r !== "superadmin" && uName !== cName;
   });
@@ -2175,6 +2241,7 @@ function openEditUserModal(id) {
   document.getElementById("eUPass").value = "";
   document.getElementById("eURole").value = user.r;
   document.getElementById("eUMess").checked = user.mess !== false && user.active !== false;
+  document.getElementById("eUActive").checked = user.active !== false;
   document.getElementById("editUserModal").className = "modal-overlay";
 }
 function closeModals() {
@@ -2247,22 +2314,23 @@ function renderChatContactsList() {
   if("room 110".includes(filter)) {
     var h2 = '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget(\'group_room110\')">';
     h2 += '<div class="contact-avatar" style="background:#1e3a8a"><i class="fa-solid fa-users"></i></div>';
-    h2 += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">Room 110</div><div style="font-size:11px;color:#6b7280">Group • ' + users.length + ' members</div></div>';
+    h2 += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">Room 110</div><div style="font-size:11px;color:#6b7280">Group • ' + users.filter(function(u){ return u.active !== false; }).length + ' members</div></div>';
     h2 += '</div>';
     items.push({ ts: lastChatTime(function(m){ return m.target === 'group_room110' || !m.target; }), html: h2 });
   }
 
   users.forEach(function(u){
+    if(u.active === false) return;
     var uName = u.firstName || u.name;
     if(uName === cName) return;
     if(!uName.toLowerCase().includes(filter)) return;
 
     var statusInfo = getOnlineStatusInfo(u);
-    var avHtml = u.avatar ? '<img src="'+u.avatar+'">' : uName.charAt(0).toUpperCase();
+    var avHtml = u.avatar ? '<img src="'+u.avatar+'">' : escHtml(uName.charAt(0).toUpperCase());
 
-    var h3 = '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(\''+uName+'\')">';
+    var h3 = '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(\''+escHtml(uName)+'\')">';
     h3 += '<div class="contact-avatar">'+avHtml+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
-    h3 += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+uName+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+';margin-top:2px">'+statusInfo.text+'</div></div>';
+    h3 += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+escHtml(uName)+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+';margin-top:2px">'+escHtml(statusInfo.text)+'</div></div>';
     h3 += '</div>';
     items.push({
       ts: lastChatTime(function(m){ return (m.target === uName && m.sender === cName) || (m.target === cName && m.sender === uName); }),
@@ -2309,7 +2377,7 @@ function renderChatActivePane() {
     }
   } else if(activeChatTarget === 'group_room110') {
     nameEl.innerText = "Room 110";
-    statusEl.innerText = users.length + " members in group";
+    statusEl.innerText = users.filter(function(u){ return u.active !== false; }).length + " members in group";
     avatarEl.style.background = "#1e3a8a";
     avatarEl.innerHTML = '<i class="fa-solid fa-users"></i>';
     badgeEl.innerText = "Group";
@@ -2321,7 +2389,7 @@ function renderChatActivePane() {
     nameEl.innerText = activeChatTarget;
     statusEl.innerText = statusInfo.text;
     avatarEl.style.background = "#1e3a8a";
-    var avInner = (targetUser && targetUser.avatar) ? '<img src="'+targetUser.avatar+'">' : activeChatTarget.charAt(0).toUpperCase();
+    var avInner = (targetUser && targetUser.avatar) ? '<img src="'+targetUser.avatar+'">' : escHtml(activeChatTarget.charAt(0).toUpperCase());
     avatarEl.innerHTML = avInner + '<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span>';
     badgeEl.innerText = "Direct";
     badgeEl.style.background = "#e0f2fe";
@@ -2518,7 +2586,8 @@ function reactToMessage(msgId, emoji) {
 function promptEditMessage(msgId) {
   var msg = msgs.find(function(m){ return m.id == msgId; });
   if(!msg) return;
-  var newText = prompt("Edit your message:", msg.text.replace(/<br>/g, "\n"));
+  var rawText = msg.text.replace(/<br>/g, "\n").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  var newText = prompt("Edit your message:", rawText);
   if(newText !== null && newText.trim() !== "") {
     msg.text = escHtml(newText.trim()).replace(/\n/g, "<br>");
     msg.edited = true;
@@ -2570,7 +2639,7 @@ function renderCategoryManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
   
   body.innerHTML = categories.map(function(c){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+escHtml(c)+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+escHtml(c)+'\')"><i class="fa-solid fa-trash"></i></button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+escHtml(c)+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+escHtml(c).replace(/'/g, "\\'")+'\')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Category</label><input id="newCatInput" placeholder="Category name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewCategory()">Add Category</button></div>';
@@ -2603,7 +2672,7 @@ function renderGroupManagerContent() {
   }).join('') || '<div style="color:#6b7280;font-style:italic">No groups yet. Create one below.</div>';
 
   var eg = editingGroupIdx > -1 ? groups[editingGroupIdx] : null;
-  var checks = users.filter(isMess).map(function(u){
+  var checks = users.filter(function(u){ return u.active !== false && isMess(u); }).map(function(u){
     var n = memberName(u);
     var on = eg && (eg.members || []).indexOf(n) > -1;
     return '<label class="ck"><input type="checkbox" class="gmck" value="'+escHtml(n)+'" '+(on ? 'checked' : '')+'><span>'+escHtml(n)+'</span></label>';
@@ -2733,19 +2802,7 @@ function saveEditedUser(e){
     if(p) user.p = p;
     user.r = r;
     user.mess = document.getElementById("eUMess").checked;
-    closeModals();
-    save(true);
-  }
-}
-
-function deleteUserFromModal(){
-  var id = Number(document.getElementById("editUserId").value);
-  var target = users.find(function(x){ return x.id === id; });
-  if(target && target.r === "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("Cannot archive the only Super Admin!");
-  
-  if(target && confirm("Archive user? Their historical financial records will be preserved safely, but they will be removed from active lists.")) {
-    target.active = false;
-    target.mess = false;
+    user.active = document.getElementById("eUActive").checked;
     closeModals();
     save(true);
   }
@@ -2758,10 +2815,9 @@ function addEx(e){
 
   var now = new Date();
   var expD = new Date(dateVal);
-  var curYear = now.getFullYear(), curMonth = now.getMonth();
-  var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
-  if (expD > maxAllowedDate) {
-    return alert("Expenses cannot be dated after the 4th of the following month.");
+  var todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (expD > todayDateOnly) {
+    return alert("Expenses cannot be dated in the future.");
   }
 
   var vendor=document.getElementById("expVendor").value;
@@ -2821,8 +2877,8 @@ function openEditExp(id) {
   document.getElementById("eeDesc").innerHTML = optList(categories, x.desc);
   document.getElementById("eeVendor").innerHTML = '<option value="">-- No vendor --</option>' + optList(vendors.map(function(v){ return v.name; }), x.vendor || "");
   document.getElementById("eeNote").value = x.note || "";
-  document.getElementById("eePby").innerHTML = optList(users.map(memberName), x.pb);
-  var names = users.filter(isMess).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
+  document.getElementById("eePby").innerHTML = optList(users.filter(function(u){ return u.active !== false; }).map(memberName), x.pb);
+  var names = users.filter(function(u){ return u.active !== false && isMess(u); }).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
   x.al.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
   document.getElementById("eeCbox").innerHTML = names.map(function(n){
     return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (x.al.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
@@ -2839,10 +2895,9 @@ function saveEditedExp(e) {
   var dateVal = document.getElementById("eeDate").value || expDate(x);
   var now = new Date();
   var expD = new Date(dateVal);
-  var curYear = now.getFullYear(), curMonth = now.getMonth();
-  var maxAllowedDate = new Date(curYear, curMonth + 1, 4, 23, 59, 59);
-  if (expD > maxAllowedDate) {
-    return alert("Expenses cannot be dated after the 4th of the following month.");
+  var todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (expD > todayDateOnly) {
+    return alert("Expenses cannot be dated in the future.");
   }
 
   var al = Array.prototype.map.call(document.querySelectorAll(".eck:checked"), function(c){ return c.value; });
@@ -2971,7 +3026,7 @@ function render(){
   document.getElementById("totLabel").innerText = isSuper() ? "Total Spent" : "My Total Expenses";
   document.getElementById("balTitle").innerText = isSuper() ? "Member Balances (+ Gets / - Pays)" : "My Balance (+ Gets / - Pays)";
   document.getElementById("catTitle").innerText = isSuper() ? "Expenses by Category" : "My Expenses by Category";
-  document.getElementById("mcount").innerText=users.filter(isMess).length;
+  document.getElementById("mcount").innerText=users.filter(function(u){ return u.active !== false && isMess(u); }).length;
   var visibleBal=isSuper()?s.st.filter(function(m){return Math.abs(m.net)>=0.005}):s.st.filter(function(m){return m.name===cName});
   document.getElementById("tb").innerHTML=visibleBal.length===0?"<tr><td colspan='4' style='text-align:center;color:#6b7280;font-style:italic'>All balances are settled.</td></tr>":visibleBal.map(function(m){return "<tr><td><b>"+escHtml(m.name)+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
 
@@ -3114,7 +3169,7 @@ function render(){
   }
 
   var prevPby = document.getElementById("pby").value || cName;
-  var sortedMessUsers = users.filter(isMess).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
+  var sortedMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
   
   setHtmlIfChanged(document.getElementById("pby"), sortedMessUsers.map(function(u){var uN = memberName(u); return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"}).join(""));
   
@@ -3162,7 +3217,7 @@ function render(){
   if(isSuper()) {
     document.getElementById("ulist").innerHTML=users.map(function(u){
       var inactiveTag = u.active === false ? " <span style='font-size:10px;background:#fee2e2;color:#dc2626;padding:2px 6px;border-radius:8px;font-weight:700'>ARCHIVED</span>" : "";
-      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+inactiveTag+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>";
+      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+inactiveTag+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700">VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700">NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>";
     }).join("");
   }
 }
