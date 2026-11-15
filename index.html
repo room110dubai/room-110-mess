@@ -3215,9 +3215,18 @@ function render(){
   }
 
   if(isSuper()) {
-    document.getElementById("ulist").innerHTML=users.map(function(u){
-      var inactiveTag = u.active === false ? " <span style='font-size:10px;background:#fee2e2;color:#dc2626;padding:2px 6px;border-radius:8px;font-weight:700'>ARCHIVED</span>" : "";
-      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+inactiveTag+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700">VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700">NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>";
+    document.getElementById("ulist").innerHTML = users.map(function(u){
+      var badge = function(bg, fg, txt){
+        return " <span style='font-size:10px;background:" + bg + ";color:" + fg + ";padding:2px 6px;border-radius:8px;font-weight:700'>" + txt + "</span>";
+      };
+      var tags = "";
+      if(u.active === false) tags += badge("#fee2e2", "#dc2626", "ARCHIVED");
+      if(u.vacation) tags += badge("#fef3c7", "#92400e", "VACATION");
+      if(u.mess === false) tags += badge("#e0e7ff", "#3730a3", "NOT IN MESS");
+      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'>" +
+        "<div><b>" + escHtml((u.firstName || u.name) + " " + (u.lastName || "")) + "</b>" + tags +
+        "<div style='font-size:12px;color:#6b7280'>ID: " + escHtml(u.u) + " | Pass: ******** | Role: " + roleLabel(u.r) + "</div></div>" +
+        "<button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal(" + u.id + ")'><i class='fa-solid fa-pen'></i></button></div>";
     }).join("");
   }
 }
