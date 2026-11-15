@@ -246,8 +246,6 @@ body.dark-page [style*="color:#1d4ed8"] { color: #93c5fd !important; }
 body.dark-page .top-logo [fill="#1e3a8a"] { fill: #93c5fd; }
 body.dark-page .top-logo [stroke="#1e3a8a"] { stroke: #93c5fd; }
 body.dark-page .top-logo [stroke="#fff"] { stroke: #0f172a; }
-body.dark-page .stmt-chip { background: #1e293b !important; border-color: #334155 !important; color: #f8fafc !important; }
-body.dark-page .stmt-chip.active { background: #1e3a8a !important; border-color: #93c5fd !important; }
 
 table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
 th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;color:#374151}
@@ -450,7 +448,7 @@ body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
 .exp-tile-amt { font-size:18px; font-weight:900; color:#111; margin-top:4px; }
 .exp-tile-cnt { font-size:11px; color:#6b7280; margin-top:2px; }
 .exp-date-head { font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; margin:14px 0 2px; letter-spacing:0.4px; }
-.exp-row { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:11px 0; border-bottom:1px solid #f3f4f6; transition: background 0.15s; }
+.exp-row { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid #f3f4f6; }
 .exp-row-title { font-weight:700; font-size:13px; color:#111; }
 .exp-row-sub { font-size:11px; color:#6b7280; margin-top:2px; }
 .exp-row-amt { font-weight:800; font-size:13px; color:#111; white-space:nowrap; }
@@ -458,16 +456,6 @@ body.dark-page .exp-tile { background:#0f172a; }
 body.dark-page .exp-tile.active { border-color:#93c5fd; background:rgba(147,197,253,0.12); }
 body.dark-page .exp-tile-amt, body.dark-page .exp-row-title, body.dark-page .exp-row-amt { color:#f8fafc; }
 body.dark-page .exp-row { border-bottom-color:#334155; }
-
-/* Statement Month Balance Chips */
-.stmt-chips-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px 0; scrollbar-width: none; }
-.stmt-chips-scroll::-webkit-scrollbar { display: none; }
-.stmt-chip { flex: 0 0 auto; background: #f8fafc; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 10px 14px; text-align: left; cursor: pointer; transition: all 0.2s; min-width: 115px; }
-.stmt-chip.active { background: #1e3a8a; border-color: #1e3a8a; color: #fff; }
-.stmt-chip-lbl { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; }
-.stmt-chip.active .stmt-chip-lbl { color: #dbeafe; }
-.stmt-chip-val { font-size: 13.5px; font-weight: 900; color: #111; margin-top: 3px; }
-.stmt-chip.active .stmt-chip-val { color: #fff; }
 
 textarea { width:100%; background:#fff; border:1px solid #d1d5db; color:#111; padding:12px; border-radius:10px; font-size:14px; resize:vertical; height:46px; min-height:46px; }
 textarea:focus { border-color:#1e3a8a; outline:none; }
@@ -524,12 +512,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <input id="uid" required placeholder="Enter User ID">
     
     <label>Password</label>
-    <div style="position:relative">
-      <input id="upass" type="password" required placeholder="Enter Password" style="padding-right:45px">
-      <button type="button" onclick="togglePasswordVisibility()" aria-label="Show or hide password" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7280;font-size:16px;padding:4px">
-        <i id="passEyeIcon" class="fa-solid fa-eye"></i>
-      </button>
-    </div>
+    <input id="upass" type="password" required placeholder="Enter Password">
     
     <div style="display:flex;align-items:center;gap:8px;margin:14px 0">
       <input type="checkbox" id="keepMe" style="width:16px;height:16px;cursor:pointer">
@@ -573,15 +556,15 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <div id="liveDateTime" class="live-datetime" style="font-weight:900!important">Loading date &amp; time...</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <div class="sync-dot-container" onclick="loadCloudData()" title="Tap to refresh cloud data" aria-label="Refresh cloud data">
+        <div class="sync-dot-container" onclick="loadCloudData()" title="Tap to refresh cloud data">
           <span id="cloudDot" class="sync-dot"></span>
         </div>
         <!-- NOTIFICATION BELL -->
-        <button class="btn btn-s" style="background:#f3f4f6;color:#111;padding:8px 10px;display:flex;align-items:center;justify-content:center;position:relative" onclick="openNotifications()" title="Notifications" aria-label="Notifications">
+        <button class="btn btn-s" style="background:#f3f4f6;color:#111;padding:8px 10px;display:flex;align-items:center;justify-content:center;position:relative" onclick="openNotifications()" title="Notifications">
           <i class="fa-solid fa-bell" style="font-size:16px;color:#1e3a8a"></i>
           <span id="notifBadge" class="dock-dot hide" style="right:6px;top:6px"></span>
         </button>
-        <button class="btn btn-s" style="background:#25d366;padding:8px 10px;display:flex;align-items:center;justify-content:center" onclick="wa()" title="Copy WhatsApp Report" aria-label="Copy WhatsApp Report">
+        <button class="btn btn-s" style="background:#25d366;padding:8px 10px;display:flex;align-items:center;justify-content:center" onclick="wa()" title="Copy WhatsApp Report">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="#ffffff">
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
           </svg>
@@ -614,13 +597,6 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="card" id="homeOverdueCard" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
         <div id="homeOverdueTitle" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
         <div id="homeOverdueAmt" style="font-size:16px;font-weight:900;color:#dc2626">AED 0.00</div>
-      </div>
-
-      <!-- SETTLEMENT PAYEE BLOCK (Point 12: Who to pay and their name) -->
-      <div class="card" id="settlementPayeeBlock" style="display:none;background:linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);color:#fff;padding:16px 20px">
-        <div style="font-size:10px;font-weight:700;color:#bfdbfe;text-transform:uppercase;letter-spacing:0.5px">Settlement Instruction</div>
-        <div id="settlementPayeeText" style="font-size:15px;font-weight:800;margin-top:4px">You need to pay Shyam Sathyan AED 0.00</div>
-        <div style="font-size:11px;color:#e2e8f0;margin-top:2px">Please settle dues promptly via direct bank transfer or cash.</div>
       </div>
 
       <!-- MONTHLY FINANCIAL DASHBOARD -->
@@ -691,8 +667,9 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <strong style="font-size:16px;color:#111">Expenses</strong>
             <div style="font-size:12px;color:#6b7280">Your purchases &amp; shares</div>
           </div>
-          <div style="text-align:right; min-width: 140px;" class="hide">
-            <select id="expensePeriodSelect" onchange="onExpensePeriodChange()"></select>
+          <div style="text-align:right; min-width: 140px;">
+            <div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">Select Period</div>
+            <select id="expensePeriodSelect" onchange="onExpensePeriodChange()" style="padding:6px 10px;font-size:12px;font-weight:700;color:#1e3a8a;background:#f8fafc"></select>
           </div>
         </div>
 
@@ -708,30 +685,16 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <div id="expShareCnt" class="exp-tile-cnt">0 shares</div>
           </div>
         </div>
-
-        <!-- POINT 10: UNIFIED STATEMENT SECTION WITH MONTH BALANCE CHIPS -->
-        <div style="margin-top:16px;border-top:1px solid #e5e7eb;padding-top:14px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <strong style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Statements &amp; Balances by Month</strong>
-            <button class="btn btn-s" style="background:#dc2626;padding:5px 10px;font-size:11px" onclick="openStatement(selectedExpYM)"><i class="fa-solid fa-file-pdf"></i> Open Selected PDF</button>
-          </div>
-          <div id="stmtChipsContainer" class="stmt-chips-scroll"></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(selectedExpYM)"><i class="fa-solid fa-file-pdf"></i> Statement</button>
         </div>
-
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+          <button style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openStatementModal()">Older statements</button>
           <button id="expAllBtn" class="hide" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="setExpView('all')">Super Admin: everyone's expenses</button>
         </div>
       </div>
-
-      <!-- POINT 11: PENDING APPROVAL PAYMENTS LIST -->
-      <div class="card hide" id="pendingPayListCard">
-        <div style="font-size:12px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px"><i class="fa-solid fa-clock"></i> Pending Approval Payments</div>
-        <div id="pendingPayList"></div>
-      </div>
-
       <div class="card" id="expListCard">
         <div id="expListTitle" style="font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px"></div>
-        <div style="font-size:11px;color:#9ca3af;margin-top:2px">💡 Tip: Tap and hold any expense row to edit or delete.</div>
         <div id="expList"></div>
       </div>
       <div class="card hide" id="payListCard">
@@ -778,7 +741,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <div id="chatMainPane" class="chat-main-pane hide">
           <div class="chat-header-bar">
             <div style="display:flex;align-items:center;gap:10px">
-              <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:7px 11px" onclick="backToChatList()" aria-label="Back to chat list">
+              <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:7px 11px" onclick="backToChatList()">
                 <i class="fa-solid fa-arrow-left"></i>
               </button>
               <div id="activeChatAvatar" class="contact-avatar" style="width:38px;height:38px;font-size:15px">R</div>
@@ -788,7 +751,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px">
-              <button id="sendReminderBtn" class="btn btn-s hide" style="background:#d97706;color:#fff;font-size:11px;padding:6px 10px" onclick="broadcastStatementReminder()" title="Send Payment Statement Reminder" aria-label="Send Payment Statement Reminder">
+              <button id="sendReminderBtn" class="btn btn-s hide" style="background:#d97706;color:#fff;font-size:11px;padding:6px 10px" onclick="broadcastStatementReminder()" title="Send Payment Statement Reminder">
                 <i class="fa-solid fa-file-invoice-dollar"></i> Remind
               </button>
               <span id="activeChatBadge" style="font-size:10px;background:#d1fae5;color:#059669;padding:4px 9px;border-radius:10px;font-weight:700">Group</span>
@@ -799,7 +762,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
           <form id="chatInputForm" onsubmit="sendActiveChatMsg(event)" class="chat-input-bar">
             <input id="activeChatInput" placeholder="Type a message..." required style="margin:0;flex:1;padding:10px 14px;background:#fff;border-radius:22px;border:1px solid #d1d5db;font-size:13.5px">
-            <button class="btn btn-s" style="background:#00a884;color:#fff;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0" aria-label="Send message">
+            <button class="btn btn-s" style="background:#00a884;color:#fff;border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0">
               <i class="fa-solid fa-paper-plane" style="font-size:15px"></i>
             </button>
           </form>
@@ -816,7 +779,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <h3 style="color:#111;font-size:18px">My Profile</h3>
-          <button class="btn btn-s" style="background:#2563eb" onclick="openEditProfileModal()" aria-label="Edit Profile"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-s" style="background:#2563eb" onclick="openEditProfileModal()"><i class="fa-solid fa-pen"></i></button>
         </div>
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
           <div id="profAvatar" style="width:64px;height:64px;border-radius:50%;background:#1e3a8a;color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #1e3a8a">S</div>
@@ -859,7 +822,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <div id="profPage_ec" class="hide">
       <div class="prof-page-head">
-        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 style="color:#111;font-size:18px">Emergency Contacts</h3>
       </div>
       <div class="card">
@@ -869,9 +832,9 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <div id="profPage_members" class="hide">
       <div class="prof-page-head">
-        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 style="color:#111;font-size:18px;flex:1">Manage Members</h3>
-        <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()" aria-label="Add Member"><i class="fa-solid fa-plus"></i></button>
+        <button class="btn btn-s" style="background:#2563eb" onclick="openCreateUserModal()"><i class="fa-solid fa-plus"></i></button>
       </div>
       <div class="card">
         <div id="ulist"></div>
@@ -880,7 +843,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <div id="profPage_services" class="hide">
       <div class="prof-page-head">
-        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 style="color:#111;font-size:18px">Services</h3>
       </div>
       <div class="card">
@@ -907,7 +870,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <div id="profPage_vacation" class="hide">
       <div class="prof-page-head">
-        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 style="color:#111;font-size:18px">Vacation Mode</h3>
       </div>
       <div class="card">
@@ -932,7 +895,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <div id="profPage_appearance" class="hide">
       <div class="prof-page-head">
-        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()" aria-label="Back"><i class="fa-solid fa-arrow-left"></i></button>
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 style="color:#111;font-size:18px">Appearance</h3>
       </div>
       <div class="card">
@@ -952,7 +915,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       <div class="notif-container">
         <div class="notif-header">
           <div style="display:flex;align-items:center;gap:10px">
-            <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:7px 11px" onclick="closeNotifications()" aria-label="Back">
+            <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:7px 11px" onclick="closeNotifications()">
               <i class="fa-solid fa-arrow-left"></i>
             </button>
             <h3 style="color:#111;font-size:18px">Notifications</h3>
@@ -1031,7 +994,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
         <div style="display:flex;gap:10px">
           <button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button>
-          <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()" aria-label="Delete user"><i class="fa-solid fa-trash"></i></button>
+          <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()"><i class="fa-solid fa-trash"></i></button>
         </div>
       </form>
     </div>
@@ -1051,6 +1014,17 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <input id="payDate" type="date" required style="margin-bottom:16px">
         <button class="btn" style="margin-top:0;background:#059669">Submit Payment for Approval</button>
       </form>
+    </div>
+  </div>
+
+  <div id="statementModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:6px">Generate Statement</h3>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Opens your PDF statement for the selected month.</p>
+      <label>Statement Month</label>
+      <select id="stmtMonth" style="margin-bottom:16px"></select>
+      <button class="btn" style="margin-top:0;background:#dc2626" onclick="generateStatement()"><i class="fa-solid fa-file-pdf"></i> Open Statement</button>
     </div>
   </div>
 
@@ -1083,20 +1057,20 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
   </div>
 
   <nav class="floating-dock">
-    <button id="d1" class="dock-item active" onclick="tab(1)" title="Home" aria-label="Home">
+    <button id="d1" class="dock-item active" onclick="tab(1)" title="Home">
       <svg class="fill-active" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.5z"/></svg>
     </button>
-    <button id="d2" class="dock-item" onclick="tab(2)" title="Expenses" aria-label="Expenses">
+    <button id="d2" class="dock-item" onclick="tab(2)" title="Expenses">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="14" y2="13"/><line x1="7" y1="17" x2="11" y2="17"/></svg>
     </button>
-    <button id="d3" class="dock-item" onclick="tab(3)" title="Add Expense" aria-label="Add Expense">
+    <button id="d3" class="dock-item" onclick="tab(3)" title="Add Expense">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
     </button>
-    <button id="d4" class="dock-item" onclick="tab(4)" title="Chat" aria-label="Chat">
+    <button id="d4" class="dock-item" onclick="tab(4)" title="Chat">
       <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
       <span id="chatUnreadDot" class="dock-dot hide"></span>
     </button>
-    <button id="d5" class="dock-item" onclick="tab(5)" title="Profile" aria-label="Profile">
+    <button id="d5" class="dock-item" onclick="tab(5)" title="Profile">
       <div id="dockAvatarContainer" class="dock-avatar"><span id="dockInitial">S</span></div>
       <span id="profileNotifDot" class="dock-dot hide"></span>
     </button>
@@ -1163,6 +1137,7 @@ var vendors = JSON.parse(localStorage.getItem("r110_ven")||"null") || [];
 vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
 
 var payments = JSON.parse(localStorage.getItem("r110_pay")||"null") || [];
+// Fix: Default legacy payments saved before verification feature to verified=true
 payments.forEach(function(p){
   if(p.verified === undefined) p.verified = true;
 });
@@ -1173,29 +1148,13 @@ var lastSel = JSON.parse(localStorage.getItem("r110_last")||"null") || {};
 var lastSuperSave = 0;
 ensureSuperAdmin();
 var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
-
-// Point 16: System dark mode default detection
-var savedTheme = localStorage.getItem("r110_theme");
-var isDarkPage = savedTheme !== null ? (savedTheme === "dark") : window.matchMedia("(prefers-color-scheme: dark)").matches;
-
+var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null;
 var categoryChartInstance = null;
 var editingGroupIdx = -1;
 
 var activeChatTarget = "group_room110";
 var longPressTimer = null;
-
-function togglePasswordVisibility() {
-  var passInput = document.getElementById("upass");
-  var eyeIcon = document.getElementById("passEyeIcon");
-  if(passInput.type === "password") {
-    passInput.type = "text";
-    eyeIcon.className = "fa-solid fa-eye-slash";
-  } else {
-    passInput.type = "password";
-    eyeIcon.className = "fa-solid fa-eye";
-  }
-}
 
 function pingUserActivity(shouldSave) {
   if(!cur) return;
@@ -1221,7 +1180,7 @@ function getOnlineStatusInfo(userObj) {
   }
   var d = new Date(Number(userObj.lastActive));
   var today = new Date();
-  var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+  var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
   if(d.toDateString() === today.toDateString()) {
     return { isOnline: false, text: "Last seen today at " + timeStr };
   }
@@ -1298,6 +1257,7 @@ function checkSuperAdminWelcome() {
   }
 }
 
+// Server-side guarded Automated Monthly Statement Check on the 5th of every month (Runs once globally)
 function checkAutomatedMonthlyStatements() {
   var now = new Date();
   if (now.getDate() === 5) {
@@ -1359,9 +1319,10 @@ function broadcastStatementReminder() {
   var now = new Date();
   var h = now.getHours();
   var m = now.getMinutes();
+  var sSec = now.getSeconds();
   var ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12; h = h ? h : 12;
-  var tm = pad2(h) + ":" + pad2(m) + " " + ampm;
+  var tm = pad2(h) + ":" + pad2(m) + ":" + pad2(sSec) + " " + ampm;
 
   msgs.push({
     id: Date.now(),
@@ -1400,9 +1361,10 @@ function updateDateTime() {
   
   var h = now.getHours();
   var m = now.getMinutes();
+  var s = now.getSeconds();
   var ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12; h = h ? h : 12;
-  var timeStr = pad2(h) + ":" + pad2(m) + " " + ampm;
+  var timeStr = pad2(h) + ":" + pad2(m) + ":" + pad2(s) + " " + ampm;
 
   var dtEl = document.getElementById('liveDateTime');
   if(dtEl) dtEl.innerText = dateStr + " at " + timeStr;
@@ -1523,7 +1485,7 @@ function setCloudStatus(status) {
 }
 
 loadCloudData();
-setInterval(loadCloudData, 6000);
+setInterval(loadCloudData, 6000); // Optimized polling interval to prevent race conditions
 
 function applyTheme(){
   var toggle = document.getElementById("darkModeToggle");
@@ -1656,6 +1618,7 @@ function tab(n){
       if(i==3) {
         var stypeEl = document.getElementById("stype");
         if(stypeEl) {
+          // Restore remembered selection or default
           var remembered = lastSel.stype || "a";
           stypeEl.value = remembered;
           onSplitTypeChange();
@@ -1742,6 +1705,7 @@ function updateDockBadges() {
   if(!cur) return;
   var cName = cur.firstName || cur.name;
   
+  // Chat Unread Count
   var unreadChats = msgs.filter(function(m){
     var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') ||
                  (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) ||
@@ -1753,6 +1717,7 @@ function updateDockBadges() {
     chatDot.className = unreadChats > 0 ? "dock-dot" : "dock-dot hide";
   }
 
+  // Profile / Notification Unread Count
   var unreadNotifs = notifications.filter(function(n){
     return (n.targetUser === "all" || n.targetUser === cName) && !n.read;
   }).length;
@@ -1866,6 +1831,7 @@ function onSplitTypeChange() {
   var st = stEl.value;
   document.getElementById("cbox").className = (st === "c") ? "cks" : "cks hide";
   
+  // Persist split selection immediately
   lastSel.stype = st;
   localStorage.setItem("r110_last", JSON.stringify(lastSel));
 
@@ -1910,6 +1876,7 @@ function calculatePreviousMonthOverdue(cName, ym) {
     else if(p.date <= pr.end) { paySum += eff; }
   });
   
+  // Fix: Also offset current month payments made toward settling previous dues
   var curStart = ym + "-01";
   payments.forEach(function(p){
     if(!p.verified || (p.from != cName && p.to != cName)) return;
@@ -1947,65 +1914,10 @@ function onExpensePeriodChange() {
   }
 }
 
-// Point 10: Render Unified Statement Month Chips with Closing Balances
-function renderStatementChips() {
-  var container = document.getElementById("stmtChipsContainer");
-  if(!container) return;
-  var cName = cur.firstName || cur.name;
-
-  var earliest = todayISO().slice(0, 7);
-  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
-  payments.forEach(function(p){ if(p.verified) { var m = p.date.slice(0, 7); if(m < earliest) earliest = m; } });
-
-  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), html = "";
-  for(var i = 0; i < 24; i++) {
-    var ym = y + "-" + pad2(m + 1);
-    if(ym < earliest && i > 2) break;
-    
-    // Compute closing balance for this month chip
-    var pr = periodRange(ym);
-    var opening = 0, purchases = 0, expenses = 0, paySum = 0;
-    exps.forEach(function(x){
-      var d = expDate(x);
-      var paid = x.pb == cName ? Number(x.amt) : 0;
-      var share = x.al.indexOf(cName) > -1 ? Number(x.amt) / x.al.length : 0;
-      if(!paid && !share) return;
-      if(d < pr.start) { opening += paid - share; }
-      else if(d <= pr.end) { purchases += paid; expenses += share; }
-    });
-    payments.forEach(function(p){
-      if(!p.verified || (p.from != cName && p.to != cName)) return;
-      var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
-      if(p.date < pr.start) { opening += eff; }
-      else if(p.date <= pr.end) { paySum += eff; }
-    });
-    var closing = opening + purchases - expenses + paySum;
-    var tag = Math.abs(closing) < 0.005 ? "Settled" : (closing < 0 ? "Pay: AED " + money(Math.abs(closing)) : "Get: AED " + money(closing));
-    var isActive = (ym === selectedExpYM);
-
-    html += '<div class="stmt-chip ' + (isActive ? 'active' : '') + '" onclick="selectStatementMonth(\'' + ym + '\')">' +
-            '<div class="stmt-chip-lbl">' + MONTHS[m] + ' ' + y + '</div>' +
-            '<div class="stmt-chip-val" style="color:' + (isActive ? '#fff' : (closing < -0.005 ? '#dc2626' : (closing > 0.005 ? '#059669' : '#111'))) + '">' + tag + '</div>' +
-            '</div>';
-
-    m--; if(m < 0) { m = 11; y--; }
-  }
-  container.innerHTML = html;
-}
-
-function selectStatementMonth(ym) {
-  selectedExpYM = ym;
-  var sel = document.getElementById("expensePeriodSelect");
-  if(sel) sel.value = ym;
-  renderStatementChips();
-  renderExpensesTab();
-}
-
 function renderExpensesTab() {
   if(!cur) return;
   var cName = cur.firstName || cur.name;
   populateExpensePeriodDropdown();
-  renderStatementChips();
   var ym = selectedExpYM;
   var pr = periodRange(ym);
 
@@ -2033,26 +1945,6 @@ function renderExpensesTab() {
     } else {
       payNowBtn.setAttribute("disabled", "true");
       payNowBtn.style.opacity = "0.45";
-    }
-  }
-
-  // Point 11: Render Pending Approval Payments list
-  var myPendingPays = payments.filter(function(p){
-    return !p.verified && (p.from == cName || p.to == cName);
-  });
-  var pendingCard = document.getElementById("pendingPayListCard");
-  var pendingList = document.getElementById("pendingPayList");
-  if(pendingCard && pendingList) {
-    if(myPendingPays.length > 0) {
-      pendingCard.className = "card";
-      pendingList.innerHTML = myPendingPays.map(function(p){
-        var sent = p.from == cName;
-        var verifyBtn = (!sent) ? '<button class="btn btn-s" style="background:#059669;padding:5px 10px" onclick="verifyPaymentRequest(' + p.id + ', true, 0)">Approve</button>' : '<span style="font-size:11px;color:#d97706;font-weight:700">Waiting approval</span>';
-        return '<div class="exp-row"><div><div class="exp-row-title">' + (sent ? 'Payment sent to ' + escHtml(p.to) : 'Payment from ' + escHtml(p.from)) + '</div><div class="exp-row-sub">' + fmtDate(p.date) + '</div></div>' +
-               '<div style="display:flex;align-items:center;gap:8px"><div class="exp-row-amt" style="color:#d97706">AED ' + money(p.amt) + '</div>' + verifyBtn + '</div></div>';
-      }).join('');
-    } else {
-      pendingCard.className = "card hide";
     }
   }
 
@@ -2092,8 +1984,6 @@ function renderExpensesTab() {
     bill:     { fg: "#2563eb", bg: "#dbeafe", ic: "fa-file-invoice", sign: "" }
   };
   var html = "", lastD = "";
-  
-  // Point 13: Swipe or long-press for edit and delete instead of cluttered buttons on every row
   entries.forEach(function(en){
     var x = en.x, st = style[en.kind], d = expDate(x);
     if(d !== lastD) { html += '<div class="exp-date-head">' + fmtDate(d) + '</div>'; lastD = d; }
@@ -2101,15 +1991,12 @@ function renderExpensesTab() {
             : (en.kind === "expense" ? "Expense &bull; paid by " + escHtml(x.pb) + " &bull; bill AED " + money(x.amt)
             : "Paid by " + escHtml(x.pb) + " &bull; split " + x.al.length);
     if(x.note) sub += '<br><i>' + escHtml(x.note) + '</i>';
-    
     var canEdit = canEditExp(x);
-    var rowAttrs = canEdit ? 'oncontextmenu="openExpActionMenu(event, ' + x.id + ')" ontouchstart="startExpLongPress(event, ' + x.id + ')" ontouchend="cancelExpLongPress()" ontouchmove="cancelExpLongPress()"' : '';
-
-    html += '<div class="exp-row" ' + rowAttrs + ' style="' + (canEdit ? 'cursor:pointer' : '') + '">' +
-            '<div style="display:flex;align-items:center;gap:12px;min-width:0;width:100%">' +
+    html += '<div class="exp-row"><div style="display:flex;align-items:center;gap:12px;min-width:0">' +
             '<div class="exp-ic" style="background:' + st.bg + ';color:' + st.fg + '"><i class="fa-solid ' + st.ic + '"></i></div>' +
-            '<div style="min-width:0;flex:1"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div>' +
-            '<div class="exp-row-amt" style="color:' + st.fg + '">' + st.sign + 'AED ' + money(en.amt) + '</div>' +
+            '<div style="min-width:0"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div></div>' +
+            '<div style="display:flex;align-items:center;gap:5px"><div class="exp-row-amt" style="color:' + st.fg + '">' + st.sign + 'AED ' + money(en.amt) + '</div>' +
+            (canEdit ? '<button class="btn btn-s" style="background:#2563eb;padding:5px 8px" onclick="openEditExp(' + x.id + ')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')"><i class="fa-solid fa-trash"></i></button>' : '') +
             '</div></div>';
   });
   document.getElementById("expList").innerHTML = html || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded in this period.</div>';
@@ -2124,49 +2011,6 @@ function renderExpensesTab() {
            '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt" style="color:' + (sent ? '#dc2626' : '#059669') + '">' + (sent ? '-' : '+') + 'AED ' + money(p.amt) + '</div>' +
            ((sent || isSuper()) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')"><i class="fa-solid fa-trash"></i></button>' : '') + '</div></div>';
   }).join('');
-}
-
-// Swipe / Long-Press handlers for Expense rows (Point 13)
-var expLongPressTimer = null;
-function startExpLongPress(e, expId) {
-  cancelExpLongPress();
-  var touch = e.touches[0];
-  var clientX = touch.clientX, clientY = touch.clientY;
-  expLongPressTimer = setTimeout(function(){
-    openExpActionMenu({ preventDefault: function(){}, clientX: clientX, clientY: clientY }, expId);
-  }, 500);
-}
-function cancelExpLongPress() {
-  if(expLongPressTimer) {
-    clearTimeout(expLongPressTimer);
-    expLongPressTimer = null;
-  }
-}
-function openExpActionMenu(e, expId) {
-  if(e && e.preventDefault) e.preventDefault();
-  var existing = document.getElementById("expActionMenuPopup");
-  if(existing) existing.remove();
-
-  var menu = document.createElement("div");
-  menu.id = "expActionMenuPopup";
-  menu.className = "msg-action-menu";
-  var posX = e.clientX || (window.innerWidth / 2 - 85);
-  var posY = e.clientY || (window.innerHeight / 2 - 50);
-  menu.style.top = Math.max(10, Math.min(posY, window.innerHeight - 130)) + "px";
-  menu.style.left = Math.max(10, Math.min(posX, window.innerWidth - 185)) + "px";
-
-  menu.innerHTML = '<button class="msg-action-btn" onclick="openEditExp(' + expId + '); document.getElementById(\'expActionMenuPopup\').remove();"><i class="fa-solid fa-pen"></i> Edit Expense</button>' +
-                   '<button class="msg-action-btn" style="color:#dc2626" onclick="delEx(' + expId + '); document.getElementById(\'expActionMenuPopup\').remove();"><i class="fa-solid fa-trash"></i> Delete Expense</button>';
-
-  document.body.appendChild(menu);
-  setTimeout(function(){
-    window.addEventListener('click', function closeMenu(ev){
-      if(!menu.contains(ev.target)) {
-        menu.remove();
-        window.removeEventListener('click', closeMenu);
-      }
-    });
-  }, 100);
 }
 
 function openPaymentModal() {
@@ -2229,16 +2073,30 @@ function delPay(id) {
   if(confirm("Delete this payment?")) { payments = payments.filter(function(p){ return p.id != id; }); save(true); }
 }
 
+function openStatementModal() {
+  var earliest = todayISO().slice(0, 7);
+  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  payments.forEach(function(p){ if(p.verified) { var m = p.date.slice(0, 7); if(m < earliest) earliest = m; } });
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
+  for(var i = 0; i < 36; i++) {
+    var ym = y + "-" + pad2(m + 1);
+    if(ym < earliest) break;
+    opts += '<option value="' + ym + '">' + MONTHS[m] + ' ' + y + (i === 0 ? ' (current)' : '') + '</option>';
+    m--; if(m < 0) { m = 11; y--; }
+  }
+  document.getElementById("stmtMonth").innerHTML = opts;
+  document.getElementById("statementModal").className = "modal-overlay";
+}
+function generateStatement() {
+  var ym = document.getElementById("stmtMonth").value;
+  closeModals();
+  openStatement(ym);
+}
 function openStatement(ym) {
   var blob = buildStatementPdf(ym);
-  // Point 19: Clean PDF viewer title and filename (no "blob" name)
   var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = url;
-  a.download = "Room110_Statement_" + ym + ".pdf";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  var w = window.open(url, "_blank");
+  if(!w) window.location.href = url;
   setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
 }
 
@@ -2302,7 +2160,6 @@ PdfDoc.prototype.build = function() {
   return new Blob([out], { type: "application/pdf" });
 };
 
-// Point 18: Professional credit-card style PDF statement with real logo, Statement Number, Member ID, Due Date
 function buildStatementPdf(ym) {
   var cName = cur.firstName || cur.name;
   var pr = periodRange(ym);
@@ -2336,25 +2193,18 @@ function buildStatementPdf(ym) {
   function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
   var doc = new PdfDoc();
 
-  // Header background & Credit Card style metadata banner
-  doc.rect(0, 0, 595, 90, NAVY);
-  doc.text("Room 110", 40, 36, { size: 24, bold: true, color: "#ffffff" });
-  doc.text("OFFICIAL ACCOUNT STATEMENT", 40, 54, { size: 9, bold: true, color: "#93c5fd" });
+  doc.rect(0, 0, 595, 80, NAVY);
+  doc.text("Room 110", 40, 44, { size: 22, bold: true, color: "#ffffff" });
+  doc.text("Statement of Account", 155, 47, { size: 11, color: "#dbeafe" });
   
-  doc.text("STATEMENT NO", 410, 26, { size: 7.5, bold: true, color: "#bfdbfe" });
-  doc.text("R110-" + ym.replace("-", "") + "-" + (cur.id || "101"), 410, 40, { size: 10, bold: true, color: "#ffffff" });
+  doc.text("STATEMENT PERIOD", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
+  doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
+  doc.text("Generated " + fmtDate(todayISO()), 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
 
-  doc.text("DUE DATE", 505, 26, { size: 7.5, bold: true, color: "#bfdbfe" });
-  doc.text("10 " + MONTHS[(Number(ym.slice(5,7)) % 12)] + " " + (Number(ym.slice(5,7)) === 12 ? Number(ym.slice(0,4))+1 : ym.slice(0,4)), 505, 40, { size: 10, bold: true, color: "#ffffff" });
+  doc.text("ACCOUNT HOLDER", 40, 106, { size: 8, bold: true, color: GRAY });
+  doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 124, { size: 15, bold: true, color: INK });
 
-  doc.text("STATEMENT PERIOD: " + fmtDate(pr.start) + " - " + fmtDate(pr.end), 410, 68, { size: 8, color: "#dbeafe" });
-
-  // Account Holder & Member ID card
-  doc.text("ACCOUNT HOLDER", 40, 110, { size: 8, bold: true, color: GRAY });
-  doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 128, { size: 14, bold: true, color: INK });
-  doc.text("Member ID: R110-USR-" + (cur.id || "001"), 40, 142, { size: 9, color: GRAY });
-
-  var sx = 300, sy = 104, sw = 255;
+  var sx = 300, sy = 100, sw = 255;
   doc.rect(sx, sy, sw, 20, "#eff6ff", "#bfdbfe");
   doc.text("ACCOUNT SUMMARY", sx + 10, sy + 14, { size: 9, bold: true, color: NAVY });
   var sumRows = [
@@ -2376,7 +2226,7 @@ function buildStatementPdf(ym) {
   doc.text("AED " + money(Math.abs(closing)) + " " + tag, sx + sw - 10, sry + 16, { size: 10, bold: true, align: "right", color: Math.abs(closing) < 0.005 ? GRAY : sgnCol(closing) });
   sry += 24;
 
-  var ry = Math.max(165, sry + 20);
+  var ry = Math.max(160, sry + 20);
   doc.text("TRANSACTIONS", 40, ry, { size: 9, bold: true, color: NAVY });
   ry += 8;
 
@@ -2449,7 +2299,7 @@ function openEditUserModal(id) {
   document.getElementById("eUFirstName").value = user.firstName || user.name || "";
   document.getElementById("eULastName").value = user.lastName || "";
   document.getElementById("eUId").value = user.u;
-  document.getElementById("eUPass").value = "";
+  document.getElementById("eUPass").value = ""; // Masked for security
   document.getElementById("eURole").value = user.r;
   document.getElementById("eUMess").checked = user.mess !== false;
   document.getElementById("editUserModal").className = "modal-overlay";
@@ -2460,6 +2310,7 @@ function closeModals() {
   document.getElementById("editUserModal").className = "modal-overlay hide";
   document.getElementById("serviceManagerModal").className = "modal-overlay hide";
   document.getElementById("paymentModal").className = "modal-overlay hide";
+  document.getElementById("statementModal").className = "modal-overlay hide";
   document.getElementById("editExpModal").className = "modal-overlay hide";
 }
 
@@ -2651,13 +2502,6 @@ function renderChatMessages() {
       }
     }
 
-    // Point 14: Drop seconds from chat timestamps (hours and minutes only)
-    var cleanTime = m.timestamp;
-    if(cleanTime && cleanTime.split(":").length === 3) {
-      var parts = cleanTime.split(":");
-      cleanTime = parts[0] + ":" + parts[1] + " " + parts[2].split(" ")[1];
-    }
-
     return '<div class="msg-bubble '+bubbleClass+'" ' +
            'oncontextmenu="openMsgMenu(event, \''+m.id+'\', '+isMe+')" ' +
            'ontouchstart="startMsgLongPress(event, \''+m.id+'\', '+isMe+')" ' +
@@ -2665,7 +2509,7 @@ function renderChatMessages() {
            'ontouchmove="cancelMsgLongPress()">' +
            senderHeader +
            '<div>'+m.text+'</div>' +
-           '<div class="msg-meta"><span>'+(m.edited ? '(edited) ' : '')+cleanTime+'</span>'+ticksHtml+'</div>' +
+           '<div class="msg-meta"><span>'+(m.edited ? '(edited) ' : '')+m.timestamp+'</span>'+ticksHtml+'</div>' +
            (reactionsHtml ? '<div class="msg-reactions">'+reactionsHtml+'</div>' : '') +
            '</div>';
   }).join('') || '<div style="text-align:center;color:#667781;font-size:12px;margin-top:20px">No messages yet. Say hello!</div>';
@@ -2704,9 +2548,10 @@ function sendActiveChatMsg(e) {
   var now = new Date();
   var h = now.getHours();
   var m = now.getMinutes();
+  var sSec = now.getSeconds();
   var ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12; h = h ? h : 12;
-  var tm = pad2(h) + ":" + pad2(m) + " " + ampm;
+  var tm = pad2(h) + ":" + pad2(m) + ":" + pad2(sSec) + " " + ampm;
 
   var isSuperAdminPost = (activeChatTarget === 'superadmin_channel' && isSuper());
   
@@ -2852,7 +2697,7 @@ function renderCategoryManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
   
   body.innerHTML = categories.map(function(c){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+c+'\')" aria-label="Delete category"><i class="fa-solid fa-trash"></i></button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+c+'\')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Category</label><input id="newCatInput" placeholder="Category name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewCategory()">Add Category</button></div>';
@@ -2881,7 +2726,7 @@ function renderGroupManagerContent() {
 
   body.innerHTML = groups.map(function(g, idx){
     var names = (g.members || []).map(escHtml).join(", ") || "No members";
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+names+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')" aria-label="Edit group"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')" aria-label="Delete group"><i class="fa-solid fa-trash"></i></button></div></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+names+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')"><i class="fa-solid fa-trash"></i></button></div></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No groups yet. Create one below.</div>';
 
   var eg = editingGroupIdx > -1 ? groups[editingGroupIdx] : null;
@@ -2931,7 +2776,7 @@ function renderVendorManagerContent() {
   var body = document.getElementById("serviceManagerBody");
   var formContainer = document.getElementById("serviceManagerFormContainer");
   body.innerHTML = vendors.map(function(v, idx){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(v.name)+'</div>'+(v.phone ? '<div style="font-size:11px;color:#6b7280">'+escHtml(v.phone)+'</div>' : '')+'</div><button class="btn btn-s" style="background:#dc2626" onclick="deleteVendor('+idx+')" aria-label="Delete vendor"><i class="fa-solid fa-trash"></i></button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(v.name)+'</div>'+(v.phone ? '<div style="font-size:11px;color:#6b7280">'+escHtml(v.phone)+'</div>' : '')+'</div><button class="btn btn-s" style="background:#dc2626" onclick="deleteVendor('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No vendors yet. Add one below.</div>';
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Vendor Name</label><input id="newVenName" placeholder="e.g. Lulu Hypermarket" style="margin-bottom:8px"><label>Phone (optional)</label><input id="newVenPhone" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewVendor()">Add Vendor</button></div>';
 }
@@ -2958,7 +2803,7 @@ function renderContactManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
 
   body.innerHTML = emergencyContacts.map(function(ec, idx){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><button class="btn btn-s" style="background:#dc2626" onclick="deleteContact('+idx+')" aria-label="Delete contact"><i class="fa-solid fa-trash"></i></button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><button class="btn btn-s" style="background:#dc2626" onclick="deleteContact('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No emergency contacts found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Contact Name</label><input id="newEcName" placeholder="e.g. Laundry" style="margin-bottom:8px"><label>Phone Number</label><input id="newEcNum" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewContact()">Add Contact</button></div>';
@@ -3010,7 +2855,7 @@ function saveEditedUser(e){
     if(users.some(function(x){return x.u === u && x.id !== id})) return alert("User ID already exists!");
     if(user.r === "superadmin" && r !== "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("At least one Super Admin is required.");
     user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; 
-    if(p) user.p = p;
+    if(p) user.p = p; // Only update password if provided
     user.r = r;
     user.mess = document.getElementById("eUMess").checked;
     closeModals();
@@ -3036,6 +2881,7 @@ function addEx(e){
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
 
+  // Universal date rule: No one (including Admins & Super Admins) can add expenses after the 4th of the next month
   var now = new Date();
   var expD = new Date(dateVal);
   var curYear = now.getFullYear(), curMonth = now.getMonth();
@@ -3054,6 +2900,7 @@ function addEx(e){
   
   var cName = cur.firstName || cur.name;
   al.forEach(function(memName){
+    // Exclude the expense creator from receiving self-notification noise
     if(memName !== pb && memName !== cName) {
       addNotification(memName, "New Expense Added", pb + " added AED " + money(a) + " for " + d + ".", "expense", null, false);
     }
@@ -3253,22 +3100,7 @@ function render(){
 
   var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
 
-  // Point 12: Settlement Payee Block saying who to pay, with their name
-  var payeeBlock = document.getElementById("settlementPayeeBlock");
-  var payeeText = document.getElementById("settlementPayeeText");
-  if(payeeBlock && payeeText) {
-    if(myStat.net < -0.005) {
-      // Find highest receiver among members
-      var receivers = s.st.filter(function(m){ return m.net > 0.005; });
-      receivers.sort(function(a,b){ return b.net - a.net; });
-      var receiverName = receivers.length ? receivers[0].name : "Room Admin";
-      payeeBlock.style.display = "block";
-      payeeText.innerText = "You need to pay " + receiverName + " AED " + Math.abs(myStat.net).toFixed(2);
-    } else {
-      payBlock.style.display = "none";
-    }
-  }
-
+  // Render Payment Overdue / Receivable card on Home screen with dynamic labeling & coloring
   var currentYM = todayISO().slice(0, 7);
   var netPrev = calculatePreviousMonthOverdue(cName, currentYM);
   var homeOverdueCard = document.getElementById("homeOverdueCard");
@@ -3379,7 +3211,7 @@ function render(){
   if(ecContainer) {
     emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
     ecContainer.innerHTML = emergencyContacts.map(function(ec){
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:700;color:#111">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><div style="display:flex;gap:6px"><a href="tel:'+ec.number+'" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none" aria-label="Call ' + ec.name + '"><i class="fa-solid fa-phone text-xs"></i></a></div></div>';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:700;color:#111">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><div style="display:flex;gap:6px"><a href="tel:'+ec.number+'" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a></div></div>';
     }).join('') || '<div style="font-size:12px;color:#6b7280;font-style:italic">No emergency contacts.</div>';
   }
 
@@ -3455,7 +3287,7 @@ function render(){
   }
 
   if(isSuper()) {
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")' aria-label='Edit user'><i class='fa-solid fa-pen'></i></button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>"}).join("");
   }
 }
 if(cur) openDashboard();
