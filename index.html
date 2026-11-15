@@ -170,7 +170,7 @@ body.dark-page .card, body.dark-page .welcome-profile-card {
   color: #f8fafc;
   box-shadow: 0 10px 28px rgba(0,0,0,0.4);
 }
-body.dark-page h2, body.dark-page h3, body.dark-page strong, body.dark-page th {
+body.dark-page h2, body.dark-page h3, body.dark-page h4, body.dark-page strong, body.dark-page th {
   color: #f8fafc !important;
 }
 body.dark-page td, body.dark-page label {
@@ -704,7 +704,10 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <!-- TAB 3: ADD EXPENSE -->
     <div id="v3" class="card hide">
       <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
-      <form onsubmit="addEx(event)">
+      <div id="landlordRestrictedBanner" class="hide" style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;padding:12px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px">
+        <i class="fa-solid fa-lock"></i> Landlords cannot record daily mess expenses. Use the DEWA &amp; Etisalat Utility sections in your Profile to submit utility bills.
+      </div>
+      <form id="addExpForm" onsubmit="addEx(event)">
         <label>Amount (AED)</label><input id="amt" type="number" step="0.01" inputmode="decimal" placeholder="0.00" oninput="onAmountInput()" required>
         <label>Date</label><input id="expDate" type="date" required onchange="onExpenseDateChange()" style="height:46px;padding:10px 12px">
         <label>Items / Category</label>
@@ -718,7 +721,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <select id="stype" onchange="onSplitTypeChange()"></select>
         <div id="cbox" class="cks hide"></div>
         <div id="splitHint" style="font-size:12px;color:#6b7280;margin-top:8px;line-height:1.5"></div>
-        <button class="btn">Save Expense</button>
+        <button id="saveExpBtn" class="btn">Save Expense</button>
       </form>
     </div>
 
@@ -804,12 +807,18 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
         </div>
-        <div class="prof-menu-row" onclick="openProfPage('utilities')">
-          <div class="prof-row-left"><span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-bolt"></i></span>DEWA &amp; Etisalat Utilities</div>
+        <!-- SEPARATE STANDALONE DEWA ROW -->
+        <div class="prof-menu-row" onclick="openProfPage('dewa')">
+          <div class="prof-row-left"><span class="prof-row-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-bolt"></i></span>DEWA Electricity &amp; Water</div>
+          <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
+        </div>
+        <!-- SEPARATE STANDALONE ETISALAT ROW -->
+        <div class="prof-menu-row" onclick="openProfPage('etisalat')">
+          <div class="prof-row-left"><span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-wifi"></i></span>Etisalat Wi-Fi</div>
           <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
         </div>
         <div class="prof-menu-row" onclick="openProfPage('vacation')">
-          <div class="prof-row-left"><span class="prof-row-icon" style="background:#cffafe;color:#0891b2"><i class="fa-solid fa-umbrella-beach"></i></span>Vacation Mode</div>
+          <div class="prof-row-left"><span class="prof-row-icon" style="background:#cffafe;color:#0891b2"><i class="fa-solid fa-umbrella-beach"></i></span><span id="vacationMenuLabel">Vacation Mode</span></div>
           <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
         </div>
         <div class="prof-menu-row" onclick="openProfPage('appearance')">
@@ -870,48 +879,69 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       </div>
     </div>
 
-    <!-- UTILITIES PAGE: DEWA & ETISALAT PRO-RATA -->
-    <div id="profPage_utilities" class="hide">
+    <!-- DEDICATED STANDALONE DEWA SECTION -->
+    <div id="profPage_dewa" class="hide">
       <div class="prof-page-head">
         <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
-        <h3 style="color:#111;font-size:18px">DEWA &amp; Etisalat Utilities</h3>
-      </div>
-      
-      <!-- Admin / Landlord input card -->
-      <div id="utilityAdminCard" class="card hide">
-        <h4 style="color:#1e3a8a;margin-bottom:10px"><i class="fa-solid fa-calculator"></i> Utility Bill Management</h4>
-        <label>Select Billing Month</label>
-        <select id="utilBillingMonth" onchange="renderUtilityPage()" style="margin-bottom:10px"></select>
-        
-        <div style="display:flex;gap:10px;margin-bottom:10px">
-          <div style="flex:1">
-            <label>DEWA (Arrears / Prev Month)</label>
-            <input id="utilDewaAmt" type="number" step="0.01" min="0" placeholder="0.00" oninput="calculateUtilityProRata()">
-          </div>
-          <div style="flex:1">
-            <label>Etisalat (Current Month)</label>
-            <input id="utilEtisalatAmt" type="number" step="0.01" min="0" placeholder="0.00" oninput="calculateUtilityProRata()">
-          </div>
-        </div>
-        <button class="btn" style="margin-top:0;background:#059669" onclick="saveMonthlyUtilities()"><i class="fa-solid fa-floppy-disk"></i> Save &amp; Post Utilities</button>
+        <h3 style="color:#111;font-size:18px">DEWA Electricity &amp; Water</h3>
       </div>
 
-      <!-- Member view card -->
+      <!-- Landlord / Admin DEWA Bill Input -->
+      <div id="dewaAdminCard" class="card hide">
+        <h4 style="color:#d97706;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> Post DEWA Bill (Previous Month Arrears)</h4>
+        <label>Select Billing Month</label>
+        <select id="dewaBillingMonth" onchange="renderDewaPage()" style="margin-bottom:10px"></select>
+        <label>Total DEWA Bill Amount (AED)</label>
+        <input id="dewaBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:12px">
+        <button class="btn" style="margin-top:0;background:#d97706" onclick="saveDewaBill()"><i class="fa-solid fa-floppy-disk"></i> Save DEWA Bill</button>
+      </div>
+
+      <!-- Member / Landlord Pro-Rata DEWA Breakdown -->
       <div class="card">
-        <h4 style="color:#111;margin-bottom:8px"><i class="fa-solid fa-file-invoice-dollar"></i> My Pro-Rata Utility Breakdown</h4>
-        <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Calculated automatically based on your active room occupancy &amp; vacation days.</div>
-        <label>Viewing Month</label>
-        <select id="utilViewMonth" onchange="renderUtilityPage()" style="margin-bottom:12px"></select>
-        <div id="utilMemberBreakdownContainer"></div>
+        <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-file-invoice-dollar"></i> DEWA Pro-Rata Summary</h4>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:12px">System-calculated pro-rata split based on previous month's active room occupancy days.</div>
+        <label>Select Period</label>
+        <select id="dewaViewMonth" onchange="renderDewaPage()" style="margin-bottom:12px"></select>
+        <div id="dewaBreakdownContainer"></div>
       </div>
     </div>
 
+    <!-- DEDICATED STANDALONE ETISALAT SECTION -->
+    <div id="profPage_etisalat" class="hide">
+      <div class="prof-page-head">
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 style="color:#111;font-size:18px">Etisalat Wi-Fi</h3>
+      </div>
+
+      <!-- Landlord / Admin Etisalat Subscription Input -->
+      <div id="etisalatAdminCard" class="card hide">
+        <h4 style="color:#0284c7;margin-bottom:8px"><i class="fa-solid fa-wifi"></i> Post Etisalat Subscription (Current Month)</h4>
+        <label>Select Subscription Month</label>
+        <select id="etisalatBillingMonth" onchange="renderEtisalatPage()" style="margin-bottom:10px"></select>
+        <label>Monthly Subscription Amount (AED)</label>
+        <input id="etisalatBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:12px">
+        <button class="btn" style="margin-top:0;background:#0284c7" onclick="saveEtisalatBill()"><i class="fa-solid fa-floppy-disk"></i> Save Etisalat Bill</button>
+      </div>
+
+      <!-- Member / Landlord Real-Time Etisalat Breakdown (Counted Strictly Up To Today) -->
+      <div class="card">
+        <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-chart-line"></i> Etisalat Real-Time Pro-Rata</h4>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Real-time expense calculated strictly based on active days lived through <b>up to today</b>.</div>
+        <label>Select Period</label>
+        <select id="etisalatViewMonth" onchange="renderEtisalatPage()" style="margin-bottom:12px"></select>
+        <div id="etisalatBreakdownContainer"></div>
+      </div>
+    </div>
+
+    <!-- VACATION MODE PAGE (Personal for Members, Master Manager for Super Admin) -->
     <div id="profPage_vacation" class="hide">
       <div class="prof-page-head">
         <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
-        <h3 style="color:#111;font-size:18px">Vacation Mode</h3>
+        <h3 id="vacationPageTitle" style="color:#111;font-size:18px">Vacation Mode</h3>
       </div>
-      <div class="card">
+
+      <!-- Standard Member Personal Vacation View -->
+      <div id="memberVacationView" class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:12px">
           <div>
             <strong style="font-size:14px;color:#111">Vacation Mode</strong>
@@ -940,6 +970,14 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
           <strong style="font-size:12px;color:#6b7280;text-transform:uppercase">My Vacations (<span id="totalVacDays">0</span> Total Days)</strong>
           <div id="myVacationsList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
         </div>
+      </div>
+
+      <!-- Super Admin Master Vacation Management View -->
+      <div id="superAdminVacationView" class="card hide">
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;margin-bottom:12px">
+          <i class="fa-solid fa-shield-halved"></i> Super Admins cannot take personal vacations. Manage all room members' vacation histories below. Vacations can be edited or deleted until the monthly statement is generated.
+        </div>
+        <div id="superAdminVacationsList" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
     </div>
 
@@ -1053,6 +1091,31 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     </div>
   </div>
 
+  <!-- Super Admin Edit Member Vacation Modal -->
+  <div id="adminEditVacationModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:12px">Edit Member Vacation</h3>
+      <form onsubmit="saveAdminEditedVacation(event)">
+        <input type="hidden" id="adminVacUserId">
+        <input type="hidden" id="adminVacId">
+        <label>Member</label>
+        <input id="adminVacMemberName" disabled style="margin-bottom:10px;background:#f3f4f6">
+        <label>From Date</label>
+        <input id="adminVacFrom" type="date" required style="margin-bottom:10px">
+        <div id="adminVacToBox">
+          <label>To Date</label>
+          <input id="adminVacTo" type="date" style="margin-bottom:10px">
+        </div>
+        <label class="ck" style="margin-bottom:14px">
+          <input type="checkbox" id="adminVacOpenEnded" onchange="document.getElementById('adminVacToBox').className = this.checked ? 'hide' : ''">
+          <span>Open-ended (no return date yet)</span>
+        </label>
+        <button type="submit" class="btn" style="margin-top:0;background:#059669">Update Member Vacation</button>
+      </form>
+    </div>
+  </div>
+
   <div id="paymentModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
@@ -1159,7 +1222,7 @@ function migrateUserVacations(u) {
     var exists = u.vacations.some(function(v){ return v.from === f && v.to === t; });
     if(!exists) {
       u.vacations.push({
-        id: Date.now() + Math.random(),
+        id: Math.floor(Date.now() + Math.random() * 10000),
         from: f,
         to: t,
         openEnded: !t,
@@ -1172,7 +1235,7 @@ function migrateUserVacations(u) {
     var exists2 = u.vacations.some(function(v){ return v.from === f2 && v.to === t2; });
     if(!exists2) {
       u.vacations.push({
-        id: Date.now() + Math.random(),
+        id: Math.floor(Date.now() + Math.random() * 10000),
         from: f2,
         to: t2,
         openEnded: false,
@@ -1191,7 +1254,9 @@ users.forEach(migrateUserVacations);
 var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [];
 var notifications = JSON.parse(localStorage.getItem("r110_notif")||"null") || [];
-var utilities = JSON.parse(localStorage.getItem("r110_utils")||"null") || {}; // Format: { "2026-11": { dewa: 500, etisalat: 300 } }
+var utilities = JSON.parse(localStorage.getItem("r110_utils")||"null") || {};
+var generatedStatements = JSON.parse(localStorage.getItem("r110_gen_stmts")||"null") || {}; // Track locked statement months { "2026-10": true }
+
 var categories = JSON.parse(localStorage.getItem("r110_cat")||"null") || ["Cinema", "Food", "Gas", "Groceries", "Maintenance", "Utilities"];
 categories.sort(function(a,b){ return a.localeCompare(b); });
 
@@ -1383,6 +1448,10 @@ function loadCloudData(isManual){
         utilities = data.utilities;
         localStorage.setItem("r110_utils", JSON.stringify(utilities));
       }
+      if(data && data.generatedStatements) {
+        generatedStatements = data.generatedStatements;
+        localStorage.setItem("r110_gen_stmts", JSON.stringify(generatedStatements));
+      }
       if(data && Array.isArray(data.notifications)) {
         var incomingNotifs = data.notifications;
         incomingNotifs.forEach(function(inN){
@@ -1504,6 +1573,7 @@ function save(syncToCloud){
   localStorage.setItem("r110_m", JSON.stringify(msgs));
   localStorage.setItem("r110_notif", JSON.stringify(notifications));
   localStorage.setItem("r110_utils", JSON.stringify(utilities));
+  localStorage.setItem("r110_gen_stmts", JSON.stringify(generatedStatements));
   localStorage.setItem("r110_cat", JSON.stringify(categories));
   localStorage.setItem("r110_grp", JSON.stringify(groups));
   localStorage.setItem("r110_ven", JSON.stringify(vendors));
@@ -1513,7 +1583,7 @@ function save(syncToCloud){
 
   if(syncToCloud && CLOUD_URL){
     setCloudStatus('syncing');
-    var payload = JSON.stringify({users: users, exps: exps, utilities: utilities, msgs: msgs, notifications: notifications, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
+    var payload = JSON.stringify({users: users, exps: exps, utilities: utilities, generatedStatements: generatedStatements, msgs: msgs, notifications: notifications, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
     fetch(CLOUD_URL, {
       method: "POST",
       mode: "no-cors",
@@ -1529,7 +1599,7 @@ function save(syncToCloud){
 
 function addNotification(targetUser, title, body, type, meta, shouldSync) {
   notifications.unshift({
-    id: Date.now() + Math.random(),
+    id: Math.floor(Date.now() + Math.random() * 10000),
     targetUser: targetUser,
     title: title,
     body: body,
@@ -1606,6 +1676,7 @@ function tab(n){
     if(i==n){
       v.className = (i==3) ? "card" : "";
       if(i==3) {
+        setupAddExpenseTabRestrictions();
         var stypeEl = document.getElementById("stype");
         if(stypeEl) {
           var remembered = lastSel.stype || "a";
@@ -1625,6 +1696,24 @@ function tab(n){
   }
   document.getElementById("vNotif").className = "hide";
   render();
+}
+
+function setupAddExpenseTabRestrictions() {
+  var banner = document.getElementById("landlordRestrictedBanner");
+  var form = document.getElementById("addExpForm");
+  var btn = document.getElementById("saveExpBtn");
+  if(!form || !banner || !btn) return;
+  var inputs = form.querySelectorAll("input, select, textarea");
+
+  if(isLandlord()) {
+    banner.className = "";
+    btn.disabled = true;
+    inputs.forEach(function(inp){ inp.disabled = true; });
+  } else {
+    banner.className = "hide";
+    btn.disabled = false;
+    inputs.forEach(function(inp){ inp.disabled = false; });
+  }
 }
 
 function openNotifications() {
@@ -1713,14 +1802,15 @@ function updateDockBadges() {
   }
 }
 
-var PROF_PAGES = ["ec","members","services","utilities","vacation","appearance"];
+var PROF_PAGES = ["ec","members","services","dewa","etisalat","vacation","appearance"];
 function openProfPage(name) {
   document.getElementById("profMenu").className = "hide";
   PROF_PAGES.forEach(function(k){
     document.getElementById("profPage_" + k).className = (k === name) ? "" : "hide";
   });
   if(name === 'vacation') renderVacationSection();
-  if(name === 'utilities') renderUtilityPage();
+  if(name === 'dewa') renderDewaPage();
+  if(name === 'etisalat') renderEtisalatPage();
   window.scrollTo(0, 0);
 }
 function showProfMenu() {
@@ -1734,7 +1824,7 @@ function showProfMenu() {
 function isSuper() { return !!cur && cur.r === "superadmin"; }
 function isAdminLike() { return !!cur && (cur.r === "admin" || cur.r === "superadmin"); }
 function isLandlord() { return !!cur && cur.r === "landlord"; }
-function isMess(u) { return u.active !== false && u.mess !== false; }
+function isMess(u) { return u.active !== false && u.mess !== false && u.r !== "superadmin" && u.r !== "landlord"; }
 function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : (r === "landlord" ? "Landlord" : "Member")); }
 
 function ensureSuperAdmin() {
@@ -1780,6 +1870,7 @@ function countVacationDays(v) {
 }
 
 function toggleVacation() {
+  if(isSuper()) return; // Super Admins cannot take personal vacations
   var toggle = document.getElementById("vacationToggle");
   var form = document.getElementById("vacationFormContainer");
   var activeToday = isUserActiveOnVacation(cur);
@@ -1859,6 +1950,7 @@ function checkVacationFormValidity() {
 }
 
 function saveNewVacation() {
+  if(isSuper()) return;
   var from = document.getElementById("vacFromInput").value;
   var open = document.getElementById("vacOpenEnded").checked;
   var to = document.getElementById("vacToInput").value;
@@ -1902,7 +1994,35 @@ function cancelUpcomingVacation(id) {
   }
 }
 
+// Check if a vacation period is locked by a generated statement
+function isVacationLockedByStatement(v) {
+  var startYM = v.from.slice(0, 7);
+  var endYM = v.openEnded ? todayISO().slice(0, 7) : (v.to || v.from).slice(0, 7);
+  for(var ym in generatedStatements) {
+    if(generatedStatements[ym] && ym >= startYM && ym <= endYM) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function renderVacationSection() {
+  var memberView = document.getElementById("memberVacationView");
+  var adminView = document.getElementById("superAdminVacationView");
+  var titleEl = document.getElementById("vacationPageTitle");
+
+  if(isSuper()) {
+    memberView.className = "hide";
+    adminView.className = "card";
+    if(titleEl) titleEl.innerText = "Manage Member Vacations";
+    renderSuperAdminVacationsList();
+    return;
+  }
+
+  memberView.className = "card";
+  adminView.className = "hide";
+  if(titleEl) titleEl.innerText = "Vacation Mode";
+
   var toggle = document.getElementById("vacationToggle");
   var activeToday = isUserActiveOnVacation(cur);
   toggle.checked = activeToday;
@@ -1939,7 +2059,111 @@ function renderVacationSection() {
   totalDaysEl.innerText = totalDays;
 }
 
-// Pro-Rata Utility Engine for DEWA & Etisalat
+function renderSuperAdminVacationsList() {
+  var container = document.getElementById("superAdminVacationsList");
+  var allVacs = [];
+
+  users.forEach(function(u){
+    if(u.r === "superadmin" || !Array.isArray(u.vacations)) return;
+    u.vacations.forEach(function(v){
+      allVacs.push({ user: u, vac: v });
+    });
+  });
+
+  allVacs.sort(function(a, b){ return b.vac.from.localeCompare(a.vac.from); });
+
+  container.innerHTML = allVacs.map(function(item){
+    var u = item.user;
+    var v = item.vac;
+    var locked = isVacationLockedByStatement(v);
+    var uName = (u.firstName || u.name) + " " + (u.lastName || "");
+    var dateStr = fmtDate(v.from) + " – " + (v.openEnded ? "Ongoing" : fmtDate(v.to || v.from));
+    var days = countVacationDays(v);
+
+    var statusTag = locked 
+      ? '<span style="font-size:10px;background:#fee2e2;color:#dc2626;padding:2px 6px;border-radius:8px;font-weight:700"><i class="fa-solid fa-lock"></i> Statement Generated</span>'
+      : '<span style="font-size:10px;background:#d1fae5;color:#059669;padding:2px 6px;border-radius:8px;font-weight:700">Editable</span>';
+
+    var actions = locked ? '' :
+      '<div style="display:flex;gap:6px">' +
+      '<button class="btn btn-s" style="background:#2563eb;padding:5px 9px" onclick="openAdminEditVacation(' + u.id + ', ' + v.id + ')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="deleteAdminMemberVacation(' + u.id + ', ' + v.id + ')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div>';
+
+    return '<div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb">' +
+           '<div>' +
+           '<div style="font-weight:700;font-size:13.5px;color:#111">' + escHtml(uName.trim()) + ' ' + statusTag + '</div>' +
+           '<div style="font-size:12px;color:#374151;margin-top:2px">' + dateStr + ' (' + days + ' days)</div>' +
+           '</div>' +
+           actions +
+           '</div>';
+  }).join('') || '<div style="font-size:13px;color:#6b7280;font-style:italic">No member vacations recorded yet.</div>';
+}
+
+function openAdminEditVacation(userId, vacId) {
+  if(!isSuper()) return;
+  var u = users.find(function(x){ return x.id == userId; });
+  if(!u || !Array.isArray(u.vacations)) return;
+  var v = u.vacations.find(function(x){ return x.id == vacId; });
+  if(!v) return;
+  if(isVacationLockedByStatement(v)) return alert("Cannot edit vacation after monthly statement has been generated.");
+
+  document.getElementById("adminVacUserId").value = u.id;
+  document.getElementById("adminVacId").value = v.id;
+  document.getElementById("adminVacMemberName").value = (u.firstName || u.name) + " " + (u.lastName || "");
+  document.getElementById("adminVacFrom").value = v.from;
+  document.getElementById("adminVacTo").value = v.to || "";
+  document.getElementById("adminVacOpenEnded").checked = !!v.openEnded;
+  document.getElementById("adminVacToBox").className = v.openEnded ? "hide" : "";
+  document.getElementById("adminEditVacationModal").className = "modal-overlay";
+}
+
+function saveAdminEditedVacation(e) {
+  e.preventDefault();
+  if(!isSuper()) return;
+  var userId = Number(document.getElementById("adminVacUserId").value);
+  var vacId = Number(document.getElementById("adminVacId").value);
+  var from = document.getElementById("adminVacFrom").value;
+  var open = document.getElementById("adminVacOpenEnded").checked;
+  var to = document.getElementById("adminVacTo").value;
+
+  if(!from) return alert("From date is required.");
+  if(!open && (!to || to < from)) return alert("Return date must be on or after From date.");
+
+  var u = users.find(function(x){ return x.id === userId; });
+  if(!u || !Array.isArray(u.vacations)) return;
+  var v = u.vacations.find(function(x){ return x.id === vacId; });
+  if(!v) return;
+
+  v.from = from;
+  v.to = open ? "" : to;
+  v.openEnded = open;
+
+  closeModals();
+  save(true);
+  renderSuperAdminVacationsList();
+  alert("Member vacation updated and synced to user profile!");
+}
+
+function deleteAdminMemberVacation(userId, vacId) {
+  if(!isSuper()) return;
+  var u = users.find(function(x){ return x.id == userId; });
+  if(!u || !Array.isArray(u.vacations)) return;
+  var v = u.vacations.find(function(x){ return x.id == vacId; });
+  if(!v) return;
+  if(isVacationLockedByStatement(v)) return alert("Cannot delete vacation after monthly statement has been generated.");
+
+  if(confirm("Delete this vacation record from " + (u.firstName || u.name) + "'s profile?")) {
+    u.vacations = u.vacations.filter(function(x){ return x.id != vacId; });
+    save(true);
+    renderSuperAdminVacationsList();
+  }
+}
+
+// ==========================================
+// STANDALONE DEWA & ETISALAT UTILITY LOGIC
+// ==========================================
+
 function getMonthDaysCount(ym) {
   var parts = ym.split("-");
   var y = Number(parts[0]), m = Number(parts[1]);
@@ -1953,13 +2177,14 @@ function getPreviousMonthYM(ym) {
   return y + "-" + pad2(m + 1);
 }
 
-function calculateMemberUtilityDaysForMonth(userObj, ym, isArrears) {
-  var targetYM = isArrears ? getPreviousMonthYM(ym) : ym;
-  var daysInMonth = getMonthDaysCount(targetYM);
+// DEWA calculates presence across the ENTIRE previous month
+function calculateMemberDewaDays(userObj, viewYM) {
+  var dewaYM = getPreviousMonthYM(viewYM);
+  var daysInMonth = getMonthDaysCount(dewaYM);
   var presentDays = 0;
 
   for(var d = 1; d <= daysInMonth; d++) {
-    var dateStr = targetYM + "-" + pad2(d);
+    var dateStr = dewaYM + "-" + pad2(d);
     if(!isUserOnVacationOnDate(userObj, dateStr)) {
       presentDays++;
     }
@@ -1967,113 +2192,188 @@ function calculateMemberUtilityDaysForMonth(userObj, ym, isArrears) {
   return presentDays;
 }
 
-function renderUtilityPage() {
-  var adminCard = document.getElementById("utilityAdminCard");
-  if(isAdminLike() || isLandlord()) {
-    adminCard.className = "card";
-  } else {
-    adminCard.className = "card hide";
+// ETISALAT calculates presence strictly UP TO TODAY (for real-time accuracy)
+function calculateMemberEtisalatDaysUpToToday(userObj, viewYM) {
+  var today = todayISO();
+  var currentYM = today.slice(0, 7);
+  var totalDaysInMonth = getMonthDaysCount(viewYM);
+  
+  var maxDayToCount = totalDaysInMonth;
+  if(viewYM === currentYM) {
+    maxDayToCount = Number(today.slice(8, 10)); // Up to today only!
+  } else if(viewYM > currentYM) {
+    return 0; // Future month
   }
 
-  // Populate Month Selectors
-  var earliest = todayISO().slice(0, 7);
-  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  var presentDays = 0;
+  for(var d = 1; d <= maxDayToCount; d++) {
+    var dateStr = viewYM + "-" + pad2(d);
+    if(!isUserOnVacationOnDate(userObj, dateStr)) {
+      presentDays++;
+    }
+  }
+  return presentDays;
+}
+
+function populateUtilityMonthDropdowns(billingId, viewId) {
   var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
   for(var i = 0; i < 24; i++) {
     var ym = y + "-" + pad2(m + 1);
     opts += '<option value="' + ym + '">' + MONTHS[m] + ' ' + y + '</option>';
     m--; if(m < 0) { m = 11; y--; }
   }
+  var bSel = document.getElementById(billingId);
+  var vSel = document.getElementById(viewId);
+  if(bSel && !bSel.innerHTML) bSel.innerHTML = opts;
+  if(vSel && !vSel.innerHTML) vSel.innerHTML = opts;
+}
 
-  var billingSel = document.getElementById("utilBillingMonth");
-  var viewSel = document.getElementById("utilViewMonth");
-  if(billingSel && !billingSel.innerHTML) billingSel.innerHTML = opts;
-  if(viewSel && !viewSel.innerHTML) viewSel.innerHTML = opts;
+// --- STANDALONE DEWA RENDER & SAVE ---
+function renderDewaPage() {
+  var adminCard = document.getElementById("dewaAdminCard");
+  if(isAdminLike() || isLandlord()) adminCard.className = "card";
+  else adminCard.className = "card hide";
 
-  var curBillingYM = billingSel ? billingSel.value : todayISO().slice(0, 7);
-  var storedUtil = (utilities && utilities[curBillingYM]) || { dewa: 0, etisalat: 0 };
-  
-  if(document.getElementById("utilDewaAmt") && document.activeElement !== document.getElementById("utilDewaAmt")) {
-    document.getElementById("utilDewaAmt").value = storedUtil.dewa || "";
+  populateUtilityMonthDropdowns("dewaBillingMonth", "dewaViewMonth");
+
+  var billingYM = document.getElementById("dewaBillingMonth").value || todayISO().slice(0, 7);
+  var stored = (utilities && utilities[billingYM]) || { dewa: 0, etisalat: 0 };
+  var amtInp = document.getElementById("dewaBillAmtInput");
+  if(amtInp && document.activeElement !== amtInp) {
+    amtInp.value = stored.dewa || "";
   }
-  if(document.getElementById("utilEtisalatAmt") && document.activeElement !== document.getElementById("utilEtisalatAmt")) {
-    document.getElementById("utilEtisalatAmt").value = storedUtil.etisalat || "";
-  }
 
-  renderMemberUtilityBreakdown();
-}
-
-function calculateUtilityProRata() {
-  // Live calculation helper while admin types
-}
-
-function saveMonthlyUtilities() {
-  if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
-  var ym = document.getElementById("utilBillingMonth").value;
-  var dewa = parseFloat(document.getElementById("utilDewaAmt").value) || 0;
-  var etisalat = parseFloat(document.getElementById("utilEtisalatAmt").value) || 0;
-
-  if(!utilities) utilities = {};
-  utilities[ym] = { dewa: dewa, etisalat: etisalat };
-  save(true);
-  alert("Utilities updated successfully for " + ym + "!");
-  renderUtilityPage();
-}
-
-function renderMemberUtilityBreakdown() {
-  var viewYM = document.getElementById("utilViewMonth").value || todayISO().slice(0, 7);
-  var container = document.getElementById("utilMemberBreakdownContainer");
-  var utilData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
-  var cName = cur.firstName || cur.name;
-
-  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
-  
-  // Dewa calculation (Previous Month Arrears)
+  var viewYM = document.getElementById("dewaViewMonth").value || todayISO().slice(0, 7);
+  var viewData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
   var dewaYM = getPreviousMonthYM(viewYM);
   var dewaDaysInMonth = getMonthDaysCount(dewaYM);
+
+  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
   var totalRoomDewaDays = 0;
-  var memberDewaDaysMap = {};
+  var memberDaysMap = {};
 
   activeMessUsers.forEach(function(u){
     var uName = memberName(u);
-    var days = calculateMemberUtilityDaysForMonth(u, viewYM, true);
-    memberDewaDaysMap[uName] = days;
+    var days = calculateMemberDewaDays(u, viewYM);
+    memberDaysMap[uName] = days;
     totalRoomDewaDays += days;
   });
 
-  // Etisalat calculation (Current Month)
-  var etisalatDaysInMonth = getMonthDaysCount(viewYM);
+  var cName = cur.firstName || cur.name;
+  var myDewaDays = memberDaysMap[cName] || 0;
+  var myDewaShare = totalRoomDewaDays > 0 ? (viewData.dewa * (myDewaDays / totalRoomDewaDays)) : 0;
+
+  var container = document.getElementById("dewaBreakdownContainer");
+  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb">' +
+             '<div style="font-weight:700;font-size:14px;color:#d97706;margin-bottom:8px">Consumption Period: ' + dewaYM + '</div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total DEWA Bill:</span><strong>AED ' + money(viewData.dewa) + '</strong></div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total Room Occupancy Days:</span><strong>' + totalRoomDewaDays + ' days</strong></div>';
+
+  if(!isLandlord() && !isSuper()) {
+    html += '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:6px"><span>Your Active Days:</span><strong>' + myDewaDays + ' / ' + dewaDaysInMonth + ' days</strong></div>' +
+            '<div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #e5e7eb"><span>Your DEWA Share:</span><span>AED ' + money(myDewaShare) + '</span></div>';
+  } else {
+    html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb"><strong style="font-size:11px;color:#6b7280;text-transform:uppercase">Roommate Breakdown</strong>';
+    activeMessUsers.forEach(function(u){
+      var uN = memberName(u);
+      var d = memberDaysMap[uN] || 0;
+      var sh = totalRoomDewaDays > 0 ? (viewData.dewa * (d / totalRoomDewaDays)) : 0;
+      html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(uN) + ' (' + d + '/' + dewaDaysInMonth + ' days)</span><strong>AED ' + money(sh) + '</strong></div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function saveDewaBill() {
+  if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
+  var ym = document.getElementById("dewaBillingMonth").value;
+  var dewa = parseFloat(document.getElementById("dewaBillAmtInput").value) || 0;
+
+  if(!utilities) utilities = {};
+  if(!utilities[ym]) utilities[ym] = { dewa: 0, etisalat: 0 };
+  utilities[ym].dewa = dewa;
+
+  save(true);
+  renderDewaPage();
+  alert("DEWA bill updated successfully for " + ym + "!");
+}
+
+// --- STANDALONE ETISALAT RENDER & SAVE ---
+function renderEtisalatPage() {
+  var adminCard = document.getElementById("etisalatAdminCard");
+  if(isAdminLike() || isLandlord()) adminCard.className = "card";
+  else adminCard.className = "card hide";
+
+  populateUtilityMonthDropdowns("etisalatBillingMonth", "etisalatViewMonth");
+
+  var billingYM = document.getElementById("etisalatBillingMonth").value || todayISO().slice(0, 7);
+  var stored = (utilities && utilities[billingYM]) || { dewa: 0, etisalat: 0 };
+  var amtInp = document.getElementById("etisalatBillAmtInput");
+  if(amtInp && document.activeElement !== amtInp) {
+    amtInp.value = stored.etisalat || "";
+  }
+
+  var viewYM = document.getElementById("etisalatViewMonth").value || todayISO().slice(0, 7);
+  var viewData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
+  var totalDaysInMonth = getMonthDaysCount(viewYM);
+  var currentYM = todayISO().slice(0, 7);
+  var elapsedDays = viewYM === currentYM ? Number(todayISO().slice(8, 10)) : (viewYM < currentYM ? totalDaysInMonth : 0);
+
+  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
   var totalRoomEtisalatDays = 0;
-  var memberEtisalatDaysMap = {};
+  var memberDaysMap = {};
 
   activeMessUsers.forEach(function(u){
     var uName = memberName(u);
-    var days = calculateMemberUtilityDaysForMonth(u, viewYM, false);
-    memberEtisalatDaysMap[uName] = days;
+    var days = calculateMemberEtisalatDaysUpToToday(u, viewYM);
+    memberDaysMap[uName] = days;
     totalRoomEtisalatDays += days;
   });
 
-  var myDewaDays = memberDewaDaysMap[cName] || 0;
-  var myEtisalatDays = memberEtisalatDaysMap[cName] || 0;
+  // Accrued cost up to today
+  var accruedTotalBill = totalDaysInMonth > 0 ? (viewData.etisalat * (elapsedDays / totalDaysInMonth)) : 0;
 
-  var myDewaShare = totalRoomDewaDays > 0 ? (utilData.dewa * (myDewaDays / totalRoomDewaDays)) : 0;
-  var myEtisalatShare = totalRoomEtisalatDays > 0 ? (utilData.etisalat * (myEtisalatDays / totalRoomEtisalatDays)) : 0;
+  var cName = cur.firstName || cur.name;
+  var myEtisalatDays = memberDaysMap[cName] || 0;
+  var myEtisalatShare = totalRoomEtisalatDays > 0 ? (accruedTotalBill * (myEtisalatDays / totalRoomEtisalatDays)) : 0;
 
-  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb;margin-bottom:12px">' +
-             '<div style="font-weight:700;font-size:14px;color:#1e3a8a;margin-bottom:6px"><i class="fa-solid fa-bolt"></i> DEWA Bill (Consumption: ' + dewaYM + ')</div>' +
-             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total Bill Amount:</span><strong>AED ' + money(utilData.dewa) + '</strong></div>' +
-             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Your Present Days:</span><strong>' + myDewaDays + ' / ' + dewaDaysInMonth + ' days</strong></div>' +
-             '<div style="font-size:14px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:6px;border-top:1px solid #e5e7eb"><span>Your DEWA Share:</span><span>AED ' + money(myDewaShare) + '</span></div>' +
-             '</div>';
+  var container = document.getElementById("etisalatBreakdownContainer");
+  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb">' +
+             '<div style="font-weight:700;font-size:14px;color:#0284c7;margin-bottom:8px">Subscription Month: ' + viewYM + ' (Up to Today: ' + elapsedDays + ' / ' + totalDaysInMonth + ' days)</div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Full Monthly Plan:</span><strong>AED ' + money(viewData.etisalat) + '</strong></div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Accrued Bill Up To Today:</span><strong>AED ' + money(accruedTotalBill) + '</strong></div>';
 
-  html += '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb">' +
-          '<div style="font-weight:700;font-size:14px;color:#1e3a8a;margin-bottom:6px"><i class="fa-solid fa-wifi"></i> Etisalat Wi-Fi (Subscription: ' + viewYM + ')</div>' +
-          '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total Subscription Amount:</span><strong>AED ' + money(utilData.etisalat) + '</strong></div>' +
-          '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Your Active Days:</span><strong>' + myEtisalatDays + ' / ' + etisalatDaysInMonth + ' days</strong></div>' +
-          '<div style="font-size:14px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:6px;border-top:1px solid #e5e7eb"><span>Your Etisalat Share:</span><span>AED ' + money(myEtisalatShare) + '</span></div>' +
-          '</div>';
-
+  if(!isLandlord() && !isSuper()) {
+    html += '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:6px"><span>Your Active Days (Up to Today):</span><strong>' + myEtisalatDays + ' / ' + elapsedDays + ' days</strong></div>' +
+            '<div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #e5e7eb"><span>Your Real-Time Share:</span><span>AED ' + money(myEtisalatShare) + '</span></div>';
+  } else {
+    html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb"><strong style="font-size:11px;color:#6b7280;text-transform:uppercase">Roommate Breakdown (Up to Today)</strong>';
+    activeMessUsers.forEach(function(u){
+      var uN = memberName(u);
+      var d = memberDaysMap[uN] || 0;
+      var sh = totalRoomEtisalatDays > 0 ? (accruedTotalBill * (d / totalRoomEtisalatDays)) : 0;
+      html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(uN) + ' (' + d + '/' + elapsedDays + ' days)</span><strong>AED ' + money(sh) + '</strong></div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
   container.innerHTML = html;
+}
+
+function saveEtisalatBill() {
+  if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
+  var ym = document.getElementById("etisalatBillingMonth").value;
+  var etisalat = parseFloat(document.getElementById("etisalatBillAmtInput").value) || 0;
+
+  if(!utilities) utilities = {};
+  if(!utilities[ym]) utilities[ym] = { dewa: 0, etisalat: 0 };
+  utilities[ym].etisalat = etisalat;
+
+  save(true);
+  renderEtisalatPage();
+  alert("Etisalat bill updated successfully for " + ym + "!");
 }
 
 function getSplitMembers(expenseDate) {
@@ -2421,7 +2721,7 @@ function openPaymentModal() {
   document.getElementById("payTo").innerHTML = recipients.map(function(u){
     var n = memberName(u);
     return '<option value="' + escHtml(n) + '">' + escHtml(n) + '</option>';
-  }).join('') || '<option value="">No valid room mates available</option>';
+  }).join('') || '<option value="">No valid recipients available</option>';
   document.getElementById("payAmt").value = "";
   document.getElementById("payDate").value = todayISO();
   document.getElementById("paymentModal").className = "modal-overlay";
@@ -2499,6 +2799,12 @@ function generateStatement() {
 }
 
 function openStatement(ym) {
+  // Lock statement month when generated
+  if(!generatedStatements) generatedStatements = {};
+  if(!generatedStatements[ym]) {
+    generatedStatements[ym] = true;
+    save(true);
+  }
   var blob = buildStatementPdf(ym);
   var url = URL.createObjectURL(blob);
   var w = window.open(url, "_blank");
@@ -2720,6 +3026,7 @@ function closeModals() {
   document.getElementById("editProfileModal").className = "modal-overlay hide";
   document.getElementById("createUserModal").className = "modal-overlay hide";
   document.getElementById("editUserModal").className = "modal-overlay hide";
+  document.getElementById("adminEditVacationModal").className = "modal-overlay hide";
   document.getElementById("serviceManagerModal").className = "modal-overlay hide";
   document.getElementById("paymentModal").className = "modal-overlay hide";
   document.getElementById("statementModal").className = "modal-overlay hide";
@@ -3640,9 +3947,12 @@ function render(){
   document.getElementById("membersRow").classList.toggle("hide", !isSuper());
   document.getElementById("servicesRow").classList.toggle("hide", !isAdminLike());
 
-  if(isLandlord()) {
-    var d3Btn = document.getElementById("d3");
-    if(d3Btn) d3Btn.style.opacity = "0.3";
+  var vacMenuLabel = document.getElementById("vacationMenuLabel");
+  if(vacMenuLabel) vacMenuLabel.innerText = isSuper() ? "Manage Member Vacations" : "Vacation Mode";
+
+  var d3Btn = document.getElementById("d3");
+  if(d3Btn) {
+    d3Btn.style.opacity = isLandlord() ? "0.35" : "1";
   }
 
   var s=stats();
