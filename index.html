@@ -804,6 +804,10 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
         </div>
+        <div class="prof-menu-row" onclick="openProfPage('utilities')">
+          <div class="prof-row-left"><span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-bolt"></i></span>DEWA &amp; Etisalat Utilities</div>
+          <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
+        </div>
         <div class="prof-menu-row" onclick="openProfPage('vacation')">
           <div class="prof-row-left"><span class="prof-row-icon" style="background:#cffafe;color:#0891b2"><i class="fa-solid fa-umbrella-beach"></i></span>Vacation Mode</div>
           <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
@@ -863,6 +867,42 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <i class="fa-solid fa-chevron-right" style="font-size:10px;color:#9ca3af"></i>
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- UTILITIES PAGE: DEWA & ETISALAT PRO-RATA -->
+    <div id="profPage_utilities" class="hide">
+      <div class="prof-page-head">
+        <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
+        <h3 style="color:#111;font-size:18px">DEWA &amp; Etisalat Utilities</h3>
+      </div>
+      
+      <!-- Admin / Landlord input card -->
+      <div id="utilityAdminCard" class="card hide">
+        <h4 style="color:#1e3a8a;margin-bottom:10px"><i class="fa-solid fa-calculator"></i> Utility Bill Management</h4>
+        <label>Select Billing Month</label>
+        <select id="utilBillingMonth" onchange="renderUtilityPage()" style="margin-bottom:10px"></select>
+        
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <div style="flex:1">
+            <label>DEWA (Arrears / Prev Month)</label>
+            <input id="utilDewaAmt" type="number" step="0.01" min="0" placeholder="0.00" oninput="calculateUtilityProRata()">
+          </div>
+          <div style="flex:1">
+            <label>Etisalat (Current Month)</label>
+            <input id="utilEtisalatAmt" type="number" step="0.01" min="0" placeholder="0.00" oninput="calculateUtilityProRata()">
+          </div>
+        </div>
+        <button class="btn" style="margin-top:0;background:#059669" onclick="saveMonthlyUtilities()"><i class="fa-solid fa-floppy-disk"></i> Save &amp; Post Utilities</button>
+      </div>
+
+      <!-- Member view card -->
+      <div class="card">
+        <h4 style="color:#111;margin-bottom:8px"><i class="fa-solid fa-file-invoice-dollar"></i> My Pro-Rata Utility Breakdown</h4>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Calculated automatically based on your active room occupancy &amp; vacation days.</div>
+        <label>Viewing Month</label>
+        <select id="utilViewMonth" onchange="renderUtilityPage()" style="margin-bottom:12px"></select>
+        <div id="utilMemberBreakdownContainer"></div>
       </div>
     </div>
 
@@ -975,6 +1015,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
           <option value="user">Member</option>
           <option value="admin">Admin</option>
           <option value="superadmin">Super Admin</option>
+          <option value="landlord">Landlord</option>
         </select>
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="nMess" checked><span>Mess member (shares expenses)</span></label>
         <button class="btn" style="margin-top:0">Save Member</button>
@@ -1001,6 +1042,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
           <option value="user">Member</option>
           <option value="admin">Admin</option>
           <option value="superadmin">Super Admin</option>
+          <option value="landlord">Landlord</option>
         </select>
         <label class="ck" style="margin-bottom:8px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUActive"><span>Active account (can log in)</span></label>
@@ -1015,7 +1057,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
       <h3 style="color:#111;margin-bottom:6px">Record Payment</h3>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Money you paid to a room mate to settle your dues. Requires verification by recipient.</p>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Money you paid to a room mate or landlord to settle your dues. Requires verification by recipient.</p>
       <form onsubmit="savePayment(event)">
         <label>Paid To</label>
         <select id="payTo" style="margin-bottom:12px"></select>
@@ -1149,6 +1191,7 @@ users.forEach(migrateUserVacations);
 var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [];
 var notifications = JSON.parse(localStorage.getItem("r110_notif")||"null") || [];
+var utilities = JSON.parse(localStorage.getItem("r110_utils")||"null") || {}; // Format: { "2026-11": { dewa: 500, etisalat: 300 } }
 var categories = JSON.parse(localStorage.getItem("r110_cat")||"null") || ["Cinema", "Food", "Gas", "Groceries", "Maintenance", "Utilities"];
 categories.sort(function(a,b){ return a.localeCompare(b); });
 
@@ -1336,6 +1379,10 @@ function loadCloudData(isManual){
         exps = data.exps;
         localStorage.setItem("r110_e", JSON.stringify(exps));
       }
+      if(data && data.utilities) {
+        utilities = data.utilities;
+        localStorage.setItem("r110_utils", JSON.stringify(utilities));
+      }
       if(data && Array.isArray(data.notifications)) {
         var incomingNotifs = data.notifications;
         incomingNotifs.forEach(function(inN){
@@ -1456,6 +1503,7 @@ function save(syncToCloud){
   localStorage.setItem("r110_e", JSON.stringify(exps));
   localStorage.setItem("r110_m", JSON.stringify(msgs));
   localStorage.setItem("r110_notif", JSON.stringify(notifications));
+  localStorage.setItem("r110_utils", JSON.stringify(utilities));
   localStorage.setItem("r110_cat", JSON.stringify(categories));
   localStorage.setItem("r110_grp", JSON.stringify(groups));
   localStorage.setItem("r110_ven", JSON.stringify(vendors));
@@ -1465,7 +1513,7 @@ function save(syncToCloud){
 
   if(syncToCloud && CLOUD_URL){
     setCloudStatus('syncing');
-    var payload = JSON.stringify({users: users, exps: exps, msgs: msgs, notifications: notifications, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
+    var payload = JSON.stringify({users: users, exps: exps, utilities: utilities, msgs: msgs, notifications: notifications, categories: categories, emergencyContacts: emergencyContacts, groups: groups, vendors: vendors, payments: payments});
     fetch(CLOUD_URL, {
       method: "POST",
       mode: "no-cors",
@@ -1665,13 +1713,14 @@ function updateDockBadges() {
   }
 }
 
-var PROF_PAGES = ["ec","members","services","vacation","appearance"];
+var PROF_PAGES = ["ec","members","services","utilities","vacation","appearance"];
 function openProfPage(name) {
   document.getElementById("profMenu").className = "hide";
   PROF_PAGES.forEach(function(k){
     document.getElementById("profPage_" + k).className = (k === name) ? "" : "hide";
   });
   if(name === 'vacation') renderVacationSection();
+  if(name === 'utilities') renderUtilityPage();
   window.scrollTo(0, 0);
 }
 function showProfMenu() {
@@ -1888,6 +1937,143 @@ function renderVacationSection() {
 
   listEl.innerHTML = html;
   totalDaysEl.innerText = totalDays;
+}
+
+// Pro-Rata Utility Engine for DEWA & Etisalat
+function getMonthDaysCount(ym) {
+  var parts = ym.split("-");
+  var y = Number(parts[0]), m = Number(parts[1]);
+  return new Date(y, m, 0).getDate();
+}
+
+function getPreviousMonthYM(ym) {
+  var parts = ym.split("-");
+  var y = Number(parts[0]), m = Number(parts[1]) - 1;
+  m--; if(m < 0) { m = 11; y--; }
+  return y + "-" + pad2(m + 1);
+}
+
+function calculateMemberUtilityDaysForMonth(userObj, ym, isArrears) {
+  var targetYM = isArrears ? getPreviousMonthYM(ym) : ym;
+  var daysInMonth = getMonthDaysCount(targetYM);
+  var presentDays = 0;
+
+  for(var d = 1; d <= daysInMonth; d++) {
+    var dateStr = targetYM + "-" + pad2(d);
+    if(!isUserOnVacationOnDate(userObj, dateStr)) {
+      presentDays++;
+    }
+  }
+  return presentDays;
+}
+
+function renderUtilityPage() {
+  var adminCard = document.getElementById("utilityAdminCard");
+  if(isAdminLike() || isLandlord()) {
+    adminCard.className = "card";
+  } else {
+    adminCard.className = "card hide";
+  }
+
+  // Populate Month Selectors
+  var earliest = todayISO().slice(0, 7);
+  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
+  for(var i = 0; i < 24; i++) {
+    var ym = y + "-" + pad2(m + 1);
+    opts += '<option value="' + ym + '">' + MONTHS[m] + ' ' + y + '</option>';
+    m--; if(m < 0) { m = 11; y--; }
+  }
+
+  var billingSel = document.getElementById("utilBillingMonth");
+  var viewSel = document.getElementById("utilViewMonth");
+  if(billingSel && !billingSel.innerHTML) billingSel.innerHTML = opts;
+  if(viewSel && !viewSel.innerHTML) viewSel.innerHTML = opts;
+
+  var curBillingYM = billingSel ? billingSel.value : todayISO().slice(0, 7);
+  var storedUtil = (utilities && utilities[curBillingYM]) || { dewa: 0, etisalat: 0 };
+  
+  if(document.getElementById("utilDewaAmt") && document.activeElement !== document.getElementById("utilDewaAmt")) {
+    document.getElementById("utilDewaAmt").value = storedUtil.dewa || "";
+  }
+  if(document.getElementById("utilEtisalatAmt") && document.activeElement !== document.getElementById("utilEtisalatAmt")) {
+    document.getElementById("utilEtisalatAmt").value = storedUtil.etisalat || "";
+  }
+
+  renderMemberUtilityBreakdown();
+}
+
+function calculateUtilityProRata() {
+  // Live calculation helper while admin types
+}
+
+function saveMonthlyUtilities() {
+  if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
+  var ym = document.getElementById("utilBillingMonth").value;
+  var dewa = parseFloat(document.getElementById("utilDewaAmt").value) || 0;
+  var etisalat = parseFloat(document.getElementById("utilEtisalatAmt").value) || 0;
+
+  if(!utilities) utilities = {};
+  utilities[ym] = { dewa: dewa, etisalat: etisalat };
+  save(true);
+  alert("Utilities updated successfully for " + ym + "!");
+  renderUtilityPage();
+}
+
+function renderMemberUtilityBreakdown() {
+  var viewYM = document.getElementById("utilViewMonth").value || todayISO().slice(0, 7);
+  var container = document.getElementById("utilMemberBreakdownContainer");
+  var utilData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
+  var cName = cur.firstName || cur.name;
+
+  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
+  
+  // Dewa calculation (Previous Month Arrears)
+  var dewaYM = getPreviousMonthYM(viewYM);
+  var dewaDaysInMonth = getMonthDaysCount(dewaYM);
+  var totalRoomDewaDays = 0;
+  var memberDewaDaysMap = {};
+
+  activeMessUsers.forEach(function(u){
+    var uName = memberName(u);
+    var days = calculateMemberUtilityDaysForMonth(u, viewYM, true);
+    memberDewaDaysMap[uName] = days;
+    totalRoomDewaDays += days;
+  });
+
+  // Etisalat calculation (Current Month)
+  var etisalatDaysInMonth = getMonthDaysCount(viewYM);
+  var totalRoomEtisalatDays = 0;
+  var memberEtisalatDaysMap = {};
+
+  activeMessUsers.forEach(function(u){
+    var uName = memberName(u);
+    var days = calculateMemberUtilityDaysForMonth(u, viewYM, false);
+    memberEtisalatDaysMap[uName] = days;
+    totalRoomEtisalatDays += days;
+  });
+
+  var myDewaDays = memberDewaDaysMap[cName] || 0;
+  var myEtisalatDays = memberEtisalatDaysMap[cName] || 0;
+
+  var myDewaShare = totalRoomDewaDays > 0 ? (utilData.dewa * (myDewaDays / totalRoomDewaDays)) : 0;
+  var myEtisalatShare = totalRoomEtisalatDays > 0 ? (utilData.etisalat * (myEtisalatDays / totalRoomEtisalatDays)) : 0;
+
+  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb;margin-bottom:12px">' +
+             '<div style="font-weight:700;font-size:14px;color:#1e3a8a;margin-bottom:6px"><i class="fa-solid fa-bolt"></i> DEWA Bill (Consumption: ' + dewaYM + ')</div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total Bill Amount:</span><strong>AED ' + money(utilData.dewa) + '</strong></div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Your Present Days:</span><strong>' + myDewaDays + ' / ' + dewaDaysInMonth + ' days</strong></div>' +
+             '<div style="font-size:14px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:6px;border-top:1px solid #e5e7eb"><span>Your DEWA Share:</span><span>AED ' + money(myDewaShare) + '</span></div>' +
+             '</div>';
+
+  html += '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb">' +
+          '<div style="font-weight:700;font-size:14px;color:#1e3a8a;margin-bottom:6px"><i class="fa-solid fa-wifi"></i> Etisalat Wi-Fi (Subscription: ' + viewYM + ')</div>' +
+          '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total Subscription Amount:</span><strong>AED ' + money(utilData.etisalat) + '</strong></div>' +
+          '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Your Active Days:</span><strong>' + myEtisalatDays + ' / ' + etisalatDaysInMonth + ' days</strong></div>' +
+          '<div style="font-size:14px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:6px;border-top:1px solid #e5e7eb"><span>Your Etisalat Share:</span><span>AED ' + money(myEtisalatShare) + '</span></div>' +
+          '</div>';
+
+  container.innerHTML = html;
 }
 
 function getSplitMembers(expenseDate) {
@@ -2247,7 +2433,7 @@ function savePayment(e) {
   var amt = parseFloat(document.getElementById("payAmt").value);
   var date = document.getElementById("payDate").value || todayISO();
   var cName = cur.firstName || cur.name;
-  if(!to) return alert("No room mate to pay.");
+  if(!to) return alert("No recipient to pay.");
   if(!(amt > 0)) return alert("Enter a valid amount");
   
   var newPay = { id: Date.now(), date: date, from: cName, to: to, amt: amt, verified: false };
@@ -2266,7 +2452,7 @@ function verifyPaymentRequest(paymentId, approved, notifId) {
   var cName = cur.firstName || cur.name;
 
   if(p) {
-    if(p.to !== cName && !isSuper()) {
+    if(p.to !== cName && !isSuper() && !isLandlord()) {
       return alert("Only the payment recipient can verify or reject this transaction.");
     }
     if(approved) {
@@ -3626,7 +3812,6 @@ function render(){
   var prevPby = document.getElementById("pby").value || cName;
   var sortedMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
   
-  // Include Landlord in Paid By dropdown options if applicable
   var payerOptions = sortedMessUsers.map(function(u){ return memberName(u); });
   users.forEach(function(u){
     if (u.r === "landlord" && u.active !== false) {
