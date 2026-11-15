@@ -555,7 +555,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <div id="liveDateTime" class="live-datetime" style="font-weight:900!important">Loading date &amp; time...</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <div class="sync-dot-container" onclick="loadCloudData()" title="Tap to refresh cloud data">
+        <div class="sync-dot-container" onclick="loadCloudData(true)" title="Tap to refresh cloud data">
           <span id="cloudDot" class="sync-dot"></span>
         </div>
         <!-- NOTIFICATION BELL -->
@@ -891,7 +891,10 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <span>I don't know my return date (open-ended)</span>
           </label>
           <div id="vacPastWarning" class="hide" style="font-size:11px;color:#d97706;margin-bottom:8px">⚠️ Expenses already recorded will not change.</div>
-          <button id="vacSaveBtn" class="btn btn-s" style="background:#059669;width:100%" onclick="saveNewVacation()" disabled>Save Vacation</button>
+          <div style="display:flex;gap:8px">
+            <button id="vacSaveBtn" class="btn btn-s" style="background:#059669;flex:1" onclick="saveNewVacation()" disabled>Save Vacation</button>
+            <button class="btn btn-s" style="background:#6b7280;flex:1" onclick="cancelVacationForm()">Cancel</button>
+          </div>
         </div>
         <div style="margin-top:16px">
           <strong style="font-size:12px;color:#6b7280;text-transform:uppercase">My Vacations (<span id="totalVacDays">0</span> Total Days)</strong>
@@ -1108,11 +1111,11 @@ setRandomBackground();
 
 function migrateUserVacations(u) {
   if(!Array.isArray(u.vacations)) u.vacations = [];
-  if(u.vacation !== undefined || u.vacFrom !== undefined || u.vacTo !== undefined) {
+  if(u.vacation === true) {
     var f = u.vacFrom || todayISO();
     var t = u.vacTo || "";
     var exists = u.vacations.some(function(v){ return v.from === f && v.to === t; });
-    if(!exists && (u.vacation || u.vacFrom)) {
+    if(!exists) {
       u.vacations.push({
         id: Date.now() + Math.random(),
         from: f,
@@ -1121,10 +1124,23 @@ function migrateUserVacations(u) {
         created: todayISO()
       });
     }
-    delete u.vacation;
-    delete u.vacFrom;
-    delete u.vacTo;
+  } else if(u.vacation === false && u.vacTo && u.vacTo < todayISO()) {
+    var f2 = u.vacFrom || u.vacTo;
+    var t2 = u.vacTo;
+    var exists2 = u.vacations.some(function(v){ return v.from === f2 && v.to === t2; });
+    if(!exists2) {
+      u.vacations.push({
+        id: Date.now() + Math.random(),
+        from: f2,
+        to: t2,
+        openEnded: false,
+        created: todayISO()
+      });
+    }
   }
+  delete u.vacation;
+  delete u.vacFrom;
+  delete u.vacTo;
 }
 
 var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:"",lastActive:Date.now(),active:true,vacations:[]}];
@@ -1302,9 +1318,9 @@ function updateDateTime() {
 }
 setInterval(updateDateTime, 1000);
 
-function loadCloudData(){
+function loadCloudData(isManual){
   if (!CLOUD_URL) return;
-  if (Date.now() - lastLocalSaveTime < 10000) return; // Skip cloud sync shortly after local save
+  if (!isManual && (Date.now() - lastLocalSaveTime < 10000)) return;
   setCloudStatus('syncing');
   fetch(CLOUD_URL)
     .then(function(res){ return res.json(); })
@@ -1404,8 +1420,8 @@ function setCloudStatus(status) {
   }
 }
 
-loadCloudData();
-setInterval(loadCloudData, 6000);
+loadCloudData(false);
+setInterval(function(){ loadCloudData(false); }, 6000);
 
 function applyTheme(){
   var toggle = document.getElementById("darkModeToggle");
@@ -1430,7 +1446,9 @@ function toggleTheme(){
 
 function save(syncToCloud){
   pingUserActivity(false);
-  lastLocalSaveTime = Date.now();
+  if(syncToCloud) {
+    lastLocalSaveTime = Date.now();
+  }
   categories.sort(function(a,b){ return a.localeCompare(b); });
   vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
   emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
@@ -1666,8 +1684,9 @@ function showProfMenu() {
 
 function isSuper() { return !!cur && cur.r === "superadmin"; }
 function isAdminLike() { return !!cur && (cur.r === "admin" || cur.r === "superadmin"); }
+function isLandlord() { return !!cur && cur.r === "landlord"; }
 function isMess(u) { return u.active !== false && u.mess !== false; }
-function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : "Member"); }
+function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : (r === "landlord" ? "Landlord" : "Member")); }
 
 function ensureSuperAdmin() {
   if(users.some(function(x){ return String(x.u).toLowerCase() === "admin"; })) return false;
@@ -1699,9 +1718,9 @@ function isUserActiveOnVacation(userObj) {
 function countVacationDays(v) {
   var today = todayISO();
   var start = v.from;
-  if(start > today) return 0; // Future vacation counts 0 days
+  if(start > today) return 0;
   var end = v.openEnded ? today : (v.to || today);
-  if(end > today) end = today; // Count only days up to today
+  if(end > today) end = today;
   if(start > end) return 0;
 
   var d1 = new Date(start);
@@ -1752,21 +1771,19 @@ function toggleVacation() {
           }
           syncUserVacations();
         } else {
-          toggle.checked = activeToday; // Reset toggle back to real state if cancelled
+          toggle.checked = activeToday;
         }
       }
     } else {
-      var upcoming = cur.vacations.filter(function(v){ return v.from > todayISO(); });
-      if(upcoming.length) {
-        if(confirm("Cancel upcoming vacation?")) {
-          cur.vacations = cur.vacations.filter(function(v){ return v.from <= todayISO(); });
-          syncUserVacations();
-        } else {
-          toggle.checked = activeToday; // Reset toggle back
-        }
-      }
+      toggle.checked = activeToday;
     }
   }
+}
+
+function cancelVacationForm() {
+  document.getElementById("vacationFormContainer").className = "hide";
+  var toggle = document.getElementById("vacationToggle");
+  toggle.checked = isUserActiveOnVacation(cur);
 }
 
 function toggleVacOpenEnded() {
@@ -1840,6 +1857,7 @@ function renderVacationSection() {
   var toggle = document.getElementById("vacationToggle");
   var activeToday = isUserActiveOnVacation(cur);
   toggle.checked = activeToday;
+  document.getElementById("vacationFormContainer").className = "hide";
 
   var listEl = document.getElementById("myVacationsList");
   var totalDaysEl = document.getElementById("totalVacDays");
@@ -1962,7 +1980,14 @@ function onAmountInput() {
 }
 
 function onExpenseDateChange() {
-  onSplitTypeChange();
+  var stEl = document.getElementById("stype");
+  if(stEl && stEl.value !== "custom" && stEl.value !== "c") {
+    var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
+    var sp = getSplitMembers(dateVal);
+    var h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
+    if(sp.vac.length) h += "<br>🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
+    document.getElementById("splitHint").innerHTML = h;
+  }
 }
 
 function validateCustomSplitTotal() {
@@ -3077,6 +3102,7 @@ function saveEditedUser(e){
 
 function addEx(e){
   e.preventDefault();
+  if (isLandlord()) return alert("Landlords are not permitted to add expenses.");
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
 
@@ -3130,7 +3156,6 @@ function addEx(e){
       }
     });
 
-    // Remainder fils allocation rule: if payer is in split, give leftover fils to payer, else first member
     if(splits[pb] !== undefined) {
       var diff = Math.round((a - Object.keys(splits).reduce(function(acc, k){ return acc + (k === pb ? 0 : splits[k]); }, 0)) * 100) / 100;
       splits[pb] = diff;
@@ -3167,7 +3192,7 @@ function applyLastSelections(){
 }
 
 function canEditExp(x) {
-  if(!cur) return false;
+  if(!cur || isLandlord()) return false;
   if(isSuper()) return true;
   if(cur.r !== "admin") return false;
   var me = cur.firstName || cur.name;
@@ -3195,7 +3220,6 @@ function openEditExp(id) {
   var activeList = x.al || Object.keys(x.splits || {});
   activeList.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
 
-  // Resolve splitMode for legacy expenses
   var isCustom = x.splitMode === "custom";
   if(!x.splitMode && x.splits) {
     var vals = Object.values(x.splits);
@@ -3250,6 +3274,7 @@ function validateEditCustomSplitTotal() {
 
 function saveEditedExp(e) {
   e.preventDefault();
+  if (isLandlord()) return;
   var id = document.getElementById("eeId").value;
   var x = exps.find(function(t){ return t.id == id; });
   if(!x || !canEditExp(x)) return;
@@ -3323,6 +3348,7 @@ function saveEditedExp(e) {
 }
 
 function delEx(id){
+  if (isLandlord()) return;
   var x = exps.find(function(t){ return t.id == id; });
   if(!x || !canEditExp(x)) return;
   if(confirm("Delete expense?")){ exps = exps.filter(function(t){ return t.id != id; }); save(true); }
@@ -3427,6 +3453,11 @@ function render(){
   document.getElementById("profRole").innerText = roleLabel(cur.r);
   document.getElementById("membersRow").classList.toggle("hide", !isSuper());
   document.getElementById("servicesRow").classList.toggle("hide", !isAdminLike());
+
+  if(isLandlord()) {
+    var d3Btn = document.getElementById("d3");
+    if(d3Btn) d3Btn.style.opacity = "0.3";
+  }
 
   var s=stats();
   var myAllShare = exps.reduce(function(t,x){
@@ -3595,7 +3626,16 @@ function render(){
   var prevPby = document.getElementById("pby").value || cName;
   var sortedMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
   
-  setHtmlIfChanged(document.getElementById("pby"), sortedMessUsers.map(function(u){var uN = memberName(u); return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"}).join(""));
+  // Include Landlord in Paid By dropdown options if applicable
+  var payerOptions = sortedMessUsers.map(function(u){ return memberName(u); });
+  users.forEach(function(u){
+    if (u.r === "landlord" && u.active !== false) {
+      var lName = memberName(u);
+      if (payerOptions.indexOf(lName) === -1) payerOptions.push(lName);
+    }
+  });
+
+  setHtmlIfChanged(document.getElementById("pby"), payerOptions.map(function(uN){ return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"}).join(""));
   
   var stypeSel = document.getElementById("stype");
   var prevSt = stypeSel.value || lastSel.stype || "a";
