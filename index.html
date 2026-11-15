@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=yes">
 <title>Room 110 Mess</title>
 
 <!-- iOS Home Screen Icon & App Settings -->
@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <!-- Chart.js for Dashboards -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <style>
 *{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;-webkit-tap-highlight-color:transparent}
@@ -75,7 +75,7 @@ input:focus,select:focus{border-color:#1e3a8a;outline:none}
 .top-logo { width: 95px; height: auto; display: block; margin-left: 0; padding-left: 0; }
 .live-datetime { font-size: 11.5px; font-weight: 700; margin-left: 0; text-align: left; color: #6b7280; }
 
-/* Apple Instagram Liquid Glass Floating Bottom Dock */
+/* Apple Liquid Glass Floating Bottom Dock */
 .floating-dock {
   position: fixed;
   bottom: 20px;
@@ -270,7 +270,7 @@ th{color:#111}
 .logo-svg{width:100%;max-width:340px;height:auto;margin:0 auto 6px;display:block}
 .footer-text{text-align:center;color:#fff;font-size:12px;margin-top:16px;text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:600}
 
-/* Full-Screen WhatsApp Style Chat UI with Corrected Viewport Calculation */
+/* Full-Screen WhatsApp Style Chat UI */
 #v4 { padding: 0; margin: 0; border: none; border-radius: 0; box-shadow: none; background: transparent; }
 .chat-container {
   display: flex;
@@ -304,7 +304,7 @@ th{color:#111}
 .reaction-pill { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 10px; font-size: 11px; cursor: pointer; }
 .readonly-notice { text-align: center; padding: 12px; font-size: 12px; font-weight: 600; color: #6b7280; background: #f8fafc; border-top: 1px solid #e2e8f0; }
 
-/* Full-Screen Notification Center UI with Corrected Viewport Calculation */
+/* Notification Center UI */
 .notif-container {
   display: flex;
   flex-direction: column;
@@ -440,7 +440,6 @@ body.dark-page .notif-card.unread {
 .prof-page-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
 body.dark-page .prof-menu-row { border-bottom-color:#334155; }
 body.dark-page .prof-row-left { color:#f8fafc; }
-body.dark-page .prof-row-left[style*="#dc2626"] { color:#f87171 !important; }
 
 .exp-tile { flex:1; border:2px solid transparent; border-radius:14px; padding:12px; background:#f8fafc; cursor:pointer; min-width:0; }
 .exp-tile.active { border-color:#1e3a8a; background:#eff6ff; }
@@ -526,7 +525,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
 <!-- MAIN DASHBOARD SCREEN -->
 <div id="appBox" class="hide" style="width:100%">
-  <!-- STICKY CURVED BORDER HEADER CARD WITH PROPER TOP LOCK -->
+  <!-- STICKY CURVED BORDER HEADER CARD -->
   <div class="header-sticky-container">
     <div class="header-curved-box">
       <div class="top-left-box">
@@ -593,7 +592,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </div>
       </div>
 
-      <!-- PAYMENT OVERDUE / RECEIVABLE CARD (Dynamic Labeling & Color Logic) -->
+      <!-- PAYMENT OVERDUE / RECEIVABLE CARD -->
       <div class="card" id="homeOverdueCard" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
         <div id="homeOverdueTitle" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
         <div id="homeOverdueAmt" style="font-size:16px;font-weight:900;color:#dc2626">AED 0.00</div>
@@ -652,7 +651,6 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
     <!-- TAB 2: EXPENSES -->
     <div id="v2" class="hide">
-      <!-- SEPARATE OVERDUE / RECEIVABLE SECTION WITH CONDITIONAL PAY NOW BUTTON -->
       <div class="card" id="expTabOverdueBox" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
         <div>
           <div id="expTabOverdueTitle" style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px">Payment Overdue (Prev Month)</div>
@@ -724,7 +722,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
       </form>
     </div>
 
-    <!-- TAB 4: FULL-SCREEN CHAT SECTION -->
+    <!-- TAB 4: CHAT SECTION -->
     <div id="v4" class="hide">
       <div class="chat-container">
         <div id="chatSidebar" class="chat-sidebar">
@@ -910,7 +908,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     </div>
     </div>
 
-    <!-- FULL-SCREEN NOTIFICATION CENTER SECTION -->
+    <!-- NOTIFICATION CENTER SECTION -->
     <div id="vNotif" class="hide">
       <div class="notif-container">
         <div class="notif-header">
@@ -928,6 +926,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
   </div>
 
+  <!-- MODALS -->
   <div id="editProfileModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
@@ -994,7 +993,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
         <div style="display:flex;gap:10px">
           <button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button>
-          <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()"><i class="fa-solid fa-trash"></i></button>
+          <button type="button" class="btn" style="margin-top:0;background:#dc2626;flex:1" onclick="deleteUserFromModal()"><i class="fa-solid fa-user-slash"></i> Archive</button>
         </div>
       </form>
     </div>
@@ -1085,22 +1084,7 @@ var megaBackgrounds = [
   'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=75',
   'https://images.unsplash.com/photo-1580674684081-7617fbf3d745?auto=format&fit=crop&w=1200&q=75',
   'https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1578895101408-1a364e49ee90?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1574873215043-44119461cb3b?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=75',
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=75'
+  'https://images.unsplash.com/photo-1578895101408-1a364e49ee90?auto=format&fit=crop&w=1200&q=75'
 ];
 
 function setRandomBackground() {
@@ -1112,7 +1096,7 @@ function setRandomBackground() {
 }
 setRandomBackground();
 
-var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:"",lastActive:Date.now()}];
+var users = JSON.parse(localStorage.getItem("r110_u")||"null") || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:"",lastActive:Date.now(),active:true}];
 var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [];
 var notifications = JSON.parse(localStorage.getItem("r110_notif")||"null") || [];
@@ -1137,7 +1121,6 @@ var vendors = JSON.parse(localStorage.getItem("r110_ven")||"null") || [];
 vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
 
 var payments = JSON.parse(localStorage.getItem("r110_pay")||"null") || [];
-// Fix: Default legacy payments saved before verification feature to verified=true
 payments.forEach(function(p){
   if(p.verified === undefined) p.verified = true;
 });
@@ -1211,7 +1194,7 @@ function fetchLiveWeather() {
       }
     })
     .catch(function(err) {
-      console.log("Weather fetch failed, using default.");
+      console.log("Weather fetch failed.");
     });
 }
 fetchLiveWeather();
@@ -1242,7 +1225,7 @@ function checkSuperAdminWelcome() {
       id: 100002,
       sender: "Super Admin",
       target: "superadmin_channel",
-      text: "📢 Official Room 110 Admin Channel: Welcome! Monthly statement summaries, rent notices, and payment reminders will be posted here by the Super Admin.",
+      text: "📢 Official Room 110 Admin Channel: Welcome! Monthly statement summaries and payment reminders will be posted here.",
       timestamp: "System",
       timeEpoch: Date.now() - 1000000,
       isWelcome: true,
@@ -1254,103 +1237,6 @@ function checkSuperAdminWelcome() {
 
   if(changed) {
     localStorage.setItem("r110_m", JSON.stringify(msgs));
-  }
-}
-
-// Server-side guarded Automated Monthly Statement Check on the 5th of every month (Runs once globally)
-function checkAutomatedMonthlyStatements() {
-  var now = new Date();
-  if (now.getDate() === 5) {
-    var ymKey = now.getFullYear() + "-" + pad2(now.getMonth() + 1);
-    var globalRunKey = "r110_auto_stmt_executed_" + ymKey;
-    if (!localStorage.getItem(globalRunKey) && isSuper()) {
-      var y = now.getFullYear(), m = now.getMonth();
-      m--; if (m < 0) { m = 11; y--; }
-      var targetYM = y + "-" + pad2(m + 1);
-
-      users.filter(isMess).forEach(function(u) {
-        var uName = u.firstName || u.name;
-        var savedCur = cur;
-        cur = u;
-        var blob = buildStatementPdf(targetYM);
-        var blobUrl = URL.createObjectURL(blob);
-        cur = savedCur;
-
-        var tm = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        var msgText = "📊 *AUTOMATED MONTHLY STATEMENT* (" + targetYM + ")<br>Your official monthly statement has been generated.<br><br>" +
-                      '<a href="' + blobUrl + '" target="_blank" style="display:inline-block;background:#059669;color:#fff;padding:8px 14px;border-radius:8px;text-decoration:none;font-weight:700"><i class="fa-solid fa-file-pdf"></i> Download ' + targetYM + ' Statement PDF</a>';
-
-        msgs.push({
-          id: Date.now() + Math.random(),
-          sender: "Super Admin",
-          target: uName,
-          text: msgText,
-          timestamp: tm,
-          timeEpoch: Date.now(),
-          isSystem: true,
-          delivered: true,
-          isRead: false,
-          reactions: {}
-        });
-
-        addNotification(uName, "Monthly Statement Generated", "Your automated statement for " + targetYM + " is now ready in chat.", "monthly_statement", null, false);
-      });
-
-      localStorage.setItem(globalRunKey, "true");
-      save(true);
-    }
-  }
-}
-setInterval(checkAutomatedMonthlyStatements, 3600000);
-
-function broadcastStatementReminder() {
-  if(!isSuper()) return;
-  var s = stats();
-  var reminderText = "📊 *MONTHLY STATEMENT & PAYMENT REMINDER*\nTotal Room Spend: AED " + s.tot.toFixed(2) + "\n";
-  s.st.forEach(function(m){
-    if(m.net < 0) {
-      reminderText += "• " + m.name + ": Please settle AED " + Math.abs(m.net).toFixed(2) + "\n";
-    } else if(m.net > 0) {
-      reminderText += "• " + m.name + ": To receive +AED " + m.net.toFixed(2) + "\n";
-    }
-  });
-  reminderText += "Kindly clear dues promptly!";
-
-  var now = new Date();
-  var h = now.getHours();
-  var m = now.getMinutes();
-  var sSec = now.getSeconds();
-  var ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12; h = h ? h : 12;
-  var tm = pad2(h) + ":" + pad2(m) + ":" + pad2(sSec) + " " + ampm;
-
-  msgs.push({
-    id: Date.now(),
-    sender: "Super Admin",
-    target: activeChatTarget,
-    text: reminderText.replace(/\n/g, "<br>"),
-    timestamp: tm,
-    timeEpoch: Date.now(),
-    isSystem: true,
-    delivered: true,
-    isRead: false,
-    reactions: {}
-  });
-
-  save(true);
-  renderChatMessages();
-  triggerPushNotification("Room 110 Statement Reminder", "Super Admin sent a payment statement reminder.");
-}
-
-function triggerPushNotification(title, bodyText) {
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification(title, { body: bodyText, icon: "logo.png" });
-  }
-}
-
-function requestNotificationPermission() {
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
   }
 }
 
@@ -1402,29 +1288,8 @@ function loadCloudData(){
         localStorage.setItem("r110_notif", JSON.stringify(notifications));
       }
       if(data && data.msgs && data.msgs.length) {
-        var prevCount = msgs.length;
-        var cName = cur ? (cur.firstName || cur.name) : "";
-        data.msgs.forEach(function(incoming){
-          var existing = msgs.find(function(ex){ return ex.id === incoming.id; });
-          incoming.delivered = true;
-          if(existing && existing.isRead) {
-            incoming.isRead = true;
-          }
-          var inChat = (activeChatTarget === 'superadmin_channel' && incoming.target === 'superadmin_channel') ||
-                       (activeChatTarget === 'group_room110' && (incoming.target === 'group_room110' || !incoming.target)) ||
-                       (incoming.target === cName && incoming.sender === activeChatTarget);
-          if(inChat && incoming.sender !== cName && document.getElementById("chatMainPane") && document.getElementById("chatMainPane").className.indexOf("hide") === -1) {
-            incoming.isRead = true;
-          }
-        });
         msgs = data.msgs;
         localStorage.setItem("r110_m", JSON.stringify(msgs));
-        if(msgs.length > prevCount && cur) {
-          var latest = msgs[msgs.length - 1];
-          if(latest && latest.sender !== cName) {
-            triggerPushNotification("New message from " + latest.sender, latest.text.replace(/<br>/g, " "));
-          }
-        }
       }
       if(data && data.categories) {
         categories = data.categories;
@@ -1485,7 +1350,7 @@ function setCloudStatus(status) {
 }
 
 loadCloudData();
-setInterval(loadCloudData, 6000); // Optimized polling interval to prevent race conditions
+setInterval(loadCloudData, 6000);
 
 function applyTheme(){
   var toggle = document.getElementById("darkModeToggle");
@@ -1567,7 +1432,6 @@ function login(e){
     if(document.getElementById("keepMe").checked){
       localStorage.setItem("r110_saved_user", JSON.stringify(cur));
     }
-    requestNotificationPermission();
     openDashboard();
     save(false);
   }
@@ -1605,7 +1469,6 @@ function tab(n){
   var mainWrap = document.getElementById("mainWrap");
   if(n == 4) {
     mainWrap.className = "wrap chat-fullscreen-wrap";
-    requestNotificationPermission();
   } else {
     mainWrap.className = "wrap";
   }
@@ -1618,7 +1481,6 @@ function tab(n){
       if(i==3) {
         var stypeEl = document.getElementById("stype");
         if(stypeEl) {
-          // Restore remembered selection or default
           var remembered = lastSel.stype || "a";
           stypeEl.value = remembered;
           onSplitTypeChange();
@@ -1705,7 +1567,6 @@ function updateDockBadges() {
   if(!cur) return;
   var cName = cur.firstName || cur.name;
   
-  // Chat Unread Count
   var unreadChats = msgs.filter(function(m){
     var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') ||
                  (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) ||
@@ -1717,7 +1578,6 @@ function updateDockBadges() {
     chatDot.className = unreadChats > 0 ? "dock-dot" : "dock-dot hide";
   }
 
-  // Profile / Notification Unread Count
   var unreadNotifs = notifications.filter(function(n){
     return (n.targetUser === "all" || n.targetUser === cName) && !n.read;
   }).length;
@@ -1749,13 +1609,15 @@ function showProfMenu() {
 
 function isSuper() { return !!cur && cur.r === "superadmin"; }
 function isAdminLike() { return !!cur && (cur.r === "admin" || cur.r === "superadmin"); }
-function isMess(u) { return u.mess !== false; }
+function isMess(u) { return u.active !== false && u.mess !== false; }
 function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : "Member"); }
+
 function ensureSuperAdmin() {
   if(users.some(function(x){ return String(x.u).toLowerCase() === "admin"; })) return false;
-  users.unshift({ id: Date.now(), firstName: "Super", lastName: "Admin", name: "Super", u: "admin", p: "admin123", r: "superadmin", avatar: "", lastActive: 0, mess: false });
+  users.unshift({ id: Date.now(), firstName: "Super", lastName: "Admin", name: "Super", u: "admin", p: "admin123", r: "superadmin", avatar: "", lastActive: 0, mess: false, active: true });
   return true;
 }
+
 function escHtml(t) {
   return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
@@ -1797,31 +1659,44 @@ function saveVacationDates() {
   save(true);
 }
 
-function getSplitMembers() {
+function isUserOnVacationOnDate(userObj, dateStr) {
+  if(!userObj) return false;
+  if(userObj.vacation) return true; // manual toggle
+  if(userObj.vacFrom && userObj.vacTo) {
+    return dateStr >= userObj.vacFrom && dateStr <= userObj.vacTo;
+  }
+  return false;
+}
+
+function getSplitMembers(expenseDate) {
   var selEl = document.getElementById("stype");
   var st = selEl ? selEl.value : "a";
-  var onVac = users.filter(function(u){ return u.vacation; }).map(memberName);
+  var checkDate = expenseDate || todayISO();
   
-  var messUsers = users.filter(isMess).slice().sort(function(a, b){
+  var activeMessUsers = users.filter(isMess).slice().sort(function(a, b){
     return memberName(a).localeCompare(memberName(b));
   });
 
+  var onVacNames = activeMessUsers.filter(function(u){
+    return isUserOnVacationOnDate(u, checkDate);
+  }).map(memberName);
+
   if(st === "c") {
     var checked = Array.prototype.map.call(document.querySelectorAll(".mck:checked"), function(c){ return c.value; });
-    return { al: checked, vac: onVac };
+    return { al: checked, vac: onVacNames };
   }
   var pool;
   if(st && st.indexOf("g:") === 0) {
     var gname = decodeURIComponent(st.slice(2));
     var g = groups.filter(function(x){ return x.name === gname; })[0];
-    var existing = messUsers.map(memberName);
+    var existing = activeMessUsers.map(memberName);
     pool = ((g && g.members) || []).filter(function(n){ return existing.indexOf(n) > -1; });
   } else {
-    pool = messUsers.map(memberName);
+    pool = activeMessUsers.map(memberName);
   }
   return {
-    al: pool.filter(function(n){ return onVac.indexOf(n) === -1; }),
-    vac: pool.filter(function(n){ return onVac.indexOf(n) > -1; })
+    al: pool.filter(function(n){ return onVacNames.indexOf(n) === -1; }),
+    vac: pool.filter(function(n){ return onVacNames.indexOf(n) > -1; })
   };
 }
 
@@ -1831,11 +1706,11 @@ function onSplitTypeChange() {
   var st = stEl.value;
   document.getElementById("cbox").className = (st === "c") ? "cks" : "cks hide";
   
-  // Persist split selection immediately
   lastSel.stype = st;
   localStorage.setItem("r110_last", JSON.stringify(lastSel));
 
-  var sp = getSplitMembers();
+  var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
+  var sp = getSplitMembers(dateVal);
   var h = "";
   if(st !== "c") h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
   if(sp.vac.length) h += (h ? "<br>" : "") + "🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
@@ -1847,7 +1722,7 @@ function pad2(n) { return n < 10 ? "0" + n : "" + n; }
 function toISO(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
 function todayISO() { return toISO(new Date()); }
 function expDate(x) { return x.date || toISO(new Date(Number(x.id))); }
-function fmtDate(iso) { var p = iso.split("-"); return Number(p[2]) + " " + MONTHS[Number(p[1]) - 1] + " " + p[0]; }
+function fmtDate(iso) { var p = (iso || todayISO()).split("-"); return Number(p[2]) + " " + MONTHS[Number(p[1]) - 1] + " " + p[0]; }
 function money(n) { return Number(n).toFixed(2); }
 function periodRange(ym) {
   var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7));
@@ -1855,7 +1730,8 @@ function periodRange(ym) {
 }
 
 function calculatePreviousMonthOverdue(cName, ym) {
-  var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7));
+  var parts = ym.split("-");
+  var y = Number(parts[0]), m = Number(parts[1]) - 1;
   m--; if(m < 0) { m = 11; y--; }
   var prevYM = y + "-" + pad2(m + 1);
   var pr = periodRange(prevYM);
@@ -1874,16 +1750,6 @@ function calculatePreviousMonthOverdue(cName, ym) {
     var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
     if(p.date < pr.start) { opening += eff; }
     else if(p.date <= pr.end) { paySum += eff; }
-  });
-  
-  // Fix: Also offset current month payments made toward settling previous dues
-  var curStart = ym + "-01";
-  payments.forEach(function(p){
-    if(!p.verified || (p.from != cName && p.to != cName)) return;
-    var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
-    if(p.date >= curStart && p.date <= todayISO()) {
-      paySum += eff;
-    }
   });
 
   return opening + purchases - expenses + paySum;
@@ -2050,7 +1916,12 @@ function savePayment(e) {
 function verifyPaymentRequest(paymentId, approved, notifId) {
   var p = payments.find(function(x){ return x.id == paymentId; });
   var n = notifications.find(function(x){ return x.id == notifId; });
+  var cName = cur.firstName || cur.name;
+
   if(p) {
+    if(p.to !== cName && !isSuper()) {
+      return alert("Only the payment recipient can verify or reject this transaction.");
+    }
     if(approved) {
       p.verified = true;
       addNotification(p.from, "Payment Approved", cur.firstName + " verified and approved your payment of AED " + money(p.amt) + ".", "payment_verified", null, true);
@@ -2087,11 +1958,13 @@ function openStatementModal() {
   document.getElementById("stmtMonth").innerHTML = opts;
   document.getElementById("statementModal").className = "modal-overlay";
 }
+
 function generateStatement() {
   var ym = document.getElementById("stmtMonth").value;
   closeModals();
   openStatement(ym);
 }
+
 function openStatement(ym) {
   var blob = buildStatementPdf(ym);
   var url = URL.createObjectURL(blob);
@@ -2299,9 +2172,9 @@ function openEditUserModal(id) {
   document.getElementById("eUFirstName").value = user.firstName || user.name || "";
   document.getElementById("eULastName").value = user.lastName || "";
   document.getElementById("eUId").value = user.u;
-  document.getElementById("eUPass").value = ""; // Masked for security
+  document.getElementById("eUPass").value = "";
   document.getElementById("eURole").value = user.r;
-  document.getElementById("eUMess").checked = user.mess !== false;
+  document.getElementById("eUMess").checked = user.mess !== false && user.active !== false;
   document.getElementById("editUserModal").className = "modal-overlay";
 }
 function closeModals() {
@@ -2488,7 +2361,7 @@ function renderChatMessages() {
     if(m.isSystem) {
       senderHeader = '<div style="font-size:10px;font-weight:800;color:#b45309;margin-bottom:3px"><i class="fa-solid fa-shield-halved"></i> Super Admin</div>';
     } else if(activeChatTarget === 'group_room110' && !isMe) {
-      senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+m.sender+'</div>';
+      senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+escHtml(m.sender)+'</div>';
     }
 
     var ticksHtml = '';
@@ -2559,7 +2432,7 @@ function sendActiveChatMsg(e) {
     id: Date.now(),
     sender: isSuperAdminPost ? "Super Admin" : (cur.firstName || cur.name),
     target: activeChatTarget,
-    text: txt,
+    text: escHtml(txt),
     timestamp: tm,
     timeEpoch: Date.now(),
     isSystem: isSuperAdminPost,
@@ -2647,7 +2520,7 @@ function promptEditMessage(msgId) {
   if(!msg) return;
   var newText = prompt("Edit your message:", msg.text.replace(/<br>/g, "\n"));
   if(newText !== null && newText.trim() !== "") {
-    msg.text = newText.trim().replace(/\n/g, "<br>");
+    msg.text = escHtml(newText.trim()).replace(/\n/g, "<br>");
     msg.edited = true;
     save(true);
     renderChatMessages();
@@ -2697,7 +2570,7 @@ function renderCategoryManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
   
   body.innerHTML = categories.map(function(c){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+c+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+c+'\')"><i class="fa-solid fa-trash"></i></button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+escHtml(c)+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+escHtml(c)+'\')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Category</label><input id="newCatInput" placeholder="Category name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewCategory()">Add Category</button></div>';
@@ -2780,6 +2653,7 @@ function renderVendorManagerContent() {
   }).join('') || '<div style="color:#6b7280;font-style:italic">No vendors yet. Add one below.</div>';
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Vendor Name</label><input id="newVenName" placeholder="e.g. Lulu Hypermarket" style="margin-bottom:8px"><label>Phone (optional)</label><input id="newVenPhone" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewVendor()">Add Vendor</button></div>';
 }
+
 function addNewVendor() {
   var name = document.getElementById("newVenName").value.trim();
   var phone = document.getElementById("newVenPhone").value.trim();
@@ -2790,6 +2664,7 @@ function addNewVendor() {
   save(true);
   renderVendorManagerContent();
 }
+
 function deleteVendor(idx) {
   if(!confirm("Delete this vendor?")) return;
   vendors.splice(idx, 1);
@@ -2803,7 +2678,7 @@ function renderContactManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
 
   body.innerHTML = emergencyContacts.map(function(ec, idx){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><button class="btn btn-s" style="background:#dc2626" onclick="deleteContact('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(ec.name)+'</div><div style="font-size:11px;color:#6b7280">'+escHtml(ec.number)+'</div></div><button class="btn btn-s" style="background:#dc2626" onclick="deleteContact('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No emergency contacts found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Contact Name</label><input id="newEcName" placeholder="e.g. Laundry" style="margin-bottom:8px"><label>Phone Number</label><input id="newEcNum" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewContact()">Add Contact</button></div>';
@@ -2833,7 +2708,7 @@ function addU(e){
   var p=document.getElementById("npass").value.trim();
   var r=document.getElementById("nrole").value;
   if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
-  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:document.getElementById("nMess").checked});
+  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:document.getElementById("nMess").checked,active:true});
   document.getElementById("nFname").value="";
   document.getElementById("nLname").value="";
   document.getElementById("nid").value="";
@@ -2855,7 +2730,7 @@ function saveEditedUser(e){
     if(users.some(function(x){return x.u === u && x.id !== id})) return alert("User ID already exists!");
     if(user.r === "superadmin" && r !== "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("At least one Super Admin is required.");
     user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; 
-    if(p) user.p = p; // Only update password if provided
+    if(p) user.p = p;
     user.r = r;
     user.mess = document.getElementById("eUMess").checked;
     closeModals();
@@ -2866,13 +2741,13 @@ function saveEditedUser(e){
 function deleteUserFromModal(){
   var id = Number(document.getElementById("editUserId").value);
   var target = users.find(function(x){ return x.id === id; });
-  if(target && target.r === "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("Cannot delete the only Super Admin!");
-  if(users.length > 1 && confirm("Delete user?")){
-    users = users.filter(function(x){return x.id !== id});
+  if(target && target.r === "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("Cannot archive the only Super Admin!");
+  
+  if(target && confirm("Archive user? Their historical financial records will be preserved safely, but they will be removed from active lists.")) {
+    target.active = false;
+    target.mess = false;
     closeModals();
     save(true);
-  } else if(users.length <= 1) {
-    alert("Cannot delete the last remaining user!");
   }
 }
 
@@ -2881,7 +2756,6 @@ function addEx(e){
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
 
-  // Universal date rule: No one (including Admins & Super Admins) can add expenses after the 4th of the next month
   var now = new Date();
   var expD = new Date(dateVal);
   var curYear = now.getFullYear(), curMonth = now.getMonth();
@@ -2892,7 +2766,7 @@ function addEx(e){
 
   var vendor=document.getElementById("expVendor").value;
   var note=document.getElementById("expNote").value.trim();
-  var al=getSplitMembers().al;
+  var al=getSplitMembers(dateVal).al;
   if(!al.length)return alert("No members to charge. Select at least 1 member who is not on vacation.");
   
   var newExp = {id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()};
@@ -2900,7 +2774,6 @@ function addEx(e){
   
   var cName = cur.firstName || cur.name;
   al.forEach(function(memName){
-    // Exclude the expense creator from receiving self-notification noise
     if(memName !== pb && memName !== cName) {
       addNotification(memName, "New Expense Added", pb + " added AED " + money(a) + " for " + d + ".", "expense", null, false);
     }
@@ -2932,11 +2805,13 @@ function canEditExp(x) {
   var me = cur.firstName || cur.name;
   return x.pb == me || x.al.indexOf(me) > -1;
 }
+
 function optList(values, selected) {
   var vals = values.slice();
   if(selected && vals.indexOf(selected) === -1) vals.push(selected);
   return vals.map(function(v){ return '<option value="' + escHtml(v) + '"' + (v === selected ? ' selected' : '') + '>' + escHtml(v) + '</option>'; }).join('');
 }
+
 function openEditExp(id) {
   var x = exps.find(function(e){ return e.id == id; });
   if(!x || !canEditExp(x)) return;
@@ -2954,6 +2829,7 @@ function openEditExp(id) {
   }).join('');
   document.getElementById("editExpModal").className = "modal-overlay";
 }
+
 function saveEditedExp(e) {
   e.preventDefault();
   var id = document.getElementById("eeId").value;
@@ -2981,6 +2857,7 @@ function saveEditedExp(e) {
   closeModals();
   save(true);
 }
+
 function delEx(id){
   var x = exps.find(function(t){ return t.id == id; });
   if(!x || !canEditExp(x)) return;
@@ -3096,11 +2973,8 @@ function render(){
   document.getElementById("catTitle").innerText = isSuper() ? "Expenses by Category" : "My Expenses by Category";
   document.getElementById("mcount").innerText=users.filter(isMess).length;
   var visibleBal=isSuper()?s.st.filter(function(m){return Math.abs(m.net)>=0.005}):s.st.filter(function(m){return m.name===cName});
-  document.getElementById("tb").innerHTML=visibleBal.length===0?"<tr><td colspan='4' style='text-align:center;color:#6b7280;font-style:italic'>All balances are settled.</td></tr>":visibleBal.map(function(m){return "<tr><td><b>"+m.name+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
+  document.getElementById("tb").innerHTML=visibleBal.length===0?"<tr><td colspan='4' style='text-align:center;color:#6b7280;font-style:italic'>All balances are settled.</td></tr>":visibleBal.map(function(m){return "<tr><td><b>"+escHtml(m.name)+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
 
-  var myStat = s.st.find(function(m){return m.name===cName}) || {net:0, pd:0, sh:0};
-
-  // Render Payment Overdue / Receivable card on Home screen with dynamic labeling & coloring
   var currentYM = todayISO().slice(0, 7);
   var netPrev = calculatePreviousMonthOverdue(cName, currentYM);
   var homeOverdueCard = document.getElementById("homeOverdueCard");
@@ -3118,8 +2992,6 @@ function render(){
       homeOverdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
       homeOverdueAmtEl.style.color = "#dc2626";
     }
-    var liveDtEl = document.getElementById("liveDateTime");
-    if(liveDtEl) liveDtEl.style.color = "#6b7280";
   }
 
   var nowD = new Date();
@@ -3203,7 +3075,7 @@ function render(){
     var currentSelectedCat = descSelect.value;
     categories.sort(function(a,b){ return a.localeCompare(b); });
     setHtmlIfChanged(descSelect, categories.map(function(c){
-      return '<option value="'+c+'" '+(c===currentSelectedCat?'selected':'')+'>'+c+'</option>';
+      return '<option value="'+escHtml(c)+'" '+(c===currentSelectedCat?'selected':'')+'>'+escHtml(c)+'</option>';
     }).join(''));
   }
 
@@ -3211,7 +3083,7 @@ function render(){
   if(ecContainer) {
     emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
     ecContainer.innerHTML = emergencyContacts.map(function(ec){
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:700;color:#111">'+ec.name+'</div><div style="font-size:11px;color:#6b7280">'+ec.number+'</div></div><div style="display:flex;gap:6px"><a href="tel:'+ec.number+'" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a></div></div>';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:700;color:#111">'+escHtml(ec.name)+'</div><div style="font-size:11px;color:#6b7280">'+escHtml(ec.number)+'</div></div><div style="display:flex;gap:6px"><a href="tel:'+escHtml(ec.number)+'" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a></div></div>';
     }).join('') || '<div style="font-size:12px;color:#6b7280;font-style:italic">No emergency contacts.</div>';
   }
 
@@ -3244,13 +3116,14 @@ function render(){
   var prevPby = document.getElementById("pby").value || cName;
   var sortedMessUsers = users.filter(isMess).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
   
-  setHtmlIfChanged(document.getElementById("pby"), sortedMessUsers.map(function(u){var uN = memberName(u); return "<option value='"+uN+"' "+(uN==prevPby?"selected":"")+">"+uN+"</option>"}).join(""));
+  setHtmlIfChanged(document.getElementById("pby"), sortedMessUsers.map(function(u){var uN = memberName(u); return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"}).join(""));
   
   var cboxEl = document.getElementById("cbox");
+  var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
   var checkboxesHtml = sortedMessUsers.map(function(u){
     var uN = memberName(u); 
-    var vac = !!u.vacation; 
-    return "<label class='ck'><input type='checkbox' class='mck' value='"+uN+"' "+(vac?"disabled":"")+"><span>"+uN+(vac?" 🏖️ (Vacation)":"")+"</span></label>";
+    var vac = isUserOnVacationOnDate(u, dateVal); 
+    return "<label class='ck'><input type='checkbox' class='mck' value='"+escHtml(uN)+"' "+(vac?"disabled":"")+"><span>"+escHtml(uN)+(vac?" 🏖️ (Vacation)":"")+"</span></label>";
   }).join("");
   setHtmlIfChanged(cboxEl, checkboxesHtml);
 
@@ -3287,9 +3160,13 @@ function render(){
   }
 
   if(isSuper()) {
-    document.getElementById("ulist").innerHTML=users.map(function(u){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>"}).join("");
+    document.getElementById("ulist").innerHTML=users.map(function(u){
+      var inactiveTag = u.active === false ? " <span style='font-size:10px;background:#fee2e2;color:#dc2626;padding:2px 6px;border-radius:8px;font-weight:700'>ARCHIVED</span>" : "";
+      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>"+escHtml((u.firstName || u.name)+" "+(u.lastName || ""))+"</b>"+inactiveTag+(u.vacation?" <span style='font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700'>VACATION</span>":"")+(u.mess===false?" <span style='font-size:10px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:8px;font-weight:700'>NOT IN MESS</span>":"")+"<div style='font-size:12px;color:#6b7280'>ID: "+escHtml(u.u)+" | Pass: ******** | Role: "+roleLabel(u.r)+"</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal("+u.id+")'><i class='fa-solid fa-pen'></i></button></div>";
+    }).join("");
   }
 }
+
 if(cur) openDashboard();
 </script>
 </body>
