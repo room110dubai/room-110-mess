@@ -1130,7 +1130,11 @@ var selectedExpYM = todayISO().slice(0, 7);
 var lastSel = JSON.parse(localStorage.getItem("r110_last")||"null") || {};
 var lastSuperSave = 0;
 ensureSuperAdmin();
-var cur = JSON.parse(localStorage.getItem("r110_saved_user")||"null");
+
+var cur = null;
+var sid = localStorage.getItem("r110_saved_uid");
+if(sid) cur = users.find(function(x){ return x.u===sid && x.active!==false; }) || null;
+
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null;
 var categoryChartInstance = null;
@@ -1148,7 +1152,6 @@ function pingUserActivity(shouldSave) {
     users[idx].lastActive = now;
   }
   localStorage.setItem("r110_u", JSON.stringify(users));
-  localStorage.setItem("r110_saved_user", JSON.stringify(cur));
   if(shouldSave) save(false);
 }
 setInterval(function(){ pingUserActivity(false); }, 60000);
@@ -1300,7 +1303,7 @@ function loadCloudData(){
         incomingMsgs.forEach(function(inM){
           var localExisting = msgs.find(function(lm){ return lm.id === inM.id; });
           if(localExisting) {
-            inM.isRead = localExisting.isRead;
+            inM.isRead = inM.isRead || localExisting.isRead;
           }
         });
         msgs = incomingMsgs;
@@ -1333,9 +1336,12 @@ function loadCloudData(){
       if(cur){
         var fresh = users.find(function(x){ return x.u === cur.u; });
         if(fresh) {
-          cur = fresh;
-          cur.lastActive = Date.now();
-          localStorage.setItem("r110_saved_user", JSON.stringify(cur));
+          if(fresh.active === false) {
+            logout();
+          } else {
+            cur = fresh;
+            cur.lastActive = Date.now();
+          }
         }
       }
       setCloudStatus('live');
@@ -1437,19 +1443,20 @@ function addNotification(targetUser, title, body, type, meta, shouldSync) {
 function login(e){
   e.preventDefault();
   var u=document.getElementById("uid").value.trim().toLowerCase(),p=document.getElementById("upass").value.trim();
-  cur=users.find(function(x){return x.u.toLowerCase()==u&&x.p==p});
-  if(cur){
-    if(cur.active === false) {
+  var found=users.find(function(x){return x.u.toLowerCase()==u&&x.p==p});
+  if(found){
+    if(found.active === false) {
       document.getElementById("err").innerText="This account has been archived.";
       return;
     }
+    cur = found;
     if(!cur.firstName) {
       cur.firstName = cur.name || "Shyam";
       cur.lastName = cur.lastName || "Sathyan";
     }
     cur.lastActive = Date.now();
     if(document.getElementById("keepMe").checked){
-      localStorage.setItem("r110_saved_user", JSON.stringify(cur));
+      localStorage.setItem("r110_saved_uid", cur.u);
     }
     openDashboard();
     save(false);
@@ -1474,7 +1481,7 @@ function openDashboard(){
 
 function logout(){
   cur=null;
-  localStorage.removeItem("r110_saved_user");
+  localStorage.removeItem("r110_saved_uid");
   document.body.classList.remove("dark-page");
   document.getElementById("appBox").className="hide";
   document.getElementById("loginBox").className="login-box";
@@ -1587,10 +1594,8 @@ function updateDockBadges() {
   var cName = cur.firstName || cur.name;
   
   var unreadChats = msgs.filter(function(m){
-    var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') ||
-                 (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) ||
-                 (m.target === cName && m.sender === activeChatTarget);
-    return !m.isRead && m.sender !== cName;
+    var forMe = m.target===cName || m.target==='group_room110' || m.target==='superadmin_channel' || !m.target;
+    return forMe && !m.isRead && m.sender!==cName;
   }).length;
   var chatDot = document.getElementById("chatUnreadDot");
   if(chatDot) {
@@ -1648,8 +1653,13 @@ function memberName(u) { return u.firstName || u.name; }
 function toggleVacation() {
   var on = document.getElementById("vacationToggle").checked;
   var idx = users.findIndex(function(x){ return x.u === cur.u; });
-  if(idx > -1) users[idx].vacation = on;
+  if(idx > -1) {
+    users[idx].vacation = on;
+    if(on) users[idx].vacFrom = todayISO();
+    else users[idx].vacTo = todayISO();
+  }
   cur.vacation = on;
+  if(on) cur.vacFrom = todayISO(); else cur.vacTo = todayISO();
   var curVacCheck = document.getElementById("vacCurrentToggle");
   if(curVacCheck) curVacCheck.checked = on;
   save(true);
@@ -1658,8 +1668,13 @@ function toggleVacation() {
 function toggleCurrentVacation() {
   var on = document.getElementById("vacCurrentToggle").checked;
   var idx = users.findIndex(function(x){ return x.u === cur.u; });
-  if(idx > -1) users[idx].vacation = on;
+  if(idx > -1) {
+    users[idx].vacation = on;
+    if(on) users[idx].vacFrom = todayISO();
+    else users[idx].vacTo = todayISO();
+  }
   cur.vacation = on;
+  if(on) cur.vacFrom = todayISO(); else cur.vacTo = todayISO();
   var vacToggle = document.getElementById("vacationToggle");
   if(vacToggle) vacToggle.checked = on;
   save(true);
@@ -1681,8 +1696,9 @@ function saveVacationDates() {
 function isUserOnVacationOnDate(userObj, dateStr) {
   if(!userObj) return false;
   if(userObj.vacation) return true;
-  if(userObj.vacFrom && userObj.vacTo) {
-    return dateStr >= userObj.vacFrom && dateStr <= userObj.vacTo;
+  if(userObj.vacFrom) {
+    var toDate = userObj.vacTo || "9999-12-31";
+    return dateStr >= userObj.vacFrom && dateStr <= toDate;
   }
   return false;
 }
@@ -2240,7 +2256,7 @@ function openEditUserModal(id) {
   document.getElementById("eUId").value = user.u;
   document.getElementById("eUPass").value = "";
   document.getElementById("eURole").value = user.r;
-  document.getElementById("eUMess").checked = user.mess !== false && user.active !== false;
+  document.getElementById("eUMess").checked = user.mess !== false;
   document.getElementById("eUActive").checked = user.active !== false;
   document.getElementById("editUserModal").className = "modal-overlay";
 }
@@ -2327,8 +2343,9 @@ function renderChatContactsList() {
 
     var statusInfo = getOnlineStatusInfo(u);
     var avHtml = u.avatar ? '<img src="'+u.avatar+'">' : escHtml(uName.charAt(0).toUpperCase());
+    var safeNameJson = escHtml(JSON.stringify(uName));
 
-    var h3 = '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(\''+escHtml(uName)+'\')">';
+    var h3 = '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(' + safeNameJson + ')">';
     h3 += '<div class="contact-avatar">'+avHtml+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
     h3 += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+escHtml(uName)+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+';margin-top:2px">'+escHtml(statusInfo.text)+'</div></div>';
     h3 += '</div>';
@@ -2421,7 +2438,7 @@ function renderChatMessages() {
     var reactionsHtml = '';
     if(m.reactions) {
       for(var emoji in m.reactions) {
-        reactionsHtml += '<span class="reaction-pill" onclick="reactToMessage(\''+m.id+'\', \''+emoji+'\')">'+emoji+' '+m.reactions[emoji].length+'</span>';
+        reactionsHtml += '<span class="reaction-pill" onclick="reactToMessage(\''+escHtml(m.id)+'\', \''+escHtml(emoji)+'\')">'+emoji+' '+m.reactions[emoji].length+'</span>';
       }
     }
 
@@ -2444,8 +2461,8 @@ function renderChatMessages() {
     }
 
     return '<div class="msg-bubble '+bubbleClass+'" ' +
-           'oncontextmenu="openMsgMenu(event, \''+m.id+'\', '+isMe+')" ' +
-           'ontouchstart="startMsgLongPress(event, \''+m.id+'\', '+isMe+')" ' +
+           'oncontextmenu="openMsgMenu(event, \''+escHtml(m.id)+'\', '+isMe+')" ' +
+           'ontouchstart="startMsgLongPress(event, \''+escHtml(m.id)+'\', '+isMe+')" ' +
            'ontouchend="cancelMsgLongPress()" ' +
            'ontouchmove="cancelMsgLongPress()">' +
            senderHeader +
@@ -2538,14 +2555,14 @@ function openMsgMenu(e, msgId, isMe) {
   var emojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
   var emojiRow = '<div class="emoji-picker-row">';
   emojis.forEach(function(em){
-    emojiRow += '<button class="emoji-btn" onclick="reactToMessage(\''+msgId+'\', \''+em+'\')">'+em+'</button>';
+    emojiRow += '<button class="emoji-btn" onclick="reactToMessage(\''+escHtml(msgId)+'\', \''+escHtml(em)+'\')">'+em+'</button>';
   });
   emojiRow += '</div>';
 
   var actionButtons = emojiRow;
   if(canDeleteOrEdit && !msg.isWelcome) {
-    actionButtons += '<button class="msg-action-btn" onclick="promptEditMessage(\''+msgId+'\')"><i class="fa-solid fa-pen"></i> Edit Message</button>';
-    actionButtons += '<button class="msg-action-btn" style="color:#dc2626" onclick="deleteMessage(\''+msgId+'\')"><i class="fa-solid fa-trash"></i> Delete (< 5m)</button>';
+    actionButtons += '<button class="msg-action-btn" onclick="promptEditMessage(\''+escHtml(msgId)+'\')"><i class="fa-solid fa-pen"></i> Edit Message</button>';
+    actionButtons += '<button class="msg-action-btn" style="color:#dc2626" onclick="deleteMessage(\''+escHtml(msgId)+'\')"><i class="fa-solid fa-trash"></i> Delete (< 5m)</button>';
   }
 
   menu.innerHTML = actionButtons;
@@ -2586,7 +2603,7 @@ function reactToMessage(msgId, emoji) {
 function promptEditMessage(msgId) {
   var msg = msgs.find(function(m){ return m.id == msgId; });
   if(!msg) return;
-  var rawText = msg.text.replace(/<br>/g, "\n").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  var rawText = msg.text.replace(/<br>/g, "\n").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,"&");
   var newText = prompt("Edit your message:", rawText);
   if(newText !== null && newText.trim() !== "") {
     msg.text = escHtml(newText.trim()).replace(/\n/g, "<br>");
@@ -2639,7 +2656,8 @@ function renderCategoryManagerContent() {
   var formContainer = document.getElementById("serviceManagerFormContainer");
   
   body.innerHTML = categories.map(function(c){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+escHtml(c)+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(\''+escHtml(c).replace(/'/g, "\\'")+'\')"><i class="fa-solid fa-trash"></i></button></div>';
+    var safeCatJson = escHtml(JSON.stringify(c));
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+escHtml(c)+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(' + safeCatJson + ')"><i class="fa-solid fa-trash"></i></button></div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
 
   formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Category</label><input id="newCatInput" placeholder="Category name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewCategory()">Add Category</button></div>';
@@ -2777,6 +2795,7 @@ function addU(e){
   var p=document.getElementById("npass").value.trim();
   var r=document.getElementById("nrole").value;
   if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
+  if(users.some(function(x){return (x.firstName || "").toLowerCase() === fn.toLowerCase()}))return alert("A user with this first name already exists!");
   users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:document.getElementById("nMess").checked,active:true});
   document.getElementById("nFname").value="";
   document.getElementById("nLname").value="";
@@ -2794,15 +2813,18 @@ function saveEditedUser(e){
   var u = document.getElementById("eUId").value.trim().toLowerCase();
   var p = document.getElementById("eUPass").value.trim();
   var r = document.getElementById("eURole").value;
+  var targetActive = document.getElementById("eUActive").checked;
+
   var user = users.find(function(x){return x.id === id});
   if(user){
     if(users.some(function(x){return x.u === u && x.id !== id})) return alert("User ID already exists!");
-    if(user.r === "superadmin" && r !== "superadmin" && users.filter(function(x){ return x.r === "superadmin"; }).length <= 1) return alert("At least one Super Admin is required.");
+    if(users.some(function(x){return (x.firstName || "").toLowerCase() === fn.toLowerCase() && x.id !== id})) return alert("A user with this first name already exists!");
+    if(user.r === "superadmin" && (r !== "superadmin" || !targetActive) && users.filter(function(x){ return x.r === "superadmin" && x.active !== false; }).length <= 1) return alert("At least one active Super Admin is required.");
     user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; 
     if(p) user.p = p;
     user.r = r;
     user.mess = document.getElementById("eUMess").checked;
-    user.active = document.getElementById("eUActive").checked;
+    user.active = targetActive;
     closeModals();
     save(true);
   }
@@ -2813,10 +2835,7 @@ function addEx(e){
   var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
   var dateVal=document.getElementById("expDate").value || todayISO();
 
-  var now = new Date();
-  var expD = new Date(dateVal);
-  var todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (expD > todayDateOnly) {
+  if (dateVal > todayISO()) {
     return alert("Expenses cannot be dated in the future.");
   }
 
@@ -2893,10 +2912,7 @@ function saveEditedExp(e) {
   if(!x || !canEditExp(x)) return;
 
   var dateVal = document.getElementById("eeDate").value || expDate(x);
-  var now = new Date();
-  var expD = new Date(dateVal);
-  var todayDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  if (expD > todayDateOnly) {
+  if (dateVal > todayISO()) {
     return alert("Expenses cannot be dated in the future.");
   }
 
@@ -2926,6 +2942,8 @@ function updateProfile(e){
   var newPass = document.getElementById("editPass").value.trim();
   var fileInput = document.getElementById("editAvatarFile");
   if(!newFn) return alert("First name cannot be empty!");
+  if(users.some(function(x){return (x.firstName || "").toLowerCase() === newFn.toLowerCase() && x.id !== cur.id})) return alert("A user with this first name already exists!");
+  
   cur.firstName = newFn;
   cur.lastName = newLn;
   cur.name = newFn;
@@ -2961,7 +2979,6 @@ function finishProfileUpdate(){
       break;
     }
   }
-  localStorage.setItem("r110_saved_user", JSON.stringify(cur));
   closeModals();
   save(true);
   alert("Profile updated successfully!");
