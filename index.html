@@ -705,7 +705,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <div id="v3" class="card hide">
       <h3 style="color:#111;margin-bottom:10px">Add Room 110 Expense</h3>
       <form onsubmit="addEx(event)">
-        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" inputmode="decimal" placeholder="0.00" required>
+        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" inputmode="decimal" placeholder="0.00" oninput="onSplitTypeChange()" required>
         <label>Date</label><input id="expDate" type="date" required style="height:46px;padding:10px 12px">
         <label>Items / Category</label>
         <select id="desc" required style="margin-bottom:6px"></select>
@@ -1716,9 +1716,9 @@ function getSplitMembers(expenseDate) {
     return isUserOnVacationOnDate(u, checkDate);
   }).map(memberName);
 
-  if(st === "c") {
+  if(st === "c" || st === "custom") {
     var checked = Array.prototype.map.call(document.querySelectorAll(".mck:checked"), function(c){ return c.value; });
-    return { al: checked, vac: onVacNames };
+    return { al: checked.length ? checked : activeMessUsers.map(memberName), vac: onVacNames };
   }
   var pool;
   if(st && st.indexOf("g:") === 0) {
@@ -1739,17 +1739,49 @@ function onSplitTypeChange() {
   var stEl = document.getElementById("stype");
   if(!stEl) return;
   var st = stEl.value;
-  document.getElementById("cbox").className = (st === "c") ? "cks" : "cks hide";
   
-  lastSel.stype = st;
-  localStorage.setItem("r110_last", JSON.stringify(lastSel));
+  var cbox = document.getElementById("cbox");
+  var hint = document.getElementById("splitHint");
+  var totalAmt = parseFloat(document.getElementById("amt").value) || 0;
 
-  var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
-  var sp = getSplitMembers(dateVal);
-  var h = "";
-  if(st !== "c") h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
-  if(sp.vac.length) h += (h ? "<br>" : "") + "🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
-  document.getElementById("splitHint").innerHTML = h;
+  if(st === "custom") {
+    cbox.className = "cks";
+    var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a, b){
+      return memberName(a).localeCompare(memberName(b));
+    });
+
+    cbox.innerHTML = activeMessUsers.map(function(u){
+      var n = memberName(u);
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%">' +
+             '<span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span>' +
+             '<input type="number" step="0.01" min="0" placeholder="0.00" class="custom-split-input" data-name="' + escHtml(n) + '" oninput="validateCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px">' +
+             '</div>';
+    }).join('');
+
+    validateCustomSplitTotal();
+  } else {
+    cbox.className = (st === "c") ? "cks" : "cks hide";
+    var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
+    var sp = getSplitMembers(dateVal);
+    var h = "";
+    if(st !== "c") h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
+    if(sp.vac.length) h += (h ? "<br>" : "") + "🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
+    hint.innerHTML = h;
+  }
+}
+
+function validateCustomSplitTotal() {
+  var totalAmt = parseFloat(document.getElementById("amt").value) || 0;
+  var inputs = document.querySelectorAll(".custom-split-input");
+  var sum = 0;
+  inputs.forEach(function(inp){
+    sum += parseFloat(inp.value) || 0;
+  });
+  var diff = totalAmt - sum;
+  var hint = document.getElementById("splitHint");
+  var match = Math.abs(diff) < 0.005;
+  hint.innerHTML = 'Custom Split Sum: AED ' + sum.toFixed(2) + ' / Total: AED ' + totalAmt.toFixed(2) + 
+                   ' <span style="color:' + (match ? '#059669' : '#dc2626') + ';font-weight:700">(' + (match ? '✓ Match' : 'Mismatch: ' + diff.toFixed(2)) + ')</span>';
 }
 
 var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1775,7 +1807,12 @@ function calculatePreviousMonthOverdue(cName, ym) {
   exps.forEach(function(x){
     var d = expDate(x);
     var paid = x.pb == cName ? Number(x.amt) : 0;
-    var share = x.al.indexOf(cName) > -1 ? Number(x.amt) / x.al.length : 0;
+    var share = 0;
+    if(x.splits && x.splits[cName] !== undefined) {
+      share = Number(x.splits[cName]);
+    } else if(x.al && x.al.indexOf(cName) > -1) {
+      share = Number(x.amt) / x.al.length;
+    }
     if(!paid && !share) return;
     if(d < pr.start) { opening += paid - share; }
     else if(d <= pr.end) { purchases += paid; expenses += share; }
@@ -1898,13 +1935,20 @@ function renderExpensesTab() {
   var entries = [], purchTotal = 0, shareTotal = 0, purchCnt = 0, shareCnt = 0;
   exps.forEach(function(x){
     if(expDate(x).slice(0, 7) !== ym) return;
-    var mine = x.pb == cName, inSplit = x.al.indexOf(cName) > -1;
-    var share = inSplit ? Number(x.amt) / x.al.length : 0;
+    var mine = x.pb == cName;
+    var inSplit = x.splits ? (x.splits[cName] !== undefined) : (x.al && x.al.indexOf(cName) > -1);
+    var share = 0;
+    if(x.splits && x.splits[cName] !== undefined) {
+      share = Number(x.splits[cName]);
+    } else if(x.al) {
+      share = inSplit ? Number(x.amt) / x.al.length : 0;
+    }
+
     if(mine) { purchTotal += Number(x.amt); purchCnt++; }
-    if(inSplit) { shareTotal += share; shareCnt++; }
+    if(inSplit || (x.splits && x.splits[cName] > 0)) { shareTotal += share; shareCnt++; }
     if(expView === "all") { entries.push({ x: x, kind: "bill", amt: Number(x.amt), ord: 0 }); return; }
     if(mine && expView !== "expenses") entries.push({ x: x, kind: "purchase", amt: Number(x.amt), ord: 0 });
-    if(inSplit && expView !== "purchases") entries.push({ x: x, kind: "expense", amt: share, ord: 1 });
+    if((inSplit || (x.splits && x.splits[cName] > 0)) && expView !== "purchases") entries.push({ x: x, kind: "expense", amt: share, ord: 1 });
   });
   document.getElementById("expPurchAmt").innerText = "AED " + money(purchTotal);
   document.getElementById("expPurchCnt").innerText = purchCnt + (purchCnt === 1 ? " bill" : " bills") + " paid by me";
@@ -1934,9 +1978,10 @@ function renderExpensesTab() {
   entries.forEach(function(en){
     var x = en.x, st = style[en.kind], d = expDate(x);
     if(d !== lastD) { html += '<div class="exp-date-head">' + fmtDate(d) + '</div>'; lastD = d; }
-    var sub = en.kind === "purchase" ? "Purchase &bull; paid by me &bull; split " + x.al.length
+    var splitCount = x.splits ? Object.keys(x.splits).length : (x.al ? x.al.length : 0);
+    var sub = en.kind === "purchase" ? "Purchase &bull; paid by me &bull; split " + splitCount
             : (en.kind === "expense" ? "Expense &bull; paid by " + escHtml(x.pb) + " &bull; bill AED " + money(x.amt)
-            : "Paid by " + escHtml(x.pb) + " &bull; split " + x.al.length);
+            : "Paid by " + escHtml(x.pb) + " &bull; split " + splitCount);
     if(x.note) sub += '<br><i>' + escHtml(x.note) + '</i>';
     var canEdit = canEditExp(x);
     html += '<div class="exp-row"><div style="display:flex;align-items:center;gap:12px;min-width:0">' +
@@ -2123,7 +2168,12 @@ function buildStatementPdf(ym) {
   exps.forEach(function(x){
     var d = expDate(x);
     var paid = x.pb == cName ? Number(x.amt) : 0;
-    var share = x.al.indexOf(cName) > -1 ? Number(x.amt) / x.al.length : 0;
+    var share = 0;
+    if(x.splits && x.splits[cName] !== undefined) {
+      share = Number(x.splits[cName]);
+    } else if(x.al && x.al.indexOf(cName) > -1) {
+      share = Number(x.amt) / x.al.length;
+    }
     if(!paid && !share) return;
     if(d < pr.start) { opening += paid - share; }
     else if(d <= pr.end) {
@@ -2841,10 +2891,35 @@ function addEx(e){
 
   var vendor=document.getElementById("expVendor").value;
   var note=document.getElementById("expNote").value.trim();
-  var al=getSplitMembers(dateVal).al;
-  if(!al.length)return alert("No members to charge. Select at least 1 member who is not on vacation.");
-  
-  var newExp = {id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,dt:new Date().toLocaleDateString()};
+  var stEl = document.getElementById("stype");
+  var st = stEl ? stEl.value : "a";
+
+  var al = [];
+  var splits = null;
+
+  if(st === "custom") {
+    splits = {};
+    var inputs = document.querySelectorAll(".custom-split-input");
+    var sum = 0;
+    inputs.forEach(function(inp){
+      var n = inp.getAttribute("data-name");
+      var val = parseFloat(inp.value) || 0;
+      if(val > 0) {
+        splits[n] = val;
+        sum += val;
+        al.push(n);
+      }
+    });
+    if(!al.length) return alert("At least one member must be assigned an amount.");
+    if(Math.abs(a - sum) > 0.005) {
+      return alert("Custom split amounts (AED " + sum.toFixed(2) + ") do not match the total expense amount (AED " + a.toFixed(2) + ").");
+    }
+  } else {
+    al = getSplitMembers(dateVal).al;
+    if(!al.length) return alert("No members to charge. Select at least 1 member who is not on vacation.");
+  }
+
+  var newExp = {id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,splits:splits,dt:new Date().toLocaleDateString()};
   exps.unshift(newExp);
   
   var cName = cur.firstName || cur.name;
@@ -2854,7 +2929,7 @@ function addEx(e){
     }
   });
 
-  lastSel = {desc:d, vendor:vendor, pby:pb, stype:document.getElementById("stype").value};
+  lastSel = {desc:d, vendor:vendor, pby:pb, stype:st};
   localStorage.setItem("r110_last", JSON.stringify(lastSel));
   document.getElementById("amt").value="";
   document.getElementById("expNote").value="";
@@ -2878,7 +2953,7 @@ function canEditExp(x) {
   if(isSuper()) return true;
   if(cur.r !== "admin") return false;
   var me = cur.firstName || cur.name;
-  return x.pb == me || x.al.indexOf(me) > -1;
+  return x.pb == me || (x.al && x.al.indexOf(me) > -1) || (x.splits && x.splits[me] !== undefined);
 }
 
 function optList(values, selected) {
@@ -2897,10 +2972,11 @@ function openEditExp(id) {
   document.getElementById("eeVendor").innerHTML = '<option value="">-- No vendor --</option>' + optList(vendors.map(function(v){ return v.name; }), x.vendor || "");
   document.getElementById("eeNote").value = x.note || "";
   document.getElementById("eePby").innerHTML = optList(users.filter(function(u){ return u.active !== false; }).map(memberName), x.pb);
-  var names = users.filter(function(u){ return u.active !== false && isMess(u); }).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
-  x.al.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
+  var names = users.filter(function(u){ return u.active !== false && isMess(u); }).map(memberName).sort(function(a,b){ return a.localeCompare(b.localeCompare ? a.localeCompare(b) : 0); });
+  var activeList = x.al || Object.keys(x.splits || {});
+  activeList.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
   document.getElementById("eeCbox").innerHTML = names.map(function(n){
-    return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (x.al.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
+    return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (activeList.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
   }).join('');
   document.getElementById("editExpModal").className = "modal-overlay";
 }
@@ -2925,6 +3001,12 @@ function saveEditedExp(e) {
   x.note = document.getElementById("eeNote").value.trim();
   x.pb = document.getElementById("eePby").value;
   x.al = al;
+  if(x.splits) {
+    var newSplits = {};
+    var eachShare = x.amt / al.length;
+    al.forEach(function(n){ newSplits[n] = eachShare; });
+    x.splits = newSplits;
+  }
   closeModals();
   save(true);
 }
@@ -2990,7 +3072,11 @@ function stats(){
   var st=users.map(function(u){
     var uName = u.firstName || u.name;
     var pd=exps.filter(function(x){return x.pb==uName}).reduce(function(s,x){return s+Number(x.amt)},0);
-    var sh=exps.reduce(function(s,x){return x.al.indexOf(uName)>-1?s+(Number(x.amt)/x.al.length):s},0);
+    var sh=exps.reduce(function(s,x){
+      if(x.splits && x.splits[uName] !== undefined) return s + Number(x.splits[uName]);
+      if(x.al && x.al.indexOf(uName) > -1) return s + (Number(x.amt) / x.al.length);
+      return s;
+    },0);
     var adj=verifiedPayments.reduce(function(s,p){return s+(p.from==uName?Number(p.amt):0)-(p.to==uName?Number(p.amt):0)},0);
     return {name:uName,pd:pd,sh:sh,adj:adj,net:pd-sh+adj};
   });
@@ -3038,7 +3124,11 @@ function render(){
   if(vacStatus) vacStatus.innerText = cur.vacation ? "On - you are not charged for new mess expenses" : "Off - you are included in mess expenses";
 
   var s=stats();
-  var myAllShare = exps.reduce(function(t,x){ return x.al.indexOf(cName) > -1 ? t + Number(x.amt) / x.al.length : t; }, 0);
+  var myAllShare = exps.reduce(function(t,x){
+    if(x.splits && x.splits[cName] !== undefined) return t + Number(x.splits[cName]);
+    if(x.al && x.al.indexOf(cName) > -1) return t + Number(x.amt) / x.al.length;
+    return t;
+  }, 0);
   document.getElementById("tot").innerText="AED "+(isSuper() ? s.tot : myAllShare).toFixed(2);
   document.getElementById("totLabel").innerText = isSuper() ? "Total Spent" : "My Total Expenses";
   document.getElementById("balTitle").innerText = isSuper() ? "Member Balances (+ Gets / - Pays)" : "My Balance (+ Gets / - Pays)";
@@ -3074,14 +3164,20 @@ function render(){
     return x.pb == cName ? t + Number(x.amt) : t;
   }, 0);
   var forMe = monthExps.reduce(function(t,x){
-    return (x.pb != cName && x.al.indexOf(cName) > -1) ? t + (Number(x.amt) / x.al.length) : t;
+    if(x.pb != cName) {
+      if(x.splits && x.splits[cName] !== undefined) return t + Number(x.splits[cName]);
+      if(x.al && x.al.indexOf(cName) > -1) return t + (Number(x.amt) / x.al.length);
+    }
+    return t;
   }, 0);
   document.getElementById("dashMonthLabel").innerText = nowD.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   document.getElementById("dashPaid").innerText = "AED " + myPurchases.toFixed(2);
   document.getElementById("dashShare").innerText = "AED " + forMe.toFixed(2);
 
   var myShareTotal = monthExps.reduce(function(t,x){
-    return x.al.indexOf(cName) > -1 ? t + (Number(x.amt) / x.al.length) : t;
+    if(x.splits && x.splits[cName] !== undefined) return t + Number(x.splits[cName]);
+    if(x.al && x.al.indexOf(cName) > -1) return t + (Number(x.amt) / x.al.length);
+    return t;
   }, 0);
   var myNet = myPurchases - myShareTotal;
   var netEl = document.getElementById("dashNet");
@@ -3103,7 +3199,13 @@ function render(){
   var catTotals = {};
   exps.forEach(function(x){
     var cat = x.desc || "Other";
-    var v = isSuper() ? Number(x.amt) : (x.al.indexOf(cName) > -1 ? Number(x.amt) / x.al.length : 0);
+    var v = 0;
+    if(isSuper()) {
+      v = Number(x.amt);
+    } else {
+      if(x.splits && x.splits[cName] !== undefined) v = Number(x.splits[cName]);
+      else if(x.al && x.al.indexOf(cName) > -1) v = Number(x.amt) / x.al.length;
+    }
     if(v > 0) catTotals[cat] = (catTotals[cat] || 0) + v;
   });
   var catNames = Object.keys(catTotals).sort(function(a,b){ return catTotals[b] - catTotals[a]; });
@@ -3190,15 +3292,6 @@ function render(){
   
   setHtmlIfChanged(document.getElementById("pby"), sortedMessUsers.map(function(u){var uN = memberName(u); return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"}).join(""));
   
-  var cboxEl = document.getElementById("cbox");
-  var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
-  var checkboxesHtml = sortedMessUsers.map(function(u){
-    var uN = memberName(u); 
-    var vac = isUserOnVacationOnDate(u, dateVal); 
-    return "<label class='ck'><input type='checkbox' class='mck' value='"+escHtml(uN)+"' "+(vac?"disabled":"")+"><span>"+escHtml(uN)+(vac?" 🏖️ (Vacation)":"")+"</span></label>";
-  }).join("");
-  setHtmlIfChanged(cboxEl, checkboxesHtml);
-
   var stypeSel = document.getElementById("stype");
   var prevSt = stypeSel.value || lastSel.stype || "a";
   var stOpts = '<option value="a">All Room 110 Members</option>';
@@ -3207,6 +3300,7 @@ function render(){
     if(live.length) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
   });
   stOpts += '<option value="c">Select Specific Members</option>';
+  stOpts += '<option value="custom">Custom Split (Unequal Amounts)</option>';
   var stChanged = stypeSel._lastHtml !== stOpts;
   setHtmlIfChanged(stypeSel, stOpts);
   if(stChanged || !stypeSel.value) {
