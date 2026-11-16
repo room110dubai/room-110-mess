@@ -888,15 +888,12 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
       <!-- Landlord / Admin DEWA Bill Input -->
       <div id="dewaAdminCard" class="card hide">
-        <h4 id="dewaCardTitle" style="color:#d97706;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> Post DEWA Bill (Previous Month Arrears)</h4>
+        <h4 style="color:#d97706;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> Post DEWA Bill (Previous Month Arrears)</h4>
         <label>Select Billing Month</label>
         <select id="dewaBillingMonth" onchange="renderDewaPage()" style="margin-bottom:10px"></select>
         <label>Total DEWA Bill Amount (AED)</label>
-        <input id="dewaBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:10px">
-        <label>Paid By</label>
-        <select id="dewaPaidBySelect" style="margin-bottom:12px"></select>
-        <button id="dewaSaveBtn" class="btn" style="margin-top:0;background:#d97706" onclick="saveDewaBill()"><i class="fa-solid fa-floppy-disk"></i> Save DEWA Bill</button>
-        <div id="dewaLockedNotice" class="hide" style="font-size:12px;color:#dc2626;font-weight:700;margin-top:8px">🔒 This bill is locked because the statement for this period has already been generated.</div>
+        <input id="dewaBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:12px">
+        <button class="btn" style="margin-top:0;background:#d97706" onclick="saveDewaBill()"><i class="fa-solid fa-floppy-disk"></i> Save DEWA Bill</button>
       </div>
 
       <!-- Member / Landlord Pro-Rata DEWA Breakdown -->
@@ -918,31 +915,32 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
 
       <!-- Landlord / Admin Etisalat Subscription Input -->
       <div id="etisalatAdminCard" class="card hide">
-        <h4 id="etisalatCardTitle" style="color:#0284c7;margin-bottom:8px"><i class="fa-solid fa-wifi"></i> Post Etisalat Subscription (Current Month)</h4>
-        <div style="font-size:11px;color:#6b7280;margin-bottom:8px">Locked to current active subscription month.</div>
+        <h4 style="color:#0284c7;margin-bottom:8px"><i class="fa-solid fa-wifi"></i> Post Etisalat Subscription (Current Month)</h4>
+        <label>Select Subscription Month</label>
+        <select id="etisalatBillingMonth" onchange="renderEtisalatPage()" style="margin-bottom:10px"></select>
         <label>Monthly Subscription Amount (AED)</label>
-        <input id="etisalatBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:10px">
-        <label>Paid By</label>
-        <select id="etisalatPaidBySelect" style="margin-bottom:12px"></select>
-        <button id="etisalatSaveBtn" class="btn" style="margin-top:0;background:#0284c7" onclick="saveEtisalatBill()"><i class="fa-solid fa-floppy-disk"></i> Save Etisalat Bill</button>
-        <div id="etisalatLockedNotice" class="hide" style="font-size:12px;color:#dc2626;font-weight:700;margin-top:8px">🔒 This bill is locked because the statement for this period has already been generated.</div>
+        <input id="etisalatBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:12px">
+        <button class="btn" style="margin-top:0;background:#0284c7" onclick="saveEtisalatBill()"><i class="fa-solid fa-floppy-disk"></i> Save Etisalat Bill</button>
       </div>
 
-      <!-- Member / Landlord Real-Time Etisalat Breakdown -->
+      <!-- Member / Landlord Real-Time Etisalat Breakdown (Counted Strictly Up To Today) -->
       <div class="card">
         <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-chart-line"></i> Etisalat Real-Time Pro-Rata</h4>
         <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Real-time expense calculated strictly based on active days lived through <b>up to today</b>.</div>
+        <label>Select Period</label>
+        <select id="etisalatViewMonth" onchange="renderEtisalatPage()" style="margin-bottom:12px"></select>
         <div id="etisalatBreakdownContainer"></div>
       </div>
     </div>
 
-    <!-- VACATION MODE PAGE -->
+    <!-- VACATION MODE PAGE (Personal for Members, Master Manager for Super Admin) -->
     <div id="profPage_vacation" class="hide">
       <div class="prof-page-head">
         <button class="btn btn-s" style="background:#e2e8f0;color:#111;padding:8px 12px" onclick="showProfMenu()"><i class="fa-solid fa-arrow-left"></i></button>
         <h3 id="vacationPageTitle" style="color:#111;font-size:18px">Vacation Mode</h3>
       </div>
 
+      <!-- Standard Member Personal Vacation View -->
       <div id="memberVacationView" class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:12px">
           <div>
@@ -962,6 +960,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
             <input type="checkbox" id="vacOpenEnded" onchange="toggleVacOpenEnded()">
             <span>I don't know my return date (open-ended)</span>
           </label>
+          <div id="vacPastWarning" class="hide" style="font-size:11px;color:#d97706;margin-bottom:8px">⚠️ Expenses already recorded will not change.</div>
           <div style="display:flex;gap:8px">
             <button id="vacSaveBtn" class="btn btn-s" style="background:#059669;flex:1" onclick="saveNewVacation()" disabled>Save Vacation</button>
             <button class="btn btn-s" style="background:#6b7280;flex:1" onclick="cancelVacationForm()">Cancel</button>
@@ -973,9 +972,10 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </div>
       </div>
 
+      <!-- Super Admin Master Vacation Management View -->
       <div id="superAdminVacationView" class="card hide">
         <div style="background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:600;margin-bottom:12px">
-          <i class="fa-solid fa-shield-halved"></i> Manage all room members' vacation histories below.
+          <i class="fa-solid fa-shield-halved"></i> Super Admins cannot take personal vacations. Manage all room members' vacation histories below. Vacations can be edited or deleted until the monthly statement is generated.
         </div>
         <div id="superAdminVacationsList" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
@@ -1084,11 +1084,14 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
         </select>
         <label class="ck" style="margin-bottom:8px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUActive"><span>Active account (can log in)</span></label>
-        <button type="submit" class="btn" style="margin-top:0;background:#2563eb">Save Changes</button>
+        <div style="display:flex;gap:10px">
+          <button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button>
+        </div>
       </form>
     </div>
   </div>
 
+  <!-- Super Admin Edit Member Vacation Modal -->
   <div id="adminEditVacationModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
@@ -1117,7 +1120,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
       <h3 style="color:#111;margin-bottom:6px">Record Payment</h3>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Money you paid to a room mate or landlord to settle your dues.</p>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Money you paid to a room mate or landlord to settle your dues. Requires verification by recipient.</p>
       <form onsubmit="savePayment(event)">
         <label>Paid To</label>
         <select id="payTo" style="margin-bottom:12px"></select>
@@ -1134,6 +1137,7 @@ body.dark-page textarea { background:#0f172a !important; border-color:#334155 !i
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
       <h3 style="color:#111;margin-bottom:6px">Generate Statement</h3>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Opens your PDF statement for the selected month.</p>
       <label>Statement Month</label>
       <select id="stmtMonth" style="margin-bottom:16px"></select>
       <button class="btn" style="margin-top:0;background:#dc2626" onclick="generateStatement()"><i class="fa-solid fa-file-pdf"></i> Open Statement</button>
@@ -1225,6 +1229,19 @@ function migrateUserVacations(u) {
         created: todayISO()
       });
     }
+  } else if(u.vacation === false && u.vacTo && u.vacTo < todayISO()) {
+    var f2 = u.vacFrom || u.vacTo;
+    var t2 = u.vacTo;
+    var exists2 = u.vacations.some(function(v){ return v.from === f2 && v.to === t2; });
+    if(!exists2) {
+      u.vacations.push({
+        id: Math.floor(Date.now() + Math.random() * 10000),
+        from: f2,
+        to: t2,
+        openEnded: false,
+        created: todayISO()
+      });
+    }
   }
   delete u.vacation;
   delete u.vacFrom;
@@ -1238,7 +1255,7 @@ var exps = JSON.parse(localStorage.getItem("r110_e")||"null") || [];
 var msgs = JSON.parse(localStorage.getItem("r110_m")||"null") || [];
 var notifications = JSON.parse(localStorage.getItem("r110_notif")||"null") || [];
 var utilities = JSON.parse(localStorage.getItem("r110_utils")||"null") || {};
-var generatedStatements = JSON.parse(localStorage.getItem("r110_gen_stmts")||"null") || {};
+var generatedStatements = JSON.parse(localStorage.getItem("r110_gen_stmts")||"null") || {}; // Track locked statement months { "2026-10": true }
 
 var categories = JSON.parse(localStorage.getItem("r110_cat")||"null") || ["Cinema", "Food", "Gas", "Groceries", "Maintenance", "Utilities"];
 categories.sort(function(a,b){ return a.localeCompare(b); });
@@ -1252,7 +1269,9 @@ function normalizeGroups(arr) {
 var groups = normalizeGroups(JSON.parse(localStorage.getItem("r110_grp")||"null"));
 var emergencyContacts = JSON.parse(localStorage.getItem("r110_ec")||"null") || [
   {name: "Building Maintenance", number: "+971551122334"},
-  {name: "Drinking Water", number: "+971524567890"}
+  {name: "Drinking Water", number: "+971524567890"},
+  {name: "Gas Delivery", number: "+971501234567"},
+  {name: "Groceries Shop", number: "+971509876543"}
 ];
 
 var vendors = JSON.parse(localStorage.getItem("r110_ven")||"null") || [];
@@ -1312,6 +1331,16 @@ function getOnlineStatusInfo(userObj) {
   return { isOnline: false, text: "Last seen " + d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + " at " + timeStr };
 }
 
+function weatherIcon(code, isDay) {
+  if(code === 0) return isDay ? "☀️" : "🌙";
+  if(code <= 2) return isDay ? "⛅" : "☁️";
+  if(code === 3) return "☁️";
+  if(code === 45 || code === 48) return "🌫️";
+  if(code >= 51 && code <= 67) return "🌧️";
+  if(code >= 80 && code <= 82) return isDay ? "🌦️" : "🌧️";
+  if(code >= 95) return "⛈️";
+  return isDay ? "🌤️" : "☁️";
+}
 function fetchLiveWeather() {
   var url = "https://api.open-meteo.com/v1/forecast?latitude=25.2048&longitude=55.2708&current=temperature_2m,weather_code,is_day";
   fetch(url)
@@ -1321,7 +1350,7 @@ function fetchLiveWeather() {
         var tempC = Math.round(data.current.temperature_2m);
         var weatherEl = document.getElementById("liveWeatherTemp");
         if(weatherEl) {
-          weatherEl.innerText = tempC + '°C';
+          weatherEl.innerHTML = tempC + '°C <span style="font-size:15px">' + weatherIcon(data.current.weather_code, data.current.is_day === 1) + '</span>';
         }
       }
     })
@@ -1329,6 +1358,46 @@ function fetchLiveWeather() {
 }
 fetchLiveWeather();
 setInterval(fetchLiveWeather, 600000);
+
+function checkSuperAdminWelcome() {
+  var hasGroupWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "group_room110"; });
+  var hasAdminWelcome = msgs.some(function(m) { return m.isWelcome && m.target === "superadmin_channel"; });
+  var changed = false;
+
+  if(!hasGroupWelcome) {
+    msgs.unshift({
+      id: 100001,
+      sender: "Super Admin",
+      target: "group_room110",
+      text: "👋 Welcome to Room 110! All registered room members are automatically added here. Please keep mess receipts updated on time.",
+      timestamp: "System",
+      timeEpoch: Date.now() - 1000000,
+      isWelcome: true,
+      isSystem: true,
+      reactions: {}
+    });
+    changed = true;
+  }
+
+  if(!hasAdminWelcome) {
+    msgs.unshift({
+      id: 100002,
+      sender: "Super Admin",
+      target: "superadmin_channel",
+      text: "📢 Official Room 110 Admin Channel: Welcome! Monthly statement summaries and payment reminders will be posted here.",
+      timestamp: "System",
+      timeEpoch: Date.now() - 1000000,
+      isWelcome: true,
+      isSystem: true,
+      reactions: {}
+    });
+    changed = true;
+  }
+
+  if(changed) {
+    localStorage.setItem("r110_m", JSON.stringify(msgs));
+  }
+}
 
 function updateDateTime() {
   var now = new Date();
@@ -1364,10 +1433,11 @@ function loadCloudData(isManual){
   fetch(CLOUD_URL)
     .then(function(res){ return res.json(); })
     .then(function(data){
+      var addedSuper = false;
       if(data && data.users && data.users.length) {
         users = data.users;
         users.forEach(migrateUserVacations);
-        ensureSuperAdmin();
+        addedSuper = ensureSuperAdmin();
         localStorage.setItem("r110_u", JSON.stringify(users));
       }
       if(data && Array.isArray(data.exps)) {
@@ -1383,16 +1453,68 @@ function loadCloudData(isManual){
         localStorage.setItem("r110_gen_stmts", JSON.stringify(generatedStatements));
       }
       if(data && Array.isArray(data.notifications)) {
-        notifications = data.notifications;
+        var incomingNotifs = data.notifications;
+        incomingNotifs.forEach(function(inN){
+          var localExisting = notifications.find(function(ln){ return ln.id === inN.id; });
+          if(localExisting) {
+            inN.read = localExisting.read;
+            inN.verified = localExisting.verified;
+          }
+        });
+        notifications = incomingNotifs;
         localStorage.setItem("r110_notif", JSON.stringify(notifications));
       }
       if(data && data.msgs && data.msgs.length) {
-        msgs = data.msgs;
+        var incomingMsgs = data.msgs;
+        incomingMsgs.forEach(function(inM){
+          var localExisting = msgs.find(function(lm){ return lm.id === inM.id; });
+          if(localExisting) {
+            inM.isRead = inM.isRead || localExisting.isRead;
+          }
+        });
+        msgs = incomingMsgs;
         localStorage.setItem("r110_m", JSON.stringify(msgs));
+      }
+      if(data && data.categories) {
+        categories = data.categories;
+        categories.sort(function(a,b){ return a.localeCompare(b); });
+        localStorage.setItem("r110_cat", JSON.stringify(categories));
+      }
+      if(data && Array.isArray(data.vendors)) {
+        vendors = data.vendors;
+        vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
+        localStorage.setItem("r110_ven", JSON.stringify(vendors));
+      }
+      if(data && Array.isArray(data.payments)) {
+        payments = data.payments;
+        payments.forEach(function(p){ if(p.verified === undefined) p.verified = true; });
+        localStorage.setItem("r110_pay", JSON.stringify(payments));
+      }
+      if(data && Array.isArray(data.groups)) {
+        groups = normalizeGroups(data.groups);
+        localStorage.setItem("r110_grp", JSON.stringify(groups));
+      }
+      if(data && data.emergencyContacts) {
+        emergencyContacts = data.emergencyContacts;
+        emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
+        localStorage.setItem("r110_ec", JSON.stringify(emergencyContacts));
+      }
+      if(cur){
+        var fresh = users.find(function(x){ return x.u === cur.u; });
+        if(fresh) {
+          if(fresh.active === false) {
+            logout();
+          } else {
+            cur = fresh;
+            cur.lastActive = Date.now();
+          }
+        }
       }
       setCloudStatus('live');
       applyTheme();
+      checkSuperAdminWelcome();
       render();
+      if(addedSuper && Date.now() - lastSuperSave > 15000) { lastSuperSave = Date.now(); save(false); }
     })
     .catch(function(err){
       setCloudStatus('error');
@@ -1501,7 +1623,7 @@ function login(e){
     cur = found;
     if(!cur.firstName) {
       cur.firstName = cur.name || "Shyam";
-      cur.lastName = cur.lastName || "";
+      cur.lastName = cur.lastName || "Sathyan";
     }
     cur.lastActive = Date.now();
     if(document.getElementById("keepMe").checked){
@@ -1522,8 +1644,10 @@ function openDashboard(){
   document.body.style.padding = "0";
   applyTheme();
   updateDateTime();
+  checkSuperAdminWelcome();
   pingUserActivity(false);
   tab(1);
+  applyLastSelections();
 }
 
 function logout(){
@@ -1553,6 +1677,12 @@ function tab(n){
       v.className = (i==3) ? "card" : "";
       if(i==3) {
         setupAddExpenseTabRestrictions();
+        var stypeEl = document.getElementById("stype");
+        if(stypeEl) {
+          var remembered = lastSel.stype || "a";
+          stypeEl.value = remembered;
+          onSplitTypeChange();
+        }
       }
       if(i==5) {
         document.getElementById("editFirstName").value = cur.firstName || cur.name || "";
@@ -1621,12 +1751,16 @@ function renderNotificationsList() {
   container.innerHTML = myNotifs.map(function(n){
     var timeStr = new Date(n.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     var actionsHtml = "";
+    
     if(n.type === 'payment_request' && !n.verified && n.targetUser === cName) {
       actionsHtml = '<div style="display:flex;gap:8px;margin-top:6px">' +
                     '<button class="btn btn-s" style="background:#059669;padding:6px 12px" onclick="verifyPaymentRequest(' + n.meta.paymentId + ', true, ' + n.id + ')">Verify & Approve</button>' +
                     '<button class="btn btn-s" style="background:#dc2626;padding:6px 12px" onclick="verifyPaymentRequest(' + n.meta.paymentId + ', false, ' + n.id + ')">Reject</button>' +
                     '</div>';
+    } else if(n.type === 'payment_request' && n.verified) {
+      actionsHtml = '<div style="font-size:11px;color:#059669;font-weight:700;margin-top:4px"><i class="fa-solid fa-check"></i> Approved & Verified</div>';
     }
+
     return '<div class="notif-card ' + (!n.read ? 'unread' : '') + '">' +
            '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
            '<div style="font-weight:700;font-size:14px;color:#111">' + escHtml(n.title) + '</div>' +
@@ -1645,20 +1779,27 @@ function renderNotificationsList() {
 function updateDockBadges() {
   if(!cur) return;
   var cName = cur.firstName || cur.name;
+  
   var unreadChats = msgs.filter(function(m){
-    var forMe = m.target===cName || m.target==='group_room110' || !m.target;
+    var forMe = m.target===cName || m.target==='group_room110' || m.target==='superadmin_channel' || !m.target;
     return forMe && !m.isRead && m.sender!==cName;
   }).length;
   var chatDot = document.getElementById("chatUnreadDot");
-  if(chatDot) chatDot.className = unreadChats > 0 ? "dock-dot" : "dock-dot hide";
+  if(chatDot) {
+    chatDot.className = unreadChats > 0 ? "dock-dot" : "dock-dot hide";
+  }
 
   var unreadNotifs = notifications.filter(function(n){
     return (n.targetUser === "all" || n.targetUser === cName) && !n.read;
   }).length;
   var notifBadge = document.getElementById("notifBadge");
-  if(notifBadge) notifBadge.className = unreadNotifs > 0 ? "dock-dot" : "dock-dot hide";
+  if(notifBadge) {
+    notifBadge.className = unreadNotifs > 0 ? "dock-dot" : "dock-dot hide";
+  }
   var profileNotifDot = document.getElementById("profileNotifDot");
-  if(profileNotifDot) profileNotifDot.className = unreadNotifs > 0 ? "dock-dot" : "dock-dot hide";
+  if(profileNotifDot) {
+    profileNotifDot.className = unreadNotifs > 0 ? "dock-dot" : "dock-dot hide";
+  }
 }
 
 var PROF_PAGES = ["ec","members","services","dewa","etisalat","vacation","appearance"];
@@ -1720,34 +1861,74 @@ function countVacationDays(v) {
   var end = v.openEnded ? today : (v.to || today);
   if(end > today) end = today;
   if(start > end) return 0;
+
   var d1 = new Date(start);
   var d2 = new Date(end);
-  return Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+  var diffTime = Math.abs(d2 - d1);
+  var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  return diffDays;
 }
 
 function toggleVacation() {
-  if(isSuper()) return;
+  if(isSuper()) return; // Super Admins cannot take personal vacations
   var toggle = document.getElementById("vacationToggle");
   var form = document.getElementById("vacationFormContainer");
+  var activeToday = isUserActiveOnVacation(cur);
+
   if(toggle.checked) {
-    form.className = "";
-    document.getElementById("vacFromInput").value = todayISO();
-    document.getElementById("vacToInput").value = "";
-    document.getElementById("vacOpenEnded").checked = false;
-    document.getElementById("vacToBox").className = "";
-    document.getElementById("vacSaveBtn").disabled = true;
+    if(!activeToday) {
+      form.className = "";
+      document.getElementById("vacFromInput").value = todayISO();
+      document.getElementById("vacToInput").value = "";
+      document.getElementById("vacOpenEnded").checked = false;
+      document.getElementById("vacToBox").className = "";
+      document.getElementById("vacPastWarning").className = "hide";
+      document.getElementById("vacSaveBtn").disabled = true;
+    } else {
+      form.className = "hide";
+    }
   } else {
     form.className = "hide";
+    if(activeToday) {
+      var activeV = cur.vacations.find(function(v){
+        var start = v.from;
+        var end = v.openEnded ? "9999-12-31" : (v.to || v.from);
+        var today = todayISO();
+        return today >= start && today <= end;
+      });
+
+      if(activeV) {
+        var msg = activeV.openEnded ? "I'm back today? (Ends vacation yesterday)" : "End vacation early? (Ends vacation yesterday)";
+        if(confirm(msg)) {
+          var yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          var yStr = toISO(yesterday);
+          if(yStr < activeV.from) {
+            cur.vacations = cur.vacations.filter(function(v){ return v.id !== activeV.id; });
+          } else {
+            activeV.to = yStr;
+            activeV.openEnded = false;
+          }
+          syncUserVacations();
+        } else {
+          toggle.checked = activeToday;
+        }
+      }
+    } else {
+      toggle.checked = activeToday;
+    }
   }
 }
 
 function cancelVacationForm() {
   document.getElementById("vacationFormContainer").className = "hide";
-  document.getElementById("vacationToggle").checked = isUserActiveOnVacation(cur);
+  var toggle = document.getElementById("vacationToggle");
+  toggle.checked = isUserActiveOnVacation(cur);
 }
 
 function toggleVacOpenEnded() {
-  document.getElementById("vacToBox").className = document.getElementById("vacOpenEnded").checked ? "hide" : "";
+  var open = document.getElementById("vacOpenEnded").checked;
+  document.getElementById("vacToBox").className = open ? "hide" : "";
   checkVacationFormValidity();
 }
 
@@ -1755,7 +1936,17 @@ function checkVacationFormValidity() {
   var from = document.getElementById("vacFromInput").value;
   var open = document.getElementById("vacOpenEnded").checked;
   var to = document.getElementById("vacToInput").value;
-  document.getElementById("vacSaveBtn").disabled = !(from && (open || (to && to >= from)));
+  var btn = document.getElementById("vacSaveBtn");
+  var warn = document.getElementById("vacPastWarning");
+
+  if(from < todayISO()) warn.className = ""; else warn.className = "hide";
+
+  var valid = false;
+  if(from) {
+    if(open) valid = true;
+    else if(to && to >= from) valid = true;
+  }
+  btn.disabled = !valid;
 }
 
 function saveNewVacation() {
@@ -1763,10 +1954,27 @@ function saveNewVacation() {
   var from = document.getElementById("vacFromInput").value;
   var open = document.getElementById("vacOpenEnded").checked;
   var to = document.getElementById("vacToInput").value;
+
   if(!from) return alert("From date is required.");
   if(!open && (!to || to < from)) return alert("Return date must be on or after From date.");
 
-  cur.vacations.push({ id: Date.now(), from: from, to: open ? "" : to, openEnded: open, created: todayISO() });
+  var newV = {
+    id: Date.now(),
+    from: from,
+    to: open ? "" : to,
+    openEnded: open,
+    created: todayISO()
+  };
+
+  var overlap = cur.vacations.some(function(v){
+    var vEnd = v.openEnded ? "9999-12-31" : (v.to || v.from);
+    var nEnd = newV.openEnded ? "9999-12-31" : (newV.to || newV.from);
+    return !(nEnd < v.from || newV.from > vEnd);
+  });
+
+  if(overlap) return alert("This vacation overlaps with an existing scheduled vacation.");
+
+  cur.vacations.push(newV);
   syncUserVacations();
   document.getElementById("vacationFormContainer").className = "hide";
   alert("Vacation scheduled successfully!");
@@ -1779,53 +1987,232 @@ function syncUserVacations() {
   renderVacationSection();
 }
 
+function cancelUpcomingVacation(id) {
+  if(confirm("Cancel this upcoming vacation?")) {
+    cur.vacations = cur.vacations.filter(function(v){ return v.id !== id; });
+    syncUserVacations();
+  }
+}
+
+// Check if a vacation period is locked by a generated statement
+function isVacationLockedByStatement(v) {
+  var startYM = v.from.slice(0, 7);
+  var endYM = v.openEnded ? todayISO().slice(0, 7) : (v.to || v.from).slice(0, 7);
+  for(var ym in generatedStatements) {
+    if(generatedStatements[ym] && ym >= startYM && ym <= endYM) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function renderVacationSection() {
   var memberView = document.getElementById("memberVacationView");
   var adminView = document.getElementById("superAdminVacationView");
+  var titleEl = document.getElementById("vacationPageTitle");
+
   if(isSuper()) {
     memberView.className = "hide";
     adminView.className = "card";
+    if(titleEl) titleEl.innerText = "Manage Member Vacations";
     renderSuperAdminVacationsList();
     return;
   }
+
   memberView.className = "card";
   adminView.className = "hide";
-  document.getElementById("vacationToggle").checked = isUserActiveOnVacation(cur);
+  if(titleEl) titleEl.innerText = "Vacation Mode";
+
+  var toggle = document.getElementById("vacationToggle");
+  var activeToday = isUserActiveOnVacation(cur);
+  toggle.checked = activeToday;
+  document.getElementById("vacationFormContainer").className = "hide";
+
+  var listEl = document.getElementById("myVacationsList");
+  var totalDaysEl = document.getElementById("totalVacDays");
+
+  if(!Array.isArray(cur.vacations)) cur.vacations = [];
+  cur.vacations.sort(function(a, b){ return b.from.localeCompare(a.from); });
+
   var totalDays = 0;
-  var html = (cur.vacations || []).map(function(v){
-    totalDays += countVacationDays(v);
-    return '<div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px;border-radius:10px;border:1px solid #e5e7eb"><b>' + fmtDate(v.from) + ' – ' + (v.openEnded ? 'Ongoing' : fmtDate(v.to)) + '</b></div>';
+  var html = cur.vacations.map(function(v){
+    var days = countVacationDays(v);
+    if(v.from <= todayISO()) totalDays += days;
+
+    var badge = "";
+    var today = todayISO();
+    if(v.from > today) badge = '<span style="font-size:10px;background:#dbeafe;color:#1e40af;padding:2px 6px;border-radius:8px;font-weight:700">UPCOMING</span>';
+    else if(v.openEnded || (!v.openEnded && (!v.to || v.to >= today))) badge = '<span style="font-size:10px;background:#d1fae5;color:#059669;padding:2px 6px;border-radius:8px;font-weight:700">ACTIVE</span>';
+    else badge = '<span style="font-size:10px;background:#f3f4f6;color:#6b7280;padding:2px 6px;border-radius:8px;font-weight:700">COMPLETED</span>';
+
+    var dateStr = fmtDate(v.from) + " – " + (v.openEnded ? "Ongoing" : fmtDate(v.to || v.from));
+    var daysStr = v.openEnded && v.from <= today ? "Ongoing, " + countVacationDays(v) + " days so far" : countVacationDays(v) + " days counted";
+    var cancelBtn = (v.from > today) ? '<button class="btn btn-s" style="background:#dc2626;padding:4px 8px;font-size:11px" onclick="cancelUpcomingVacation(' + v.id + ')">Cancel</button>' : '';
+
+    return '<div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px;border-radius:10px;border:1px solid #e5e7eb">' +
+           '<div><div style="font-weight:700;font-size:13px;color:#111">' + dateStr + ' ' + badge + '</div><div style="font-size:11px;color:#6b7280;margin-top:2px">' + daysStr + '</div></div>' +
+           cancelBtn +
+           '</div>';
   }).join('') || '<div style="font-size:12px;color:#6b7280;font-style:italic">No vacation history recorded.</div>';
-  document.getElementById("myVacationsList").innerHTML = html;
-  document.getElementById("totalVacDays").innerText = totalDays;
+
+  listEl.innerHTML = html;
+  totalDaysEl.innerText = totalDays;
 }
 
 function renderSuperAdminVacationsList() {
   var container = document.getElementById("superAdminVacationsList");
   var allVacs = [];
+
   users.forEach(function(u){
-    if(u.r !== "superadmin" && Array.isArray(u.vacations)) {
-      u.vacations.forEach(function(v){ allVacs.push({ user: u, vac: v }); });
-    }
+    if(u.r === "superadmin" || !Array.isArray(u.vacations)) return;
+    u.vacations.forEach(function(v){
+      allVacs.push({ user: u, vac: v });
+    });
   });
+
+  allVacs.sort(function(a, b){ return b.vac.from.localeCompare(a.vac.from); });
+
   container.innerHTML = allVacs.map(function(item){
-    return '<div style="background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb"><b>' + memberName(item.user) + '</b>: ' + fmtDate(item.vac.from) + '</div>';
-  }).join('') || '<div style="font-size:13px;color:#6b7280;font-style:italic">No member vacations recorded.</div>';
+    var u = item.user;
+    var v = item.vac;
+    var locked = isVacationLockedByStatement(v);
+    var uName = (u.firstName || u.name) + " " + (u.lastName || "");
+    var dateStr = fmtDate(v.from) + " – " + (v.openEnded ? "Ongoing" : fmtDate(v.to || v.from));
+    var days = countVacationDays(v);
+
+    var statusTag = locked 
+      ? '<span style="font-size:10px;background:#fee2e2;color:#dc2626;padding:2px 6px;border-radius:8px;font-weight:700"><i class="fa-solid fa-lock"></i> Statement Generated</span>'
+      : '<span style="font-size:10px;background:#d1fae5;color:#059669;padding:2px 6px;border-radius:8px;font-weight:700">Editable</span>';
+
+    var actions = locked ? '' :
+      '<div style="display:flex;gap:6px">' +
+      '<button class="btn btn-s" style="background:#2563eb;padding:5px 9px" onclick="openAdminEditVacation(' + u.id + ', ' + v.id + ')"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="deleteAdminMemberVacation(' + u.id + ', ' + v.id + ')"><i class="fa-solid fa-trash"></i></button>' +
+      '</div>';
+
+    return '<div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e5e7eb">' +
+           '<div>' +
+           '<div style="font-weight:700;font-size:13.5px;color:#111">' + escHtml(uName.trim()) + ' ' + statusTag + '</div>' +
+           '<div style="font-size:12px;color:#374151;margin-top:2px">' + dateStr + ' (' + days + ' days)</div>' +
+           '</div>' +
+           actions +
+           '</div>';
+  }).join('') || '<div style="font-size:13px;color:#6b7280;font-style:italic">No member vacations recorded yet.</div>';
+}
+
+function openAdminEditVacation(userId, vacId) {
+  if(!isSuper()) return;
+  var u = users.find(function(x){ return x.id == userId; });
+  if(!u || !Array.isArray(u.vacations)) return;
+  var v = u.vacations.find(function(x){ return x.id == vacId; });
+  if(!v) return;
+  if(isVacationLockedByStatement(v)) return alert("Cannot edit vacation after monthly statement has been generated.");
+
+  document.getElementById("adminVacUserId").value = u.id;
+  document.getElementById("adminVacId").value = v.id;
+  document.getElementById("adminVacMemberName").value = (u.firstName || u.name) + " " + (u.lastName || "");
+  document.getElementById("adminVacFrom").value = v.from;
+  document.getElementById("adminVacTo").value = v.to || "";
+  document.getElementById("adminVacOpenEnded").checked = !!v.openEnded;
+  document.getElementById("adminVacToBox").className = v.openEnded ? "hide" : "";
+  document.getElementById("adminEditVacationModal").className = "modal-overlay";
+}
+
+function saveAdminEditedVacation(e) {
+  e.preventDefault();
+  if(!isSuper()) return;
+  var userId = Number(document.getElementById("adminVacUserId").value);
+  var vacId = Number(document.getElementById("adminVacId").value);
+  var from = document.getElementById("adminVacFrom").value;
+  var open = document.getElementById("adminVacOpenEnded").checked;
+  var to = document.getElementById("adminVacTo").value;
+
+  if(!from) return alert("From date is required.");
+  if(!open && (!to || to < from)) return alert("Return date must be on or after From date.");
+
+  var u = users.find(function(x){ return x.id === userId; });
+  if(!u || !Array.isArray(u.vacations)) return;
+  var v = u.vacations.find(function(x){ return x.id === vacId; });
+  if(!v) return;
+
+  v.from = from;
+  v.to = open ? "" : to;
+  v.openEnded = open;
+
+  closeModals();
+  save(true);
+  renderSuperAdminVacationsList();
+  alert("Member vacation updated and synced to user profile!");
+}
+
+function deleteAdminMemberVacation(userId, vacId) {
+  if(!isSuper()) return;
+  var u = users.find(function(x){ return x.id == userId; });
+  if(!u || !Array.isArray(u.vacations)) return;
+  var v = u.vacations.find(function(x){ return x.id == vacId; });
+  if(!v) return;
+  if(isVacationLockedByStatement(v)) return alert("Cannot delete vacation after monthly statement has been generated.");
+
+  if(confirm("Delete this vacation record from " + (u.firstName || u.name) + "'s profile?")) {
+    u.vacations = u.vacations.filter(function(x){ return x.id != vacId; });
+    save(true);
+    renderSuperAdminVacationsList();
+  }
 }
 
 // ==========================================
-// DEWA & ETISALAT UTILITY LOGIC (UPDATED)
+// STANDALONE DEWA & ETISALAT UTILITY LOGIC
 // ==========================================
 
 function getMonthDaysCount(ym) {
-  var p = ym.split("-");
-  return new Date(Number(p[0]), Number(p[1]), 0).getDate();
+  var parts = ym.split("-");
+  var y = Number(parts[0]), m = Number(parts[1]);
+  return new Date(y, m, 0).getDate();
 }
 
 function getPreviousMonthYM(ym) {
-  var p = ym.split("-"), y = Number(p[0]), m = Number(p[1]) - 1;
+  var parts = ym.split("-");
+  var y = Number(parts[0]), m = Number(parts[1]) - 1;
   m--; if(m < 0) { m = 11; y--; }
   return y + "-" + pad2(m + 1);
+}
+
+// DEWA calculates presence across the ENTIRE previous month
+function calculateMemberDewaDays(userObj, viewYM) {
+  var dewaYM = getPreviousMonthYM(viewYM);
+  var daysInMonth = getMonthDaysCount(dewaYM);
+  var presentDays = 0;
+
+  for(var d = 1; d <= daysInMonth; d++) {
+    var dateStr = dewaYM + "-" + pad2(d);
+    if(!isUserOnVacationOnDate(userObj, dateStr)) {
+      presentDays++;
+    }
+  }
+  return presentDays;
+}
+
+// ETISALAT calculates presence strictly UP TO TODAY (for real-time accuracy)
+function calculateMemberEtisalatDaysUpToToday(userObj, viewYM) {
+  var today = todayISO();
+  var currentYM = today.slice(0, 7);
+  var totalDaysInMonth = getMonthDaysCount(viewYM);
+  
+  var maxDayToCount = totalDaysInMonth;
+  if(viewYM === currentYM) {
+    maxDayToCount = Number(today.slice(8, 10)); // Up to today only!
+  } else if(viewYM > currentYM) {
+    return 0; // Future month
+  }
+
+  var presentDays = 0;
+  for(var d = 1; d <= maxDayToCount; d++) {
+    var dateStr = viewYM + "-" + pad2(d);
+    if(!isUserOnVacationOnDate(userObj, dateStr)) {
+      presentDays++;
+    }
+  }
+  return presentDays;
 }
 
 function populateUtilityMonthDropdowns(billingId, viewId) {
@@ -1841,186 +2228,267 @@ function populateUtilityMonthDropdowns(billingId, viewId) {
   if(vSel && !vSel.innerHTML) vSel.innerHTML = opts;
 }
 
-function populatePayerDropdowns() {
-  var payerOpts = users.filter(function(u){ return u.active !== false; }).map(function(u){
-    var n = memberName(u);
-    return '<option value="' + escHtml(n) + '">' + escHtml(n) + '</option>';
-  }).join('');
-  var dPby = document.getElementById("dewaPaidBySelect");
-  var ePby = document.getElementById("etisalatPaidBySelect");
-  if(dPby) dPby.innerHTML = payerOpts;
-  if(ePby) ePby.innerHTML = payerOpts;
-}
-
-// --- DEWA RENDER & SAVE ---
+// --- STANDALONE DEWA RENDER & SAVE ---
 function renderDewaPage() {
   var adminCard = document.getElementById("dewaAdminCard");
+  if(isAdminLike() || isLandlord()) adminCard.className = "card";
+  else adminCard.className = "card hide";
+
   populateUtilityMonthDropdowns("dewaBillingMonth", "dewaViewMonth");
-  populatePayerDropdowns();
 
-  var viewYM = document.getElementById("dewaViewMonth").value || todayISO().slice(0, 7);
-  var dewaYM = getPreviousMonthYM(viewYM); // Automatically previous month consumption period
-  
-  var isLocked = !!generatedStatements[viewYM];
-
-  if(isAdminLike() || isLandlord()) {
-    adminCard.className = "card";
-    var stored = (utilities && utilities[viewYM]) || {};
-    var amtInp = document.getElementById("dewaBillAmtInput");
-    var pbySel = document.getElementById("dewaPaidBySelect");
-    var saveBtn = document.getElementById("dewaSaveBtn");
-    var lockedNotice = document.getElementById("dewaLockedNotice");
-
-    if(amtInp && document.activeElement !== amtInp) amtInp.value = stored.dewa !== undefined ? stored.dewa : "";
-    if(pbySel && stored.dewaPaidBy) pbySel.value = stored.dewaPaidBy;
-
-    amtInp.disabled = isLocked;
-    pbySel.disabled = isLocked;
-    saveBtn.className = isLocked ? "btn hide" : "btn";
-    lockedNotice.className = isLocked ? "" : "hide";
-  } else {
-    adminCard.className = "card hide";
+  var billingYM = document.getElementById("dewaBillingMonth").value || todayISO().slice(0, 7);
+  var stored = (utilities && utilities[billingYM]) || { dewa: 0, etisalat: 0 };
+  var amtInp = document.getElementById("dewaBillAmtInput");
+  if(amtInp && document.activeElement !== amtInp) {
+    amtInp.value = stored.dewa || "";
   }
 
-  var viewData = (utilities && utilities[viewYM]) || {};
+  var viewYM = document.getElementById("dewaViewMonth").value || todayISO().slice(0, 7);
+  var viewData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
+  var dewaYM = getPreviousMonthYM(viewYM);
+  var dewaDaysInMonth = getMonthDaysCount(dewaYM);
+
   var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
   var totalRoomDewaDays = 0;
   var memberDaysMap = {};
 
   activeMessUsers.forEach(function(u){
     var uName = memberName(u);
-    var days = 0;
-    var dm = getMonthDaysCount(dewaYM);
-    for(var d = 1; d <= dm; d++) {
-      var dateStr = dewaYM + "-" + pad2(d);
-      if(!isUserOnVacationOnDate(u, dateStr)) days++;
-    }
+    var days = calculateMemberDewaDays(u, viewYM);
     memberDaysMap[uName] = days;
     totalRoomDewaDays += days;
   });
 
-  var billAmt = viewData.dewa || 0;
-  var paidByStr = viewData.dewaPaidBy ? ' <span style="font-size:11px;color:#6b7280">(Paid by ' + escHtml(viewData.dewaPaidBy) + ')</span>' : '';
-  
+  var cName = cur.firstName || cur.name;
+  var myDewaDays = memberDaysMap[cName] || 0;
+  var myDewaShare = totalRoomDewaDays > 0 ? (viewData.dewa * (myDewaDays / totalRoomDewaDays)) : 0;
+
   var container = document.getElementById("dewaBreakdownContainer");
   var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb">' +
              '<div style="font-weight:700;font-size:14px;color:#d97706;margin-bottom:8px">Consumption Period: ' + dewaYM + '</div>' +
-             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:10px"><span>Total DEWA Bill:</span><strong>AED ' + money(billAmt) + paidByStr + '</strong></div>' +
-             '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb"><strong style="font-size:11px;color:#6b7280;text-transform:uppercase">Roommate Share Breakdown</strong>';
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total DEWA Bill:</span><strong>AED ' + money(viewData.dewa) + '</strong></div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total Room Occupancy Days:</span><strong>' + totalRoomDewaDays + ' days</strong></div>';
 
-  activeMessUsers.forEach(function(u){
-    var uN = memberName(u);
-    var d = memberDaysMap[uN] || 0;
-    var sh = totalRoomDewaDays > 0 ? (billAmt * (d / totalRoomDewaDays)) : 0;
-    html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(uN) + ' (' + d + ' days)</span><strong>AED ' + money(sh) + '</strong></div>';
-  });
-  html += '</div></div>';
+  if(!isLandlord() && !isSuper()) {
+    html += '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:6px"><span>Your Active Days:</span><strong>' + myDewaDays + ' / ' + dewaDaysInMonth + ' days</strong></div>' +
+            '<div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #e5e7eb"><span>Your DEWA Share:</span><span>AED ' + money(myDewaShare) + '</span></div>';
+  } else {
+    html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb"><strong style="font-size:11px;color:#6b7280;text-transform:uppercase">Roommate Breakdown</strong>';
+    activeMessUsers.forEach(function(u){
+      var uN = memberName(u);
+      var d = memberDaysMap[uN] || 0;
+      var sh = totalRoomDewaDays > 0 ? (viewData.dewa * (d / totalRoomDewaDays)) : 0;
+      html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(uN) + ' (' + d + '/' + dewaDaysInMonth + ' days)</span><strong>AED ' + money(sh) + '</strong></div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
   container.innerHTML = html;
 }
 
 function saveDewaBill() {
   if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
-  var viewYM = document.getElementById("dewaViewMonth").value;
-  if(generatedStatements[viewYM]) return alert("Cannot edit bill after monthly statement has been generated.");
-  
+  var ym = document.getElementById("dewaBillingMonth").value;
   var dewa = parseFloat(document.getElementById("dewaBillAmtInput").value) || 0;
-  var paidBy = document.getElementById("dewaPaidBySelect").value;
 
   if(!utilities) utilities = {};
-  if(!utilities[viewYM]) utilities[viewYM] = {};
-  utilities[viewYM].dewa = dewa;
-  utilities[viewYM].dewaPaidBy = paidBy;
+  if(!utilities[ym]) utilities[ym] = { dewa: 0, etisalat: 0 };
+  utilities[ym].dewa = dewa;
 
   save(true);
   renderDewaPage();
-  alert("DEWA bill saved successfully!");
+  alert("DEWA bill updated successfully for " + ym + "!");
 }
 
-// --- ETISALAT RENDER & SAVE ---
+// --- STANDALONE ETISALAT RENDER & SAVE ---
 function renderEtisalatPage() {
-  populateUtilityMonthDropdowns("etisalatBillingMonth", "etisalatViewMonth");
-  populatePayerDropdowns();
-
-  var viewYM = todayISO().slice(0, 7); // Locked strictly to current active subscription month
-  var isLocked = !!generatedStatements[viewYM];
-
   var adminCard = document.getElementById("etisalatAdminCard");
-  if(isAdminLike() || isLandlord()) {
-    adminCard.className = "card";
-    var stored = (utilities && utilities[viewYM]) || {};
-    var amtInp = document.getElementById("etisalatBillAmtInput");
-    var pbySel = document.getElementById("etisalatPaidBySelect");
-    var saveBtn = document.getElementById("etisalatSaveBtn");
-    var lockedNotice = document.getElementById("etisalatLockedNotice");
+  if(isAdminLike() || isLandlord()) adminCard.className = "card";
+  else adminCard.className = "card hide";
 
-    if(amtInp && document.activeElement !== amtInp) amtInp.value = stored.etisalat !== undefined ? stored.etisalat : "";
-    if(pbySel && stored.etisalatPaidBy) pbySel.value = stored.etisalatPaidBy;
+  populateUtilityMonthDropdowns("etisalatBillingMonth", "etisalatViewMonth");
 
-    amtInp.disabled = isLocked;
-    pbySel.disabled = isLocked;
-    saveBtn.className = isLocked ? "btn hide" : "btn";
-    lockedNotice.className = isLocked ? "" : "hide";
-  } else {
-    adminCard.className = "card hide";
+  var billingYM = document.getElementById("etisalatBillingMonth").value || todayISO().slice(0, 7);
+  var stored = (utilities && utilities[billingYM]) || { dewa: 0, etisalat: 0 };
+  var amtInp = document.getElementById("etisalatBillAmtInput");
+  if(amtInp && document.activeElement !== amtInp) {
+    amtInp.value = stored.etisalat || "";
   }
 
-  var viewData = (utilities && utilities[viewYM]) || {};
-  var billAmt = viewData.etisalat || 0;
-  var paidByStr = viewData.etisalatPaidBy ? ' <span style="font-size:11px;color:#6b7280">(Paid by ' + escHtml(viewData.etisalatPaidBy) + ')</span>' : '';
+  var viewYM = document.getElementById("etisalatViewMonth").value || todayISO().slice(0, 7);
+  var viewData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
+  var totalDaysInMonth = getMonthDaysCount(viewYM);
+  var currentYM = todayISO().slice(0, 7);
+  var elapsedDays = viewYM === currentYM ? Number(todayISO().slice(8, 10)) : (viewYM < currentYM ? totalDaysInMonth : 0);
+
+  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
+  var totalRoomEtisalatDays = 0;
+  var memberDaysMap = {};
+
+  activeMessUsers.forEach(function(u){
+    var uName = memberName(u);
+    var days = calculateMemberEtisalatDaysUpToToday(u, viewYM);
+    memberDaysMap[uName] = days;
+    totalRoomEtisalatDays += days;
+  });
+
+  // Accrued cost up to today
+  var accruedTotalBill = totalDaysInMonth > 0 ? (viewData.etisalat * (elapsedDays / totalDaysInMonth)) : 0;
+
+  var cName = cur.firstName || cur.name;
+  var myEtisalatDays = memberDaysMap[cName] || 0;
+  var myEtisalatShare = totalRoomEtisalatDays > 0 ? (accruedTotalBill * (myEtisalatDays / totalRoomEtisalatDays)) : 0;
 
   var container = document.getElementById("etisalatBreakdownContainer");
-  container.innerHTML = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb">' +
-                        '<div style="font-weight:700;font-size:14px;color:#0284c7;margin-bottom:8px">Subscription Month: ' + viewYM + '</div>' +
-                        '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between"><span>Monthly Subscription:</span><strong>AED ' + money(billAmt) + paidByStr + '</strong></div>' +
-                        '</div>';
+  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb">' +
+             '<div style="font-weight:700;font-size:14px;color:#0284c7;margin-bottom:8px">Subscription Month: ' + viewYM + ' (Up to Today: ' + elapsedDays + ' / ' + totalDaysInMonth + ' days)</div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Full Monthly Plan:</span><strong>AED ' + money(viewData.etisalat) + '</strong></div>' +
+             '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Accrued Bill Up To Today:</span><strong>AED ' + money(accruedTotalBill) + '</strong></div>';
+
+  if(!isLandlord() && !isSuper()) {
+    html += '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:6px"><span>Your Active Days (Up to Today):</span><strong>' + myEtisalatDays + ' / ' + elapsedDays + ' days</strong></div>' +
+            '<div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #e5e7eb"><span>Your Real-Time Share:</span><span>AED ' + money(myEtisalatShare) + '</span></div>';
+  } else {
+    html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb"><strong style="font-size:11px;color:#6b7280;text-transform:uppercase">Roommate Breakdown (Up to Today)</strong>';
+    activeMessUsers.forEach(function(u){
+      var uN = memberName(u);
+      var d = memberDaysMap[uN] || 0;
+      var sh = totalRoomEtisalatDays > 0 ? (accruedTotalBill * (d / totalRoomEtisalatDays)) : 0;
+      html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(uN) + ' (' + d + '/' + elapsedDays + ' days)</span><strong>AED ' + money(sh) + '</strong></div>';
+    });
+    html += '</div>';
+  }
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 function saveEtisalatBill() {
   if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
-  var viewYM = todayISO().slice(0, 7);
-  if(generatedStatements[viewYM]) return alert("Cannot edit subscription after monthly statement has been generated.");
-
+  var ym = document.getElementById("etisalatBillingMonth").value;
   var etisalat = parseFloat(document.getElementById("etisalatBillAmtInput").value) || 0;
-  var paidBy = document.getElementById("etisalatPaidBySelect").value;
 
   if(!utilities) utilities = {};
-  if(!utilities[viewYM]) utilities[viewYM] = {};
-  utilities[viewYM].etisalat = etisalat;
-  utilities[viewYM].etisalatPaidBy = paidBy;
+  if(!utilities[ym]) utilities[ym] = { dewa: 0, etisalat: 0 };
+  utilities[ym].etisalat = etisalat;
 
   save(true);
   renderEtisalatPage();
-  alert("Etisalat subscription saved successfully!");
+  alert("Etisalat bill updated successfully for " + ym + "!");
 }
 
-function getSplitMembers(dateVal) {
-  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
-  var pool = activeMessUsers.map(memberName);
-  var onVacNames = activeMessUsers.filter(function(u){ return isUserOnVacationOnDate(u, dateVal); }).map(memberName);
+function getSplitMembers(expenseDate) {
+  var selEl = document.getElementById("stype");
+  var st = selEl ? selEl.value : "a";
+  var checkDate = expenseDate || todayISO();
+  
+  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a, b){
+    return memberName(a).localeCompare(memberName(b));
+  });
+
+  var onVacNames = activeMessUsers.filter(function(u){
+    return isUserOnVacationOnDate(u, checkDate);
+  }).map(memberName);
+
+  if(st === "c") {
+    var checked = Array.prototype.map.call(document.querySelectorAll(".mck:checked"), function(c){ return c.value; });
+    return { al: checked, vac: onVacNames };
+  }
+  if(st === "custom") {
+    var checkedCustom = Array.prototype.map.call(document.querySelectorAll(".custom-split-input"), function(inp){
+      return parseFloat(inp.value) > 0 ? inp.getAttribute("data-name") : null;
+    }).filter(Boolean);
+    return { al: checkedCustom, vac: onVacNames };
+  }
+
+  var pool;
+  if(st && st.indexOf("g:") === 0) {
+    var gname = decodeURIComponent(st.slice(2));
+    var g = groups.filter(function(x){ return x.name === gname; })[0];
+    var existing = activeMessUsers.map(memberName);
+    pool = ((g && g.members) || []).filter(function(n){ return existing.indexOf(n) > -1; });
+  } else {
+    pool = activeMessUsers.map(memberName);
+  }
   return {
     al: pool.filter(function(n){ return onVacNames.indexOf(n) === -1; }),
-    vac: onVacNames
+    vac: pool.filter(function(n){ return onVacNames.indexOf(n) > -1; })
   };
 }
 
 function onSplitTypeChange() {
-  var st = document.getElementById("stype").value;
+  var stEl = document.getElementById("stype");
+  if(!stEl) return;
+  var st = stEl.value;
+  
   var cbox = document.getElementById("cbox");
   var hint = document.getElementById("splitHint");
-  if(st === "custom" || st === "c") {
+
+  if(st === "custom") {
     cbox.className = "cks";
-    cbox.innerHTML = users.filter(isMess).map(function(u){
+    var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a, b){
+      return memberName(a).localeCompare(memberName(b));
+    });
+
+    cbox.innerHTML = activeMessUsers.map(function(u){
       var n = memberName(u);
-      return st === "custom" ? '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">' + escHtml(n) + '</span><input type="number" class="custom-split-input" data-name="' + escHtml(n) + '" style="width:100px;height:34px"></div>' : '<label class="ck"><input type="checkbox" class="mck" value="' + escHtml(n) + '" checked><span>' + escHtml(n) + '</span></label>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%">' +
+             '<span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span>' +
+             '<input type="number" step="0.01" min="0" placeholder="0.00" class="custom-split-input" data-name="' + escHtml(n) + '" oninput="validateCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px">' +
+             '</div>';
+    }).join('');
+
+    validateCustomSplitTotal();
+  } else if(st === "c") {
+    cbox.className = "cks";
+    var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a, b){
+      return memberName(a).localeCompare(memberName(b));
+    });
+    cbox.innerHTML = activeMessUsers.map(function(u){
+      var n = memberName(u);
+      return '<label class="ck"><input type="checkbox" class="mck" value="' + escHtml(n) + '" checked><span>' + escHtml(n) + '</span></label>';
     }).join('');
     hint.innerHTML = "";
   } else {
     cbox.className = "cks hide";
+    var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
+    var sp = getSplitMembers(dateVal);
+    var h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
+    if(sp.vac.length) h += "<br>🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
+    hint.innerHTML = h;
   }
 }
 
-function onAmountInput() {}
-function onExpenseDateChange() {}
+function onAmountInput() {
+  var stEl = document.getElementById("stype");
+  if(stEl && stEl.value === "custom") {
+    validateCustomSplitTotal();
+  }
+}
+
+function onExpenseDateChange() {
+  var stEl = document.getElementById("stype");
+  if(stEl && stEl.value !== "custom" && stEl.value !== "c") {
+    var dateVal = document.getElementById("expDate") ? document.getElementById("expDate").value : todayISO();
+    var sp = getSplitMembers(dateVal);
+    var h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
+    if(sp.vac.length) h += "<br>🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
+    document.getElementById("splitHint").innerHTML = h;
+  }
+}
+
+function validateCustomSplitTotal() {
+  var totalAmt = parseFloat(document.getElementById("amt").value) || 0;
+  var inputs = document.querySelectorAll(".custom-split-input");
+  var sum = 0;
+  inputs.forEach(function(inp){
+    sum += parseFloat(inp.value) || 0;
+  });
+  var diff = totalAmt - sum;
+  var hint = document.getElementById("splitHint");
+  var match = Math.abs(diff) < 0.005;
+  hint.innerHTML = 'Custom Split Sum: AED ' + sum.toFixed(2) + ' / Total: AED ' + totalAmt.toFixed(2) + 
+                   ' <span style="color:' + (match ? '#059669' : '#dc2626') + ';font-weight:700">(' + (match ? '✓ Match' : 'Mismatch: ' + diff.toFixed(2)) + ')</span>';
+}
 
 var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function pad2(n) { return n < 10 ? "0" + n : "" + n; }
@@ -2030,37 +2498,97 @@ function expDate(x) { return x.date || toISO(new Date(Number(x.id))); }
 function fmtDate(iso) { var p = (iso || todayISO()).split("-"); return Number(p[2]) + " " + MONTHS[Number(p[1]) - 1] + " " + p[0]; }
 function money(n) { return Number(n).toFixed(2); }
 function periodRange(ym) {
-  var p = ym.split("-"), y = Number(p[0]), m = Number(p[1]);
+  var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7));
   return { start: ym + "-01", end: ym + "-" + pad2(new Date(y, m, 0).getDate()) };
 }
 
 function calculatePreviousMonthOverdue(cName, ym) {
-  var p = ym.split("-"), y = Number(p[0]), m = Number(p[1]) - 1;
+  var parts = ym.split("-");
+  var y = Number(parts[0]), m = Number(parts[1]) - 1;
   m--; if(m < 0) { m = 11; y--; }
-  var prevYM = y + "-" + pad2(m + 1), pr = periodRange(prevYM);
-  var opening = 0, purchases = 0, expenses = 0, paySum = 0;
+  var prevYM = y + "-" + pad2(m + 1);
+  var pr = periodRange(prevYM);
 
+  var opening = 0, purchases = 0, expenses = 0, paySum = 0;
   exps.forEach(function(x){
-    var d = expDate(x), paid = x.pb == cName ? Number(x.amt) : 0;
-    var share = (x.splits && x.splits[cName] !== undefined) ? Number(x.splits[cName]) : (x.al && x.al.indexOf(cName) > -1 ? Number(x.amt)/x.al.length : 0);
-    if(d < pr.start) opening += paid - share;
+    var d = expDate(x);
+    var paid = x.pb == cName ? Number(x.amt) : 0;
+    var share = 0;
+    if(x.splits && x.splits[cName] !== undefined) {
+      share = Number(x.splits[cName]);
+    } else if(x.al && x.al.indexOf(cName) > -1) {
+      share = Number(x.amt) / x.al.length;
+    }
+    if(!paid && !share) return;
+    if(d < pr.start) { opening += paid - share; }
     else if(d <= pr.end) { purchases += paid; expenses += share; }
   });
   payments.forEach(function(p){
     if(!p.verified || (p.from != cName && p.to != cName)) return;
     var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
-    if(p.date < pr.start) opening += eff;
-    else if(p.date <= pr.end) paySum += eff;
+    if(p.date < pr.start) { opening += eff; }
+    else if(p.date <= pr.end) { paySum += eff; }
   });
+
+  if(ym === todayISO().slice(0, 7)) {
+    payments.forEach(function(p){
+      if(!p.verified || (p.from != cName && p.to != cName)) return;
+      if(p.date > pr.end && p.date <= todayISO())
+        paySum += (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
+    });
+  }
+
   return opening + purchases - expenses + paySum;
+}
+
+function broadcastStatementReminder() {
+  if(!isSuper()) return;
+  var s = stats();
+  var reminderText = "📊 *MONTHLY STATEMENT & PAYMENT REMINDER*\nTotal Room Spend: AED " + s.tot.toFixed(2) + "\n";
+  s.st.forEach(function(m){
+    if(m.net < 0) {
+      reminderText += "• " + m.name + ": Please settle AED " + Math.abs(m.net).toFixed(2) + "\n";
+    } else if(m.net > 0) {
+      reminderText += "• " + m.name + ": To receive +AED " + m.net.toFixed(2) + "\n";
+    }
+  });
+  reminderText += "Kindly clear dues promptly!";
+
+  var now = new Date();
+  var h = now.getHours();
+  var m = now.getMinutes();
+  var sSec = now.getSeconds();
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; h = h ? h : 12;
+  var tm = pad2(h) + ":" + pad2(m) + ":" + pad2(sSec) + " " + ampm;
+
+  msgs.push({
+    id: Date.now(),
+    sender: "Super Admin",
+    target: activeChatTarget,
+    text: escHtml(reminderText).replace(/\n/g, "<br>"),
+    timestamp: tm,
+    timeEpoch: Date.now(),
+    isSystem: true,
+    delivered: true,
+    isRead: false,
+    reactions: {}
+  });
+
+  save(true);
+  renderChatMessages();
 }
 
 function setExpView(v) { expView = (expView === v) ? "mine" : v; renderExpensesTab(); }
 
 function populateExpensePeriodDropdown() {
+  var earliest = todayISO().slice(0, 7);
+  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  payments.forEach(function(p){ var m = p.date.slice(0, 7); if(m < earliest) earliest = m; });
   var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
   for(var i = 0; i < 36; i++) {
     var ym = y + "-" + pad2(m + 1);
+    if(ym < earliest && i > 3) break;
     opts += '<option value="' + ym + '" ' + (ym === selectedExpYM ? 'selected' : '') + '>' + MONTHS[m] + ' ' + y + '</option>';
     m--; if(m < 0) { m = 11; y--; }
   }
@@ -2069,8 +2597,11 @@ function populateExpensePeriodDropdown() {
 }
 
 function onExpensePeriodChange() {
-  selectedExpYM = document.getElementById("expensePeriodSelect").value;
-  renderExpensesTab();
+  var sel = document.getElementById("expensePeriodSelect");
+  if(sel) {
+    selectedExpYM = sel.value;
+    renderExpensesTab();
+  }
 }
 
 function renderExpensesTab() {
@@ -2078,62 +2609,119 @@ function renderExpensesTab() {
   var cName = cur.firstName || cur.name;
   populateExpensePeriodDropdown();
   var ym = selectedExpYM;
-  var netPrev = calculatePreviousMonthOverdue(cName, ym);
+  var pr = periodRange(ym);
 
-  var amtEl = document.getElementById("expTabOverdueAmt");
-  var titleEl = document.getElementById("expTabOverdueTitle");
-  var payBtn = document.getElementById("expPayNowBtn");
+  var netPrev = calculatePreviousMonthOverdue(cName, ym);
+  var overdueAmtEl = document.getElementById("expTabOverdueAmt");
+  var overdueTitleEl = document.getElementById("expTabOverdueTitle");
   
-  if(amtEl && titleEl) {
-    if(Math.abs(netPrev) <= 0.005) {
-      titleEl.innerText = "Account Status";
-      amtEl.innerText = "Congratulations! You don't have any outstanding";
-      amtEl.style.color = "#059669";
-      if(payBtn) payBtn.className = "btn btn-s hide";
-    } else if(netPrev > 0.005) {
-      titleEl.innerText = "Previous Balance Receivable";
-      amtEl.innerText = "AED " + money(netPrev);
-      amtEl.style.color = "#059669";
-      if(payBtn) payBtn.className = "btn btn-s hide";
+  if(overdueAmtEl && overdueTitleEl) {
+    if(netPrev >= -0.005) {
+      overdueTitleEl.innerText = "Previous Balance Receivable";
+      overdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      overdueAmtEl.style.color = "#059669";
     } else {
-      titleEl.innerText = "Payment Overdue (Prev Month)";
-      amtEl.innerText = "AED " + money(Math.abs(netPrev));
-      amtEl.style.color = "#dc2626";
-      if(payBtn) {
-        payBtn.className = "btn btn-s";
-        payBtn.removeAttribute("disabled");
-        payBtn.style.opacity = "1";
-      }
+      overdueTitleEl.innerText = "Payment Overdue (Prev Month)";
+      overdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      overdueAmtEl.style.color = "#dc2626";
+    }
+  }
+  
+  var payNowBtn = document.getElementById("expPayNowBtn");
+  if(payNowBtn) {
+    if(netPrev < -0.005) {
+      payNowBtn.removeAttribute("disabled");
+      payNowBtn.style.opacity = "1";
+    } else {
+      payNowBtn.setAttribute("disabled", "true");
+      payNowBtn.style.opacity = "0.45";
     }
   }
 
-  var purchTotal = 0, shareTotal = 0, purchCnt = 0, shareCnt = 0, entries = [];
+  var entries = [], purchTotal = 0, shareTotal = 0, purchCnt = 0, shareCnt = 0;
   exps.forEach(function(x){
     if(expDate(x).slice(0, 7) !== ym) return;
-    var mine = x.pb == cName, inSplit = x.splits ? (x.splits[cName] !== undefined) : (x.al && x.al.indexOf(cName) > -1);
-    var share = x.splits ? Number(x.splits[cName] || 0) : (inSplit ? Number(x.amt)/x.al.length : 0);
+    var mine = x.pb == cName;
+    var inSplit = x.splits ? (x.splits[cName] !== undefined) : (x.al && x.al.indexOf(cName) > -1);
+    var share = 0;
+    if(x.splits && x.splits[cName] !== undefined) {
+      share = Number(x.splits[cName]);
+    } else if(x.al) {
+      share = inSplit ? Number(x.amt) / x.al.length : 0;
+    }
+
     if(mine) { purchTotal += Number(x.amt); purchCnt++; }
-    if(inSplit) { shareTotal += share; shareCnt++; }
-    if(mine && expView !== "expenses") entries.push({ x: x, kind: "purchase", amt: Number(x.amt) });
-    if(inSplit && expView !== "purchases") entries.push({ x: x, kind: "expense", amt: share });
+    if(inSplit || (x.splits && x.splits[cName] > 0)) { shareTotal += share; shareCnt++; }
+    if(expView === "all") { entries.push({ x: x, kind: "bill", amt: Number(x.amt), ord: 0 }); return; }
+    if(mine && expView !== "expenses") entries.push({ x: x, kind: "purchase", amt: Number(x.amt), ord: 0 });
+    if((inSplit || (x.splits && x.splits[cName] > 0)) && expView !== "purchases") entries.push({ x: x, kind: "expense", amt: share, ord: 1 });
+  });
+  document.getElementById("expPurchAmt").innerText = "AED " + money(purchTotal);
+  document.getElementById("expPurchCnt").innerText = purchCnt + (purchCnt === 1 ? " bill" : " bills") + " paid by me";
+  document.getElementById("expShareAmt").innerText = "AED " + money(shareTotal);
+  document.getElementById("expShareCnt").innerText = shareCnt + (shareCnt === 1 ? " share" : " shares");
+
+  if(expView === "all" && !isSuper()) { expView = "mine"; return renderExpensesTab(); }
+  document.getElementById("expAllBtn").className = isSuper() ? "" : "hide";
+  document.getElementById("tilePurch").className = "exp-tile" + (expView === "purchases" ? " active" : "");
+  document.getElementById("tileExp").className = "exp-tile" + (expView === "expenses" ? " active" : "");
+  var titles = { mine: "Your activity (" + MONTHS[Number(ym.slice(5,7))-1] + " " + ym.slice(0,4) + ")", purchases: "Purchases only", expenses: "Expenses only", all: "Everyone's expenses (Super Admin)" };
+  document.getElementById("expListTitle").innerText = titles[expView];
+
+  entries.sort(function(a, b){
+    var da = expDate(a.x), db = expDate(b.x);
+    if(da !== db) return da < db ? 1 : -1;
+    if(a.x.id != b.x.id) return Number(b.x.id) - Number(a.x.id);
+    return a.ord - b.ord;
   });
 
-  document.getElementById("expPurchAmt").innerText = "AED " + money(purchTotal);
-  document.getElementById("expPurchCnt").innerText = purchCnt + " bills paid";
-  document.getElementById("expShareAmt").innerText = "AED " + money(shareTotal);
-  document.getElementById("expShareCnt").innerText = shareCnt + " shares";
-  document.getElementById("expListTitle").innerText = "Activity (" + ym + ")";
+  var style = {
+    purchase: { fg: "#059669", bg: "#d1fae5", ic: "fa-bag-shopping", sign: "+" },
+    expense:  { fg: "#dc2626", bg: "#fee2e2", ic: "fa-receipt", sign: "-" },
+    bill:     { fg: "#2563eb", bg: "#dbeafe", ic: "fa-file-invoice", sign: "" }
+  };
+  var html = "", lastD = "";
+  entries.forEach(function(en){
+    var x = en.x, st = style[en.kind], d = expDate(x);
+    if(d !== lastD) { html += '<div class="exp-date-head">' + fmtDate(d) + '</div>'; lastD = d; }
+    var splitCount = x.splits ? Object.keys(x.splits).length : (x.al ? x.al.length : 0);
+    var sub = en.kind === "purchase" ? "Purchase &bull; paid by me &bull; split " + splitCount
+            : (en.kind === "expense" ? "Expense &bull; paid by " + escHtml(x.pb) + " &bull; bill AED " + money(x.amt)
+            : "Paid by " + escHtml(x.pb) + " &bull; split " + splitCount);
+    if(x.note) sub += '<br><i>' + escHtml(x.note) + '</i>';
+    var canEdit = canEditExp(x);
+    html += '<div class="exp-row"><div style="display:flex;align-items:center;gap:12px;min-width:0">' +
+            '<div class="exp-ic" style="background:' + st.bg + ';color:' + st.fg + '"><i class="fa-solid ' + st.ic + '"></i></div>' +
+            '<div style="min-width:0"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div></div>' +
+            '<div style="display:flex;align-items:center;gap:5px"><div class="exp-row-amt" style="color:' + st.fg + '">' + st.sign + 'AED ' + money(en.amt) + '</div>' +
+            (canEdit ? '<button class="btn btn-s" style="background:#2563eb;padding:5px 8px" onclick="openEditExp(' + x.id + ')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')"><i class="fa-solid fa-trash"></i></button>' : '') +
+            '</div></div>';
+  });
+  document.getElementById("expList").innerHTML = html || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded in this period.</div>';
 
-  document.getElementById("expList").innerHTML = entries.map(function(en){
-    var x = en.x;
-    return '<div class="exp-row"><div><div class="exp-row-title">' + escHtml(x.desc) + '</div><div class="exp-row-sub">' + fmtDate(expDate(x)) + '</div></div><div class="exp-row-amt">AED ' + money(en.amt) + '</div></div>';
-  }).join('') || '<div style="font-size:13px;color:#6b7280;font-style:italic;padding:14px 0">Nothing recorded.</div>';
+  var myPays = payments.filter(function(p){
+    return p.verified && (p.from == cName || p.to == cName) && p.date.slice(0, 7) === ym;
+  }).sort(function(a, b){ return a.date < b.date ? 1 : -1; });
+  document.getElementById("payListCard").className = myPays.length ? "card" : "card hide";
+  document.getElementById("payList").innerHTML = myPays.map(function(p){
+    var sent = p.from == cName;
+    return '<div class="exp-row"><div><div class="exp-row-title">' + (sent ? 'Paid to ' + escHtml(p.to) : 'Received from ' + escHtml(p.from)) + ' (Verified)</div><div class="exp-row-sub">' + fmtDate(p.date) + '</div></div>' +
+           '<div style="display:flex;align-items:center;gap:6px"><div class="exp-row-amt" style="color:' + (sent ? '#dc2626' : '#059669') + '">' + (sent ? '-' : '+') + 'AED ' + money(p.amt) + '</div>' +
+           ((sent || isSuper()) ? '<button class="btn btn-s" style="background:#6b7280;padding:5px 9px" onclick="delPay(' + p.id + ')"><i class="fa-solid fa-trash"></i></button>' : '') + '</div></div>';
+  }).join('');
 }
 
 function openPaymentModal() {
   var cName = cur.firstName || cur.name;
-  var recipients = users.filter(function(u){ return u.active !== false && memberName(u) !== cName && u.r !== "superadmin"; });
-  document.getElementById("payTo").innerHTML = recipients.map(function(u){ return '<option value="' + escHtml(memberName(u)) + '">' + escHtml(memberName(u)) + '</option>'; }).join('');
+  var recipients = users.filter(function(u){
+    if(u.active === false) return false;
+    var uName = memberName(u);
+    return u.r !== "superadmin" && uName !== cName;
+  });
+  document.getElementById("payTo").innerHTML = recipients.map(function(u){
+    var n = memberName(u);
+    return '<option value="' + escHtml(n) + '">' + escHtml(n) + '</option>';
+  }).join('') || '<option value="">No valid recipients available</option>';
   document.getElementById("payAmt").value = "";
   document.getElementById("payDate").value = todayISO();
   document.getElementById("paymentModal").className = "modal-overlay";
@@ -2141,92 +2729,1456 @@ function openPaymentModal() {
 
 function savePayment(e) {
   e.preventDefault();
-  var to = document.getElementById("payTo").value, amt = parseFloat(document.getElementById("payAmt").value);
+  var to = document.getElementById("payTo").value;
+  var amt = parseFloat(document.getElementById("payAmt").value);
+  var date = document.getElementById("payDate").value || todayISO();
   var cName = cur.firstName || cur.name;
-  var p = { id: Date.now(), date: document.getElementById("payDate").value || todayISO(), from: cName, to: to, amt: amt, verified: false };
-  payments.push(p);
-  addNotification(to, "Payment Verification Needed", cName + " recorded a payment of AED " + money(amt) + " sent to you.", "payment_request", { paymentId: p.id }, true);
-  closeModals(); save(true); alert("Payment submitted for approval!");
+  if(!to) return alert("No recipient to pay.");
+  if(!(amt > 0)) return alert("Enter a valid amount");
+  
+  var newPay = { id: Date.now(), date: date, from: cName, to: to, amt: amt, verified: false };
+  payments.push(newPay);
+
+  addNotification(to, "Payment Verification Needed", cName + " recorded a payment of AED " + money(amt) + " sent to you. Please verify and approve.", "payment_request", { paymentId: newPay.id }, true);
+
+  closeModals();
+  save(true);
+  alert("Payment submitted successfully! Waiting for " + to + " to verify and approve.");
 }
 
 function verifyPaymentRequest(paymentId, approved, notifId) {
   var p = payments.find(function(x){ return x.id == paymentId; });
   var n = notifications.find(function(x){ return x.id == notifId; });
-  if(p) { p.verified = approved; }
-  if(n) { n.verified = approved; n.read = true; }
+  var cName = cur.firstName || cur.name;
+
+  if(p) {
+    if(p.to !== cName && !isSuper() && !isLandlord()) {
+      return alert("Only the payment recipient can verify or reject this transaction.");
+    }
+    if(approved) {
+      p.verified = true;
+      addNotification(p.from, "Payment Approved", cur.firstName + " verified and approved your payment of AED " + money(p.amt) + ".", "payment_verified", null, true);
+      alert("Payment approved successfully!");
+    } else {
+      payments = payments.filter(function(x){ return x.id != paymentId; });
+      addNotification(p.from, "Payment Rejected", cur.firstName + " rejected your payment record of AED " + money(p.amt) + ".", "payment_verified", null, true);
+      alert("Payment record rejected.");
+    }
+  }
+  if(n) {
+    n.verified = approved;
+    n.read = true;
+  }
   save(true);
   renderNotificationsList();
 }
 
+function delPay(id) {
+  if(confirm("Delete this payment?")) { payments = payments.filter(function(p){ return p.id != id; }); save(true); }
+}
+
 function openStatementModal() {
+  var earliest = todayISO().slice(0, 7);
+  exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
+  payments.forEach(function(p){ if(p.verified) { var m = p.date.slice(0, 7); if(m < earliest) earliest = m; } });
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
+  for(var i = 0; i < 36; i++) {
+    var ym = y + "-" + pad2(m + 1);
+    if(ym < earliest) break;
+    opts += '<option value="' + ym + '">' + MONTHS[m] + ' ' + y + (i === 0 ? ' (current)' : '') + '</option>';
+    m--; if(m < 0) { m = 11; y--; }
+  }
+  document.getElementById("stmtMonth").innerHTML = opts;
   document.getElementById("statementModal").className = "modal-overlay";
 }
 
 function generateStatement() {
-  openStatement(document.getElementById("stmtMonth").value);
+  var ym = document.getElementById("stmtMonth").value;
   closeModals();
+  openStatement(ym);
 }
 
 function openStatement(ym) {
-  generatedStatements[ym] = true;
-  save(true);
-  var blob = buildStatementPdf(ym), url = URL.createObjectURL(blob);
-  window.open(url, "_blank");
+  // Lock statement month when generated
+  if(!generatedStatements) generatedStatements = {};
+  if(!generatedStatements[ym]) {
+    generatedStatements[ym] = true;
+    save(true);
+  }
+  var blob = buildStatementPdf(ym);
+  var url = URL.createObjectURL(blob);
+  var w = window.open(url, "_blank");
+  if(!w) window.location.href = url;
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
 }
 
+var PDF_W_REG = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584];
+var PDF_W_BOLD = [278, 333, 474, 556, 556, 889, 722, 238, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 333, 333, 584, 584, 584, 611, 975, 722, 722, 722, 722, 667, 611, 778, 722, 278, 556, 722, 611, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 333, 278, 333, 584, 556, 333, 556, 611, 556, 611, 556, 333, 611, 611, 278, 278, 556, 278, 889, 611, 611, 611, 611, 389, 556, 333, 611, 556, 778, 556, 556, 500, 389, 280, 389, 584];
 function PdfDoc() { this.pages = [[]]; this.p = 0; this.W = 595; this.H = 842; }
+function pdfSafe(t) { return String(t).replace(/[^\x20-\x7E]/g, "?"); }
+function pdfEsc(t) { return pdfSafe(t).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)"); }
+function pdfCol(hex) {
+  var n = parseInt(hex.slice(1), 16);
+  return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255].map(function(v){ return v.toFixed(3); }).join(" ");
+}
 PdfDoc.prototype.add = function(op) { this.pages[this.p].push(op); };
-PdfDoc.prototype.text = function(t, x, y, o) { this.add("BT /F1 10 Tf " + x + " " + (this.H - y) + " Td (" + t + ") Tj ET"); };
-PdfDoc.prototype.build = function() { return new Blob(["%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 20 >>\nstream\nBT /F1 12 Tf 50 700 Td (Statement) Tj ET\nendstream\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF"], { type: "application/pdf" }); };
-function buildStatementPdf(ym) { var doc = new PdfDoc(); return doc.build(); }
+PdfDoc.prototype.addPage = function() { this.pages.push([]); this.p = this.pages.length - 1; };
+PdfDoc.prototype.setPage = function(i) { this.p = i; };
+PdfDoc.prototype.width = function(t, size, bold) {
+  var tbl = bold ? PDF_W_BOLD : PDF_W_REG, w = 0;
+  pdfSafe(t).split("").forEach(function(ch){ w += tbl[ch.charCodeAt(0) - 32]; });
+  return w * size / 1000;
+};
+PdfDoc.prototype.fit = function(t, maxW, size, bold) {
+  t = pdfSafe(t);
+  if(this.width(t, size, bold) <= maxW) return t;
+  while(t.length > 1 && this.width(t + "...", size, bold) > maxW) t = t.slice(0, -1);
+  return t + "...";
+};
+PdfDoc.prototype.text = function(t, x, y, o) {
+  o = o || {};
+  var size = o.size || 10, w = this.width(t, size, o.bold);
+  if(o.align === "right") x -= w; else if(o.align === "center") x -= w / 2;
+  this.add("BT /" + (o.bold ? "F2" : "F1") + " " + size + " Tf " + pdfCol(o.color || "#000000") + " rg " + x.toFixed(2) + " " + (this.H - y).toFixed(2) + " Td (" + pdfEsc(t) + ") Tj ET");
+};
+PdfDoc.prototype.rect = function(x, y, w, h, fill, stroke) {
+  var ops = "";
+  if(fill) ops += pdfCol(fill) + " rg ";
+  if(stroke) ops += pdfCol(stroke) + " RG 0.6 w ";
+  ops += x.toFixed(2) + " " + (this.H - y - h).toFixed(2) + " " + w.toFixed(2) + " " + h.toFixed(2) + " re " + (fill && stroke ? "B" : (fill ? "f" : "S"));
+  this.add(ops);
+};
+PdfDoc.prototype.line = function(x1, y1, x2, y2, color, wid) {
+  this.add(pdfCol(color || "#cccccc") + " RG " + (wid || 0.5) + " w " + x1.toFixed(2) + " " + (this.H - y1).toFixed(2) + " m " + x2.toFixed(2) + " " + (this.H - y2).toFixed(2) + " l S");
+};
+PdfDoc.prototype.build = function() {
+  var n = this.pages.length, objs = [], kids = [], i;
+  for(i = 0; i < n; i++) kids.push((5 + 2 * i) + " 0 R");
+  objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+  objs[2] = "<< /Type /Pages /Kids [" + kids.join(" ") + "] /Count " + n + " >>";
+  objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+  objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+  for(i = 0; i < n; i++) {
+    var stream = this.pages[i].join("\n");
+    objs[5 + 2 * i] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + this.W + " " + this.H + "] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents " + (6 + 2 * i) + " 0 R >>";
+    objs[6 + 2 * i] = "<< /Length " + stream.length + " >>\nstream\n" + stream + "\nendstream";
+  }
+  var out = "%PDF-1.4\n", offs = [];
+  for(i = 1; i < objs.length; i++) { offs[i] = out.length; out += i + " 0 obj\n" + objs[i] + "\nendobj\n"; }
+  var xref = out.length;
+  out += "xref\n0 " + objs.length + "\n0000000000 65535 f \n";
+  for(i = 1; i < objs.length; i++) out += ("0000000000" + offs[i]).slice(-10) + " 00000 n \n";
+  out += "trailer\n<< /Size " + objs.length + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF";
+  return new Blob([out], { type: "application/pdf" });
+};
 
-function stats(){
-  var tot = exps.reduce(function(s,x){ return s + Number(x.amt); }, 0);
-  var st = users.map(function(u){
-    var n = memberName(u), pd = exps.filter(function(x){ return x.pb == n; }).reduce(function(s,x){ return s + Number(x.amt); }, 0);
-    var sh = exps.reduce(function(s,x){ return s + (x.splits && x.splits[n] !== undefined ? Number(x.splits[n]) : (x.al && x.al.indexOf(n) > -1 ? Number(x.amt)/x.al.length : 0)); }, 0);
-    return { name: n, pd: pd, sh: sh, net: pd - sh };
-  });
-  return { tot: tot, st: st };
-}
-
-function wa(){
-  var s = stats(), txt = "*ROOM 110 MESS*\nTotal: AED " + s.tot.toFixed(2) + "\n";
-  s.st.forEach(function(m){ txt += "• " + m.name + ": Net " + (m.net >= 0 ? "+" : "") + m.net.toFixed(2) + "\n"; });
-  navigator.clipboard.writeText(txt); alert("WhatsApp Report Copied!");
-}
-
-function render(){
-  if(!cur) return;
+function buildStatementPdf(ym) {
   var cName = cur.firstName || cur.name;
-  document.getElementById("profName").innerText = cName + " " + (cur.lastName || "");
-  document.getElementById("profRole").innerText = roleLabel(cur.r);
-  
-  var s = stats();
-  document.getElementById("tot").innerText = "AED " + s.tot.toFixed(2);
-  document.getElementById("mcount").innerText = users.filter(function(u){ return u.active !== false && isMess(u); }).length;
-  document.getElementById("tb").innerHTML = s.st.map(function(m){ return "<tr><td><b>" + escHtml(m.name) + "</b></td><td>" + m.pd.toFixed(1) + "</td><td>" + m.sh.toFixed(1) + "</td><td class='" + (m.net >= 0 ? "g" : "r") + "'>" + (m.net >= 0 ? "+" : "") + m.net.toFixed(2) + "</td></tr>"; }).join("");
+  var pr = periodRange(ym);
+  var opening = 0, purchases = 0, expenses = 0, paySum = 0, rows = [];
 
-  var netPrev = calculatePreviousMonthOverdue(cName, todayISO().slice(0, 7));
-  var homeAmt = document.getElementById("homeOverdueAmt");
-  var homeTitle = document.getElementById("homeOverdueTitle");
-  if(homeAmt && homeTitle) {
-    if(Math.abs(netPrev) <= 0.005) {
-      homeTitle.innerText = "Account Status";
-      homeAmt.innerText = "Congratulations! You don't have any outstanding";
-      homeAmt.style.color = "#059669";
-    } else if(netPrev > 0.005) {
-      homeTitle.innerText = "Previous Balance Receivable";
-      homeAmt.innerText = "AED " + money(netPrev);
-      homeAmt.style.color = "#059669";
+  exps.forEach(function(x){
+    var d = expDate(x);
+    var paid = x.pb == cName ? Number(x.amt) : 0;
+    var share = 0;
+    if(x.splits && x.splits[cName] !== undefined) {
+      share = Number(x.splits[cName]);
+    } else if(x.al && x.al.indexOf(cName) > -1) {
+      share = Number(x.amt) / x.al.length;
+    }
+    if(!paid && !share) return;
+    if(d < pr.start) { opening += paid - share; }
+    else if(d <= pr.end) {
+      purchases += paid; expenses += share;
+      rows.push({ d: d, id: Number(x.id), desc: x.desc + (x.vendor ? " - " + x.vendor : "") + (x.note ? " | " + x.note : ""), by: x.pb, purch: paid, exp: share, pay: 0, eff: paid - share });
+    }
+  });
+  payments.forEach(function(p){
+    if(!p.verified || (p.from != cName && p.to != cName)) return;
+    var eff = (p.from == cName ? Number(p.amt) : 0) - (p.to == cName ? Number(p.amt) : 0);
+    if(p.date < pr.start) { opening += eff; }
+    else if(p.date <= pr.end) {
+      paySum += eff;
+      rows.push({ d: p.date, id: Number(p.id), desc: p.from == cName ? "Payment to " + p.to : "Payment from " + p.from, by: p.from, purch: 0, exp: 0, pay: eff, eff: eff });
+    }
+  });
+  rows.sort(function(a, b){ return a.d < b.d ? -1 : (a.d > b.d ? 1 : a.id - b.id); });
+  var closing = opening + purchases - expenses + paySum;
+
+  var GREEN = "#059669", RED = "#dc2626", NAVY = "#1e3a8a", GRAY = "#6b7280", INK = "#111827";
+  function signed(n) { return (n >= -0.004 ? "+" : "-") + money(Math.abs(n)); }
+  function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
+  var doc = new PdfDoc();
+
+  doc.rect(0, 0, 595, 80, NAVY);
+  doc.text("Room 110", 40, 44, { size: 22, bold: true, color: "#ffffff" });
+  doc.text("Statement of Account", 155, 47, { size: 11, color: "#dbeafe" });
+  
+  doc.text("STATEMENT PERIOD", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
+  doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
+  doc.text("Generated " + fmtDate(todayISO()), 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
+
+  doc.text("ACCOUNT HOLDER", 40, 106, { size: 8, bold: true, color: GRAY });
+  doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 124, { size: 15, bold: true, color: INK });
+
+  var sx = 300, sy = 100, sw = 255;
+  doc.rect(sx, sy, sw, 20, "#eff6ff", "#bfdbfe");
+  doc.text("ACCOUNT SUMMARY", sx + 10, sy + 14, { size: 9, bold: true, color: NAVY });
+  var sumRows = [
+    ["Opening Balance", signed(opening), sgnCol(opening)],
+    ["+ Current Purchases", "+" + money(purchases), GREEN],
+    ["- Current Expenses", "-" + money(expenses), RED],
+    ["+/- Previous Payments", signed(paySum), sgnCol(paySum)]
+  ];
+  var sry = sy + 20;
+  sumRows.forEach(function(r){
+    doc.rect(sx, sry, sw, 20, null, "#e5e7eb");
+    doc.text(r[0], sx + 10, sry + 13, { size: 8.5, color: INK });
+    doc.text("AED " + r[1], sx + sw - 10, sry + 13, { size: 8.5, bold: true, align: "right", color: r[2] });
+    sry += 20;
+  });
+  doc.rect(sx, sry, sw, 24, "#f1f5f9", "#cbd5e1");
+  doc.text("Current Month Balance", sx + 10, sry + 16, { size: 9.5, bold: true, color: INK });
+  var tag = Math.abs(closing) < 0.005 ? "Settled" : (closing < 0 ? "Payable" : "Receivable");
+  doc.text("AED " + money(Math.abs(closing)) + " " + tag, sx + sw - 10, sry + 16, { size: 10, bold: true, align: "right", color: Math.abs(closing) < 0.005 ? GRAY : sgnCol(closing) });
+  sry += 24;
+
+  var ry = Math.max(160, sry + 20);
+  doc.text("TRANSACTIONS", 40, ry, { size: 9, bold: true, color: NAVY });
+  ry += 8;
+
+  var cols = [56, 150, 58, 60, 60, 56, 75], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"];
+  var xs = [], cx = 40;
+  cols.forEach(function(w){ xs.push(cx); cx += w; });
+
+  function drawHead(y) {
+    doc.rect(40, y, 515, 20, NAVY);
+    heads.forEach(function(h, i){
+      if(i < 3) doc.text(h, xs[i] + 5, y + 14, { size: 8.5, bold: true, color: "#ffffff" });
+      else doc.text(h, xs[i] + cols[i] - 5, y + 14, { size: 8.5, bold: true, color: "#ffffff", align: "right" });
+    });
+    return y + 20;
+  }
+  function drawRow(y, cells, opt) {
+    opt = opt || {};
+    if(opt.fill) doc.rect(40, y, 515, 18, opt.fill);
+    doc.line(40, y + 18, 555, y + 18, "#e5e7eb", 0.4);
+    cells.forEach(function(c, i){
+      if(c === null || c === "") return;
+      var txt = typeof c === "object" ? c.t : c, col = typeof c === "object" ? c.c : INK;
+      if(i < 3) doc.text(doc.fit(txt, cols[i] - 8, 8, opt.bold), xs[i] + 5, y + 12.5, { size: 8, bold: opt.bold, color: col });
+      else doc.text(txt, xs[i] + cols[i] - 5, y + 12.5, { size: 8, bold: opt.bold, align: "right", color: col });
+    });
+    return y + 18;
+  }
+  function ensure(y) {
+    if(y + 18 > 790) { doc.addPage(); return drawHead(40); }
+    return y;
+  }
+
+  ry = drawHead(ry);
+  var run = opening;
+  ry = drawRow(ry, [fmtDate(pr.start), "Opening Balance", "", "", "", "", { t: signed(opening), c: sgnCol(opening) }], { fill: "#f8fafc", bold: true });
+  rows.forEach(function(r, i){
+    ry = ensure(ry);
+    run += r.eff;
+    ry = drawRow(ry, [
+      fmtDate(r.d), r.desc, r.by,
+      r.purch > 0.004 ? { t: money(r.purch), c: GREEN } : "",
+      r.exp > 0.004 ? { t: money(r.exp), c: RED } : "",
+      Math.abs(r.pay) > 0.004 ? { t: signed(r.pay), c: sgnCol(r.pay) } : "",
+      { t: signed(run), c: sgnCol(run) }
+    ], { fill: i % 2 ? "#f8fafc" : null });
+  });
+  if(!rows.length) {
+    ry = ensure(ry);
+    ry = drawRow(ry, ["", "No transactions in this period", "", "", "", "", ""]);
+  }
+  ry = ensure(ry);
+  drawRow(ry, [fmtDate(pr.end), "Closing Balance", "", { t: money(purchases), c: GREEN }, { t: money(expenses), c: RED }, { t: signed(paySum), c: sgnCol(paySum) }, { t: signed(closing), c: sgnCol(closing) }], { fill: "#eff6ff", bold: true });
+
+  var total = doc.pages.length;
+  for(var pg = 0; pg < total; pg++) {
+    doc.setPage(pg);
+    doc.line(40, 810, 555, 810, "#d1d5db", 0.5);
+    doc.text("Room 110 Mess - Statement for " + cName + " - " + ym, 40, 824, { size: 8, color: GRAY });
+    doc.text("Page " + (pg + 1) + " of " + total, 555, 824, { size: 8, color: GRAY, align: "right" });
+  }
+  return doc.build();
+}
+
+function openEditProfileModal() { document.getElementById("editProfileModal").className = "modal-overlay"; }
+function openCreateUserModal() { document.getElementById("createUserModal").className = "modal-overlay"; }
+function openEditUserModal(id) {
+  var user = users.find(function(x){return x.id == id});
+  if(!user) return;
+  document.getElementById("editUserId").value = user.id;
+  document.getElementById("eUFirstName").value = user.firstName || user.name || "";
+  document.getElementById("eULastName").value = user.lastName || "";
+  document.getElementById("eUId").value = user.u;
+  document.getElementById("eUPass").value = "";
+  document.getElementById("eURole").value = user.r;
+  document.getElementById("eUMess").checked = user.mess !== false;
+  document.getElementById("eUActive").checked = user.active !== false;
+  document.getElementById("editUserModal").className = "modal-overlay";
+}
+function closeModals() {
+  document.getElementById("editProfileModal").className = "modal-overlay hide";
+  document.getElementById("createUserModal").className = "modal-overlay hide";
+  document.getElementById("editUserModal").className = "modal-overlay hide";
+  document.getElementById("adminEditVacationModal").className = "modal-overlay hide";
+  document.getElementById("serviceManagerModal").className = "modal-overlay hide";
+  document.getElementById("paymentModal").className = "modal-overlay hide";
+  document.getElementById("statementModal").className = "modal-overlay hide";
+  document.getElementById("editExpModal").className = "modal-overlay hide";
+}
+
+function selectChatTarget(target) {
+  activeChatTarget = target;
+  forceChatScroll = true;
+  document.getElementById("chatSidebar").style.display = "none";
+  document.getElementById("chatMainPane").className = "chat-main-pane";
+  
+  var cName = cur.firstName || cur.name;
+  var updated = false;
+  msgs.forEach(function(m){
+    var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') ||
+                 (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) ||
+                 (m.target === cName && m.sender === activeChatTarget);
+    if(inChat && !m.isRead && m.sender !== cName) {
+      m.isRead = true;
+      updated = true;
+    }
+  });
+  if(updated) save(false);
+  renderChatActivePane();
+}
+
+function backToChatList() {
+  document.getElementById("chatSidebar").style.display = "flex";
+  document.getElementById("chatMainPane").className = "chat-main-pane hide";
+  renderChatContactsList();
+}
+
+function filterChatContacts() {
+  renderChatContactsList();
+}
+
+function lastChatTime(matchFn) {
+  var t = 0;
+  msgs.forEach(function(m){
+    if(matchFn(m)) {
+      var e = Number(m.timeEpoch) || 0;
+      if(e > t) t = e;
+    }
+  });
+  return t;
+}
+
+function renderChatContactsList() {
+  var filter = (document.getElementById("chatSearchInput").value || "").toLowerCase();
+  var container = document.getElementById("chatContactsList");
+  var cName = cur.firstName || cur.name;
+
+  var items = [];
+
+  if("super admin room 110 announcements statements".includes(filter)) {
+    var h1 = '<div class="chat-contact-item '+(activeChatTarget==='superadmin_channel'?'active':'')+'" onclick="selectChatTarget(\'superadmin_channel\')">';
+    h1 += '<div class="contact-avatar" style="background:#d97706"><i class="fa-solid fa-bullhorn"></i><span class="online-dot"></span></div>';
+    h1 += '<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:14px;color:#111">Super Admin</span><span style="font-size:10px;background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:8px;font-weight:700">Official</span></div><div style="font-size:11px;color:#6b7280">Welcome notices &amp; payment reminders</div></div>';
+    h1 += '</div>';
+    items.push({ ts: lastChatTime(function(m){ return m.target === 'superadmin_channel'; }), html: h1 });
+  }
+
+  if("room 110".includes(filter)) {
+    var h2 = '<div class="chat-contact-item '+(activeChatTarget==='group_room110'?'active':'')+'" onclick="selectChatTarget(\'group_room110\')">';
+    h2 += '<div class="contact-avatar" style="background:#1e3a8a"><i class="fa-solid fa-users"></i></div>';
+    h2 += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">Room 110</div><div style="font-size:11px;color:#6b7280">Group • ' + users.filter(function(u){ return u.active !== false; }).length + ' members</div></div>';
+    h2 += '</div>';
+    items.push({ ts: lastChatTime(function(m){ return m.target === 'group_room110' || !m.target; }), html: h2 });
+  }
+
+  users.forEach(function(u){
+    if(u.active === false) return;
+    var uName = u.firstName || u.name;
+    if(uName === cName) return;
+    if(!uName.toLowerCase().includes(filter)) return;
+
+    var statusInfo = getOnlineStatusInfo(u);
+    var avHtml = u.avatar ? '<img src="'+u.avatar+'">' : escHtml(uName.charAt(0).toUpperCase());
+    var safeNameJson = escHtml(JSON.stringify(uName));
+
+    var h3 = '<div class="chat-contact-item '+(activeChatTarget===uName?'active':'')+'" onclick="selectChatTarget(' + safeNameJson + ')">';
+    h3 += '<div class="contact-avatar">'+avHtml+'<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span></div>';
+    h3 += '<div style="flex:1"><div style="font-weight:700;font-size:14px;color:#111">'+escHtml(uName)+'</div><div style="font-size:11px;color:'+(statusInfo.isOnline?'#059669':'#6b7280')+';font-weight:'+(statusInfo.isOnline?'600':'400')+';margin-top:2px">'+escHtml(statusInfo.text)+'</div></div>';
+    h3 += '</div>';
+    items.push({
+      ts: lastChatTime(function(m){ return (m.target === uName && m.sender === cName) || (m.target === cName && m.sender === uName); }),
+      html: h3
+    });
+  });
+
+  items.forEach(function(it, idx){ it.idx = idx; });
+  items.sort(function(a, b){ return (b.ts - a.ts) || (a.idx - b.idx); });
+
+  var html = items.map(function(it){ return it.html; }).join('');
+  container.innerHTML = html || '<div style="padding:20px;text-align:center;color:#6b7280;font-size:13px">No chats found.</div>';
+}
+
+function renderChatActivePane() {
+  var nameEl = document.getElementById("activeChatName");
+  var statusEl = document.getElementById("activeChatStatus");
+  var avatarEl = document.getElementById("activeChatAvatar");
+  var badgeEl = document.getElementById("activeChatBadge");
+  var reminderBtn = document.getElementById("sendReminderBtn");
+  var inputForm = document.getElementById("chatInputForm");
+  var readOnlyNotice = document.getElementById("chatReadOnlyNotice");
+
+  inputForm.className = "chat-input-bar";
+  readOnlyNotice.className = "readonly-notice hide";
+  if(isSuper()) {
+    reminderBtn.className = "btn btn-s";
+  } else {
+    reminderBtn.className = "btn btn-s hide";
+  }
+
+  if(activeChatTarget === 'superadmin_channel') {
+    nameEl.innerText = "Super Admin";
+    statusEl.innerText = "Official Announcements & Statements";
+    avatarEl.style.background = "#d97706";
+    avatarEl.innerHTML = '<i class="fa-solid fa-bullhorn"></i><span class="online-dot"></span>';
+    badgeEl.innerText = "Admin";
+    badgeEl.style.background = "#fef3c7";
+    badgeEl.style.color = "#92400e";
+
+    if(!isSuper()) {
+      inputForm.className = "chat-input-bar hide";
+      readOnlyNotice.className = "readonly-notice";
+    }
+  } else if(activeChatTarget === 'group_room110') {
+    nameEl.innerText = "Room 110";
+    statusEl.innerText = users.filter(function(u){ return u.active !== false; }).length + " members in group";
+    avatarEl.style.background = "#1e3a8a";
+    avatarEl.innerHTML = '<i class="fa-solid fa-users"></i>';
+    badgeEl.innerText = "Group";
+    badgeEl.style.background = "#d1fae5";
+    badgeEl.style.color = "#059669";
+  } else {
+    var targetUser = users.find(function(x){ return (x.firstName || x.name) === activeChatTarget; });
+    var statusInfo = getOnlineStatusInfo(targetUser);
+    nameEl.innerText = activeChatTarget;
+    statusEl.innerText = statusInfo.text;
+    avatarEl.style.background = "#1e3a8a";
+    var avInner = (targetUser && targetUser.avatar) ? '<img src="'+targetUser.avatar+'">' : escHtml(activeChatTarget.charAt(0).toUpperCase());
+    avatarEl.innerHTML = avInner + '<span class="'+(statusInfo.isOnline?'online-dot':'offline-dot')+'"></span>';
+    badgeEl.innerText = "Direct";
+    badgeEl.style.background = "#e0f2fe";
+    badgeEl.style.color = "#0284c7";
+  }
+
+  renderChatMessages();
+}
+
+var forceChatScroll = true;
+function renderChatMessages() {
+  var scrollContainer = document.getElementById("chatMessagesScroll");
+  var wasAtBottom = (scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight) < 80;
+  var cName = cur.firstName || cur.name;
+
+  var targetMsgs = msgs.filter(function(m){
+    if(activeChatTarget === 'superadmin_channel') {
+      return m.target === 'superadmin_channel';
+    } else if(activeChatTarget === 'group_room110') {
+      return m.target === 'group_room110' || !m.target;
     } else {
-      homeTitle.innerText = "Payment Overdue (Prev Month)";
-      homeAmt.innerText = "AED " + money(Math.abs(netPrev));
-      homeAmt.style.color = "#dc2626";
+      return (m.target === activeChatTarget && m.sender === cName) || (m.target === cName && m.sender === activeChatTarget);
+    }
+  });
+
+  scrollContainer.innerHTML = targetMsgs.map(function(m){
+    var isMe = m.sender === cName;
+    var bubbleClass = m.isSystem ? 'msg-system' : (isMe ? 'msg-me' : 'msg-other');
+    var reactionsHtml = '';
+    if(m.reactions) {
+      for(var emoji in m.reactions) {
+        reactionsHtml += '<span class="reaction-pill" onclick="reactToMessage(\''+escHtml(m.id)+'\', \''+escHtml(emoji)+'\')">'+emoji+' '+m.reactions[emoji].length+'</span>';
+      }
+    }
+
+    var senderHeader = '';
+    if(m.isSystem) {
+      senderHeader = '<div style="font-size:10px;font-weight:800;color:#b45309;margin-bottom:3px"><i class="fa-solid fa-shield-halved"></i> Super Admin</div>';
+    } else if(activeChatTarget === 'group_room110' && !isMe) {
+      senderHeader = '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+escHtml(m.sender)+'</div>';
+    }
+
+    var ticksHtml = '';
+    if(isMe && !m.isSystem) {
+      if(m.isRead) {
+        ticksHtml = '<span style="color:#53bdeb;font-size:12px;font-weight:bold;margin-left:3px" title="Read">✓✓</span>';
+      } else if(m.delivered) {
+        ticksHtml = '<span style="color:#667781;font-size:12px;margin-left:3px" title="Delivered">✓✓</span>';
+      } else {
+        ticksHtml = '<span style="color:#667781;font-size:12px;margin-left:3px" title="Sent">✓</span>';
+      }
+    }
+
+    return '<div class="msg-bubble '+bubbleClass+'" ' +
+           'oncontextmenu="openMsgMenu(event, \''+escHtml(m.id)+'\', '+isMe+')" ' +
+           'ontouchstart="startMsgLongPress(event, \''+escHtml(m.id)+'\', '+isMe+')" ' +
+           'ontouchend="cancelMsgLongPress()" ' +
+           'ontouchmove="cancelMsgLongPress()">' +
+           senderHeader +
+           '<div>'+m.text+'</div>' +
+           '<div class="msg-meta"><span>'+(m.edited ? '(edited) ' : '')+m.timestamp+'</span>'+ticksHtml+'</div>' +
+           (reactionsHtml ? '<div class="msg-reactions">'+reactionsHtml+'</div>' : '') +
+           '</div>';
+  }).join('') || '<div style="text-align:center;color:#667781;font-size:12px;margin-top:20px">No messages yet. Say hello!</div>';
+
+  if(wasAtBottom || forceChatScroll) scrollContainer.scrollTop = scrollContainer.scrollHeight;
+  forceChatScroll = false;
+  updateDockBadges();
+}
+
+function startMsgLongPress(e, msgId, isMe) {
+  cancelMsgLongPress();
+  var touch = e.touches[0];
+  var clientX = touch.clientX;
+  var clientY = touch.clientY;
+  longPressTimer = setTimeout(function(){
+    openMsgMenu({ preventDefault: function(){}, clientX: clientX, clientY: clientY }, msgId, isMe);
+  }, 500);
+}
+
+function cancelMsgLongPress() {
+  if(longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+}
+
+function sendActiveChatMsg(e) {
+  e.preventDefault();
+  if(activeChatTarget === 'superadmin_channel' && !isSuper()) {
+    return alert("Only Super Admin can send messages here.");
+  }
+  var input = document.getElementById("activeChatInput");
+  var txt = input.value.trim();
+  if(!txt) return;
+
+  var now = new Date();
+  var h = now.getHours();
+  var m = now.getMinutes();
+  var sSec = now.getSeconds();
+  var ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; h = h ? h : 12;
+  var tm = pad2(h) + ":" + pad2(m) + ":" + pad2(sSec) + " " + ampm;
+
+  var isSuperAdminPost = (activeChatTarget === 'superadmin_channel' && isSuper());
+  
+  var newMsg = {
+    id: Date.now(),
+    sender: isSuperAdminPost ? "Super Admin" : (cur.firstName || cur.name),
+    target: activeChatTarget,
+    text: escHtml(txt),
+    timestamp: tm,
+    timeEpoch: Date.now(),
+    isSystem: isSuperAdminPost,
+    delivered: true,
+    isRead: false,
+    reactions: {}
+  };
+
+  msgs.push(newMsg);
+  forceChatScroll = true;
+  input.value = "";
+  save(true);
+  renderChatMessages();
+}
+
+function openMsgMenu(e, msgId, isMe) {
+  if(e && e.preventDefault) e.preventDefault();
+  var existing = document.getElementById("activeMsgMenu");
+  if(existing) existing.remove();
+
+  var msg = msgs.find(function(m){ return m.id == msgId; });
+  if(!msg) return;
+
+  var nowEpoch = Date.now();
+  var canDeleteOrEdit = (isMe || (isSuper() && msg.isSystem)) && ((nowEpoch - (msg.timeEpoch || nowEpoch)) <= 300000);
+
+  var menu = document.createElement("div");
+  menu.id = "activeMsgMenu";
+  menu.className = "msg-action-menu";
+  var posX = e.clientX || (window.innerWidth / 2 - 85);
+  var posY = e.clientY || (window.innerHeight / 2 - 60);
+  menu.style.top = Math.max(10, Math.min(posY, window.innerHeight - 190)) + "px";
+  menu.style.left = Math.max(10, Math.min(posX, window.innerWidth - 185)) + "px";
+
+  var emojis = ['👍', '❤️', '😂', '😮', '😢', '🙏'];
+  var emojiRow = '<div class="emoji-picker-row">';
+  emojis.forEach(function(em){
+    emojiRow += '<button class="emoji-btn" onclick="reactToMessage(\''+escHtml(msgId)+'\', \''+escHtml(em)+'\')">'+em+'</button>';
+  });
+  emojiRow += '</div>';
+
+  var actionButtons = emojiRow;
+  if(canDeleteOrEdit && !msg.isWelcome) {
+    actionButtons += '<button class="msg-action-btn" onclick="promptEditMessage(\''+escHtml(msgId)+'\')"><i class="fa-solid fa-pen"></i> Edit Message</button>';
+    actionButtons += '<button class="msg-action-btn" style="color:#dc2626" onclick="deleteMessage(\''+escHtml(msgId)+'\')"><i class="fa-solid fa-trash"></i> Delete (< 5m)</button>';
+  }
+
+  menu.innerHTML = actionButtons;
+  document.body.appendChild(menu);
+
+  setTimeout(function(){
+    window.addEventListener('click', function closeMenu(ev){
+      if(!menu.contains(ev.target)) {
+        menu.remove();
+        window.removeEventListener('click', closeMenu);
+      }
+    });
+  }, 100);
+}
+
+function reactToMessage(msgId, emoji) {
+  var msg = msgs.find(function(m){ return m.id == msgId; });
+  if(!msg) return;
+  var cName = cur.firstName || cur.name;
+
+  if(!msg.reactions) msg.reactions = {};
+  if(!msg.reactions[emoji]) msg.reactions[emoji] = [];
+
+  var userIndex = msg.reactions[emoji].indexOf(cName);
+  if(userIndex > -1) {
+    msg.reactions[emoji].splice(userIndex, 1);
+    if(msg.reactions[emoji].length === 0) delete msg.reactions[emoji];
+  } else {
+    msg.reactions[emoji].push(cName);
+  }
+
+  save(true);
+  renderChatMessages();
+  var menu = document.getElementById("activeMsgMenu");
+  if(menu) menu.remove();
+}
+
+function promptEditMessage(msgId) {
+  var msg = msgs.find(function(m){ return m.id == msgId; });
+  if(!msg) return;
+  var rawText = msg.text.replace(/<br>/g, "\n").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,"&");
+  var newText = prompt("Edit your message:", rawText);
+  if(newText !== null && newText.trim() !== "") {
+    msg.text = escHtml(newText.trim()).replace(/\n/g, "<br>");
+    msg.edited = true;
+    save(true);
+    renderChatMessages();
+  }
+  var menu = document.getElementById("activeMsgMenu");
+  if(menu) menu.remove();
+}
+
+function deleteMessage(msgId) {
+  if(confirm("Delete this message?")) {
+    msgs = msgs.filter(function(m){ return m.id != msgId; });
+    save(true);
+    renderChatMessages();
+  }
+  var menu = document.getElementById("activeMsgMenu");
+  if(menu) menu.remove();
+}
+
+function openServiceManager(type) {
+  if(!isAdminLike()) {
+    alert("Access restricted to Admins only.");
+    return;
+  }
+  var modal = document.getElementById("serviceManagerModal");
+  var title = document.getElementById("serviceManagerTitle");
+  modal.className = "modal-overlay";
+
+  if(type === 'categories') {
+    title.innerText = "Manage Categories";
+    renderCategoryManagerContent();
+  } else if(type === 'groups') {
+    title.innerText = "Manage Custom Groups";
+    editingGroupIdx = -1;
+    renderGroupManagerContent();
+  } else if(type === 'contacts') {
+    title.innerText = "Manage Emergency Contacts";
+    renderContactManagerContent();
+  } else if(type === 'vendors') {
+    title.innerText = "Vendor Management";
+    renderVendorManagerContent();
+  }
+}
+
+function renderCategoryManagerContent() {
+  categories.sort(function(a,b){ return a.localeCompare(b); });
+  var body = document.getElementById("serviceManagerBody");
+  var formContainer = document.getElementById("serviceManagerFormContainer");
+  
+  body.innerHTML = categories.map(function(c){
+    var safeCatJson = escHtml(JSON.stringify(c));
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><span style="font-weight:600;font-size:13px">'+escHtml(c)+'</span><button class="btn btn-s" style="background:#dc2626" onclick="deleteCategory(' + safeCatJson + ')"><i class="fa-solid fa-trash"></i></button></div>';
+  }).join('') || '<div style="color:#6b7280;font-style:italic">No categories found.</div>';
+
+  formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Add New Category</label><input id="newCatInput" placeholder="Category name" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewCategory()">Add Category</button></div>';
+}
+
+function addNewCategory() {
+  var val = document.getElementById("newCatInput").value.trim();
+  if(!val) return alert("Enter category name");
+  if(categories.includes(val)) return alert("Category already exists");
+  categories.push(val);
+  categories.sort(function(a,b){ return a.localeCompare(b); });
+  save(true);
+  renderCategoryManagerContent();
+}
+
+function deleteCategory(name) {
+  if(categories.length <= 1) return alert("Cannot delete all categories!");
+  categories = categories.filter(function(c){ return c !== name; });
+  save(true);
+  renderCategoryManagerContent();
+}
+
+function renderGroupManagerContent() {
+  var body = document.getElementById("serviceManagerBody");
+  var formContainer = document.getElementById("serviceManagerFormContainer");
+
+  body.innerHTML = groups.map(function(g, idx){
+    var names = (g.members || []).map(escHtml).join(", ") || "No members";
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+names+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')"><i class="fa-solid fa-trash"></i></button></div></div>';
+  }).join('') || '<div style="color:#6b7280;font-style:italic">No groups yet. Create one below.</div>';
+
+  var eg = editingGroupIdx > -1 ? groups[editingGroupIdx] : null;
+  var checks = users.filter(function(u){ return u.active !== false && isMess(u); }).map(function(u){
+    var n = memberName(u);
+    var on = eg && (eg.members || []).indexOf(n) > -1;
+    return '<label class="ck"><input type="checkbox" class="gmck" value="'+escHtml(n)+'" '+(on ? 'checked' : '')+'><span>'+escHtml(n)+'</span></label>';
+  }).join('');
+
+  formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>'+(eg ? 'Edit Group' : 'Create New Group')+'</label><input id="newGrpInput" placeholder="Group name" value="'+escHtml(eg ? eg.name : '')+'" style="margin-bottom:8px"><label>Members</label><div class="cks" style="margin-bottom:10px">'+checks+'</div><button class="btn" style="margin-top:0" onclick="saveGroup()">'+(eg ? 'Save Group' : 'Create Group')+'</button>'+(eg ? '<button class="btn" style="margin-top:8px;background:#6b7280" onclick="cancelGroupEdit()">Cancel</button>' : '')+'</div>';
+}
+
+function saveGroup() {
+  var name = document.getElementById("newGrpInput").value.trim();
+  if(!name) return alert("Enter group name");
+  var members = Array.prototype.map.call(document.querySelectorAll(".gmck:checked"), function(c){ return c.value; });
+  if(!members.length) return alert("Select at least 1 member");
+  var dup = groups.some(function(g, i){ return g.name.toLowerCase() === name.toLowerCase() && i !== editingGroupIdx; });
+  if(dup) return alert("Group already exists");
+  if(editingGroupIdx > -1) groups[editingGroupIdx] = { name: name, members: members };
+  else groups.push({ name: name, members: members });
+  editingGroupIdx = -1;
+  save(true);
+  renderGroupManagerContent();
+}
+
+function editGroup(idx) {
+  editingGroupIdx = idx;
+  renderGroupManagerContent();
+}
+
+function cancelGroupEdit() {
+  editingGroupIdx = -1;
+  renderGroupManagerContent();
+}
+
+function deleteGroup(idx) {
+  if(!confirm("Delete this group?")) return;
+  groups.splice(idx, 1);
+  editingGroupIdx = -1;
+  save(true);
+  renderGroupManagerContent();
+}
+
+function renderVendorManagerContent() {
+  vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  var body = document.getElementById("serviceManagerBody");
+  var formContainer = document.getElementById("serviceManagerFormContainer");
+  body.innerHTML = vendors.map(function(v, idx){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(v.name)+'</div>'+(v.phone ? '<div style="font-size:11px;color:#6b7280">'+escHtml(v.phone)+'</div>' : '')+'</div><button class="btn btn-s" style="background:#dc2626" onclick="deleteVendor('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
+  }).join('') || '<div style="color:#6b7280;font-style:italic">No vendors yet. Add one below.</div>';
+  formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Vendor Name</label><input id="newVenName" placeholder="e.g. Lulu Hypermarket" style="margin-bottom:8px"><label>Phone (optional)</label><input id="newVenPhone" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewVendor()">Add Vendor</button></div>';
+}
+
+function addNewVendor() {
+  var name = document.getElementById("newVenName").value.trim();
+  var phone = document.getElementById("newVenPhone").value.trim();
+  if(!name) return alert("Enter vendor name");
+  if(vendors.some(function(v){ return v.name.toLowerCase() === name.toLowerCase(); })) return alert("Vendor already exists");
+  vendors.push({ name: name, phone: phone });
+  vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  save(true);
+  renderVendorManagerContent();
+}
+
+function deleteVendor(idx) {
+  if(!confirm("Delete this vendor?")) return;
+  vendors.splice(idx, 1);
+  save(true);
+  renderVendorManagerContent();
+}
+
+function renderContactManagerContent() {
+  emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  var body = document.getElementById("serviceManagerBody");
+  var formContainer = document.getElementById("serviceManagerFormContainer");
+
+  body.innerHTML = emergencyContacts.map(function(ec, idx){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div><div style="font-weight:700;font-size:13px">'+escHtml(ec.name)+'</div><div style="font-size:11px;color:#6b7280">'+escHtml(ec.number)+'</div></div><button class="btn btn-s" style="background:#dc2626" onclick="deleteContact('+idx+')"><i class="fa-solid fa-trash"></i></button></div>';
+  }).join('') || '<div style="color:#6b7280;font-style:italic">No emergency contacts found.</div>';
+
+  formContainer.innerHTML = '<div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px"><label>Contact Name</label><input id="newEcName" placeholder="e.g. Laundry" style="margin-bottom:8px"><label>Phone Number</label><input id="newEcNum" placeholder="e.g. +971501234567" style="margin-bottom:8px"><button class="btn" style="margin-top:0" onclick="addNewContact()">Add Contact</button></div>';
+}
+
+function addNewContact() {
+  var name = document.getElementById("newEcName").value.trim();
+  var number = document.getElementById("newEcNum").value.trim();
+  if(!name || !number) return alert("Enter both name and number");
+  emergencyContacts.push({name: name, number: number});
+  emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  save(true);
+  renderContactManagerContent();
+}
+
+function deleteContact(idx) {
+  emergencyContacts.splice(idx, 1);
+  save(true);
+  renderContactManagerContent();
+}
+
+function addU(e){
+  e.preventDefault();
+  var fn=document.getElementById("nFname").value.trim();
+  var ln=document.getElementById("nLname").value.trim();
+  var u=document.getElementById("nid").value.trim().toLowerCase();
+  var p=document.getElementById("npass").value.trim();
+  var r=document.getElementById("nrole").value;
+  if(users.some(function(x){return x.u==u}))return alert("User ID exists!");
+  if(users.some(function(x){return (x.firstName || "").toLowerCase() === fn.toLowerCase()}))return alert("A user with this first name already exists!");
+  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:document.getElementById("nMess").checked,active:true,vacations:[]});
+  document.getElementById("nFname").value="";
+  document.getElementById("nLname").value="";
+  document.getElementById("nid").value="";
+  document.getElementById("npass").value="";
+  closeModals();
+  save(true);
+}
+
+function saveEditedUser(e){
+  e.preventDefault();
+  var id = Number(document.getElementById("editUserId").value);
+  var fn = document.getElementById("eUFirstName").value.trim();
+  var ln = document.getElementById("eULastName").value.trim();
+  var u = document.getElementById("eUId").value.trim().toLowerCase();
+  var p = document.getElementById("eUPass").value.trim();
+  var r = document.getElementById("eURole").value;
+  var targetActive = document.getElementById("eUActive").checked;
+
+  var user = users.find(function(x){return x.id === id});
+  if(user){
+    if(users.some(function(x){return x.u === u && x.id !== id})) return alert("User ID already exists!");
+    if(users.some(function(x){return (x.firstName || "").toLowerCase() === fn.toLowerCase() && x.id !== id})) return alert("A user with this first name already exists!");
+    if(user.r === "superadmin" && (r !== "superadmin" || !targetActive) && users.filter(function(x){ return x.r === "superadmin" && x.active !== false; }).length <= 1) return alert("At least one active Super Admin is required.");
+    user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; 
+    if(p) user.p = p;
+    user.r = r;
+    user.mess = document.getElementById("eUMess").checked;
+    user.active = targetActive;
+    closeModals();
+    save(true);
+  }
+}
+
+function addEx(e){
+  e.preventDefault();
+  if (isLandlord()) return alert("Landlords are not permitted to add expenses.");
+  var a=parseFloat(document.getElementById("amt").value),d=document.getElementById("desc").value,pb=document.getElementById("pby").value;
+  var dateVal=document.getElementById("expDate").value || todayISO();
+
+  if (dateVal > todayISO()) {
+    return alert("Expenses cannot be dated in the future.");
+  }
+
+  var vendor=document.getElementById("expVendor").value;
+  var note=document.getElementById("expNote").value.trim();
+  var stEl = document.getElementById("stype");
+  var st = stEl ? stEl.value : "a";
+
+  var al = [];
+  var splits = null;
+  var splitMode = "equal";
+
+  if(st === "custom") {
+    splitMode = "custom";
+    splits = {};
+    var inputs = document.querySelectorAll(".custom-split-input");
+    var sum = 0;
+    inputs.forEach(function(inp){
+      var n = inp.getAttribute("data-name");
+      var val = parseFloat(inp.value) || 0;
+      if(val > 0) {
+        splits[n] = val;
+        sum += val;
+        al.push(n);
+      }
+    });
+    if(!al.length) return alert("At least one member must be assigned an amount.");
+    if(Math.abs(a - sum) > 0.005) {
+      return alert("Custom split amounts (AED " + sum.toFixed(2) + ") do not match the total expense amount (AED " + a.toFixed(2) + ").");
+    }
+  } else {
+    al = getSplitMembers(dateVal).al;
+    if(!al.length) return alert("No members to charge. Select at least 1 member who is not on vacation.");
+    
+    splits = {};
+    var totalShareCount = al.length;
+    var baseShare = Math.floor((a / totalShareCount) * 100) / 100;
+    var runningSum = 0;
+    
+    al.forEach(function(n, idx){
+      if(idx === totalShareCount - 1) {
+        var leftover = Math.round((a - runningSum) * 100) / 100;
+        splits[n] = leftover;
+      } else {
+        splits[n] = baseShare;
+        runningSum += baseShare;
+      }
+    });
+
+    if(splits[pb] !== undefined) {
+      var diff = Math.round((a - Object.keys(splits).reduce(function(acc, k){ return acc + (k === pb ? 0 : splits[k]); }, 0)) * 100) / 100;
+      splits[pb] = diff;
     }
   }
 
+  var newExp = {id:Date.now(),amt:a,desc:d,vendor:vendor,note:note,date:dateVal,pb:pb,al:al,splits:splits,splitMode:splitMode,dt:new Date().toLocaleDateString()};
+  exps.unshift(newExp);
+  
+  var cName = cur.firstName || cur.name;
+  al.forEach(function(memName){
+    if(memName !== pb && memName !== cName) {
+      addNotification(memName, "New Expense Added", pb + " added AED " + money(a) + " for " + d + ".", "expense", null, false);
+    }
+  });
+
+  lastSel = {desc:d, vendor:vendor, pby:pb, stype:st};
+  localStorage.setItem("r110_last", JSON.stringify(lastSel));
+  document.getElementById("amt").value="";
+  document.getElementById("expNote").value="";
+  document.getElementById("expDate").value=todayISO();
+  save(true);
+  tab(2);
+}
+
+function applyLastSelections(){
+  function setIf(id, v) {
+    var el = document.getElementById(id);
+    if(!el || !v) return;
+    for(var i = 0; i < el.options.length; i++) { if(el.options[i].value === v) { el.value = v; return; } }
+  }
+  setIf("desc", lastSel.desc); setIf("expVendor", lastSel.vendor); setIf("pby", lastSel.pby); setIf("stype", lastSel.stype);
+  onSplitTypeChange();
+}
+
+function canEditExp(x) {
+  if(!cur || isLandlord()) return false;
+  if(isSuper()) return true;
+  if(cur.r !== "admin") return false;
+  var me = cur.firstName || cur.name;
+  return x.pb == me || (x.al && x.al.indexOf(me) > -1) || (x.splits && x.splits[me] !== undefined);
+}
+
+function optList(values, selected) {
+  var vals = values.slice();
+  if(selected && vals.indexOf(selected) === -1) vals.push(selected);
+  return vals.map(function(v){ return '<option value="' + escHtml(v) + '"' + (v === selected ? ' selected' : '') + '>' + escHtml(v) + '</option>'; }).join('');
+}
+
+function openEditExp(id) {
+  var x = exps.find(function(e){ return e.id == id; });
+  if(!x || !canEditExp(x)) return;
+  document.getElementById("eeId").value = x.id;
+  document.getElementById("eeAmt").value = x.amt;
+  document.getElementById("eeDate").value = expDate(x);
+  document.getElementById("eeDesc").innerHTML = optList(categories, x.desc);
+  document.getElementById("eeVendor").innerHTML = '<option value="">-- No vendor --</option>' + optList(vendors.map(function(v){ return v.name; }), x.vendor || "");
+  document.getElementById("eeNote").value = x.note || "";
+  document.getElementById("eePby").innerHTML = optList(users.filter(function(u){ return u.active !== false; }).map(memberName), x.pb);
+  
+  var names = users.filter(function(u){ return u.active !== false && isMess(u); }).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
+  var activeList = x.al || Object.keys(x.splits || {});
+  activeList.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
+
+  var isCustom = x.splitMode === "custom";
+  if(!x.splitMode && x.splits) {
+    var vals = Object.values(x.splits);
+    var first = vals[0];
+    var nonEqual = vals.some(function(v){ return Math.abs(v - first) > 0.02; });
+    isCustom = nonEqual;
+  }
+
+  var boxHtml = "";
+  if(isCustom) {
+    boxHtml = names.map(function(n){
+      var val = x.splits && x.splits[n] !== undefined ? x.splits[n] : "";
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%">' +
+             '<span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span>' +
+             '<input type="number" step="0.01" min="0" placeholder="0.00" class="ee-custom-split-input" data-name="' + escHtml(n) + '" value="' + val + '" oninput="validateEditCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px">' +
+             '</div>';
+    }).join('');
+  } else {
+    boxHtml = names.map(function(n){
+      return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (activeList.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
+    }).join('');
+  }
+
+  document.getElementById("eeCbox").innerHTML = boxHtml;
+  document.getElementById("eeCbox").dataset.mode = isCustom ? "custom" : "equal";
+  if(isCustom) validateEditCustomSplitTotal();
+  else document.getElementById("eeSplitHint").innerText = "";
+
+  document.getElementById("editExpModal").className = "modal-overlay";
+}
+
+function onEditAmtInput() {
+  var cbox = document.getElementById("eeCbox");
+  if(cbox && cbox.dataset.mode === "custom") {
+    validateEditCustomSplitTotal();
+  }
+}
+
+function validateEditCustomSplitTotal() {
+  var totalAmt = parseFloat(document.getElementById("eeAmt").value) || 0;
+  var inputs = document.querySelectorAll(".ee-custom-split-input");
+  var sum = 0;
+  inputs.forEach(function(inp){
+    sum += parseFloat(inp.value) || 0;
+  });
+  var diff = totalAmt - sum;
+  var hint = document.getElementById("eeSplitHint");
+  var match = Math.abs(diff) < 0.005;
+  hint.innerHTML = 'Custom Split Sum: AED ' + sum.toFixed(2) + ' / Total: AED ' + totalAmt.toFixed(2) + 
+                   ' <span style="color:' + (match ? '#059669' : '#dc2626') + ';font-weight:700">(' + (match ? '✓ Match' : 'Mismatch: ' + diff.toFixed(2)) + ')</span>';
+}
+
+function saveEditedExp(e) {
+  e.preventDefault();
+  if (isLandlord()) return;
+  var id = document.getElementById("eeId").value;
+  var x = exps.find(function(t){ return t.id == id; });
+  if(!x || !canEditExp(x)) return;
+
+  var dateVal = document.getElementById("eeDate").value || expDate(x);
+  if (dateVal > todayISO()) {
+    return alert("Expenses cannot be dated in the future.");
+  }
+
+  var a = parseFloat(document.getElementById("eeAmt").value);
+  var pb = document.getElementById("eePby").value;
+  var cbox = document.getElementById("eeCbox");
+  var isCustom = cbox && cbox.dataset.mode === "custom";
+
+  var al = [];
+  var splits = null;
+  var splitMode = isCustom ? "custom" : "equal";
+
+  if(isCustom) {
+    splits = {};
+    var inputs = document.querySelectorAll(".ee-custom-split-input");
+    var sum = 0;
+    inputs.forEach(function(inp){
+      var n = inp.getAttribute("data-name");
+      var val = parseFloat(inp.value) || 0;
+      if(val > 0) {
+        splits[n] = val;
+        sum += val;
+        al.push(n);
+      }
+    });
+    if(!al.length) return alert("At least one member must be assigned an amount.");
+    if(Math.abs(a - sum) > 0.005) {
+      return alert("Custom split amounts (AED " + sum.toFixed(2) + ") do not match the total expense amount (AED " + a.toFixed(2) + ").");
+    }
+  } else {
+    al = Array.prototype.map.call(document.querySelectorAll(".eck:checked"), function(c){ return c.value; });
+    if(!al.length) return alert("Select at least 1 member");
+    
+    splits = {};
+    var totalShareCount = al.length;
+    var baseShare = Math.floor((a / totalShareCount) * 100) / 100;
+    var runningSum = 0;
+    al.forEach(function(n, idx){
+      if(idx === totalShareCount - 1) {
+        splits[n] = Math.round((a - runningSum) * 100) / 100;
+      } else {
+        splits[n] = baseShare;
+        runningSum += baseShare;
+      }
+    });
+
+    if(splits[pb] !== undefined) {
+      var diff = Math.round((a - Object.keys(splits).reduce(function(acc, k){ return acc + (k === pb ? 0 : splits[k]); }, 0)) * 100) / 100;
+      splits[pb] = diff;
+    }
+  }
+
+  x.amt = a;
+  x.date = dateVal;
+  x.desc = document.getElementById("eeDesc").value;
+  x.vendor = document.getElementById("eeVendor").value;
+  x.note = document.getElementById("eeNote").value.trim();
+  x.pb = pb;
+  x.al = al;
+  x.splits = splits;
+  x.splitMode = splitMode;
+
+  closeModals();
+  save(true);
+}
+
+function delEx(id){
+  if (isLandlord()) return;
+  var x = exps.find(function(t){ return t.id == id; });
+  if(!x || !canEditExp(x)) return;
+  if(confirm("Delete expense?")){ exps = exps.filter(function(t){ return t.id != id; }); save(true); }
+}
+
+function updateProfile(e){
+  e.preventDefault();
+  var newFn = document.getElementById("editFirstName").value.trim();
+  var newLn = document.getElementById("editLastName").value.trim();
+  var newPass = document.getElementById("editPass").value.trim();
+  var fileInput = document.getElementById("editAvatarFile");
+  if(!newFn) return alert("First name cannot be empty!");
+  if(users.some(function(x){return (x.firstName || "").toLowerCase() === newFn.toLowerCase() && x.id !== cur.id})) return alert("A user with this first name already exists!");
+  
+  cur.firstName = newFn;
+  cur.lastName = newLn;
+  cur.name = newFn;
+  if(newPass) cur.p = newPass;
+
+  if(fileInput.files && fileInput.files[0]){
+    var reader = new FileReader();
+    reader.onload = function(evt) {
+      var img = new Image();
+      img.onload = function(){
+        var canvas = document.createElement("canvas");
+        var max = 120;
+        var w = img.width, h = img.height;
+        if(w > h){ if(w > max){ h *= max/w; w = max; } }
+        else { if(h > max){ w *= max/h; h = max; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        cur.avatar = canvas.toDataURL("image/jpeg", 0.7);
+        finishProfileUpdate();
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+  } else {
+    finishProfileUpdate();
+  }
+}
+
+function finishProfileUpdate(){
+  for(var i=0; i<users.length; i++){
+    if(users[i].id === cur.id || users[i].u === cur.u){
+      users[i] = cur;
+      break;
+    }
+  }
+  closeModals();
+  save(true);
+  alert("Profile updated successfully!");
+}
+
+function stats(){
+  var tot=exps.reduce(function(s,x){return s+Number(x.amt)},0);
+  var verifiedPayments = payments.filter(function(p){ return p.verified; });
+  var st=users.map(function(u){
+    var uName = u.firstName || u.name;
+    var pd=exps.filter(function(x){return x.pb==uName}).reduce(function(s,x){return s+Number(x.amt)},0);
+    var sh=exps.reduce(function(s,x){
+      if(x.splits && x.splits[uName] !== undefined) return s + Number(x.splits[uName]);
+      if(x.al && x.al.indexOf(uName) > -1) return s + (Number(x.amt) / x.al.length);
+      return s;
+    },0);
+    var adj=verifiedPayments.reduce(function(s,p){return s+(p.from==uName?Number(p.amt):0)-(p.to==uName?Number(p.amt):0)},0);
+    return {name:uName,pd:pd,sh:sh,adj:adj,net:pd-sh+adj};
+  });
+  return {tot:tot,st:st};
+}
+
+function wa(){
+  var s=stats(),txt="*ROOM 110 MESS*\nTotal: AED "+s.tot.toFixed(2)+"\n----------------\n";
+  s.st.forEach(function(m){txt+="• "+m.name+": Paid "+m.pd.toFixed(0)+" | Share "+m.sh.toFixed(1)+" -> "+(m.net>=0?"Gets +":"Pays -")+"AED "+Math.abs(m.net).toFixed(2)+"\n"});
+  navigator.clipboard.writeText(txt);alert("WhatsApp Report Copied!");
+}
+
+function render(){
+  if(!cur)return;
+  var freshCur = users.find(function(x){return x.u === cur.u});
+  if(freshCur) { cur = freshCur; }
+
+  var cName = cur.firstName || cur.name || "Shyam";
+  var init = cName.charAt(0).toUpperCase();
+  var dockAv = document.getElementById("dockAvatarContainer");
+  var cardAv = document.getElementById("cardAvatar");
+  var profAv = document.getElementById("profAvatar");
+
+  if(cur.avatar){
+    dockAv.innerHTML = '<img src="'+cur.avatar+'">';
+    cardAv.innerHTML = '<img src="'+cur.avatar+'" style="width:100%;height:100%;object-fit:cover">';
+    profAv.innerHTML = '<img src="'+cur.avatar+'" style="width:100%;height:100%;object-fit:cover">';
+  } else {
+    dockAv.innerHTML = '<span id="dockInitial">'+init+'</span>';
+    cardAv.innerHTML = init;
+    profAv.innerHTML = init;
+  }
+
+  updateDateTime();
+  updateDockBadges();
+  document.getElementById("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
+  document.getElementById("profRole").innerText = roleLabel(cur.r);
+  document.getElementById("membersRow").classList.toggle("hide", !isSuper());
+  document.getElementById("servicesRow").classList.toggle("hide", !isAdminLike());
+
+  var vacMenuLabel = document.getElementById("vacationMenuLabel");
+  if(vacMenuLabel) vacMenuLabel.innerText = isSuper() ? "Manage Member Vacations" : "Vacation Mode";
+
+  var d3Btn = document.getElementById("d3");
+  if(d3Btn) {
+    d3Btn.style.opacity = isLandlord() ? "0.35" : "1";
+  }
+
+  var s=stats();
+  var myAllShare = exps.reduce(function(t,x){
+    if(x.splits && x.splits[cName] !== undefined) return t + Number(x.splits[cName]);
+    if(x.al && x.al.indexOf(cName) > -1) return t + Number(x.amt) / x.al.length;
+    return t;
+  }, 0);
+  document.getElementById("tot").innerText="AED "+(isSuper() ? s.tot : myAllShare).toFixed(2);
+  document.getElementById("totLabel").innerText = isSuper() ? "Total Spent" : "My Total Expenses";
+  document.getElementById("balTitle").innerText = isSuper() ? "Member Balances (+ Gets / - Pays)" : "My Balance (+ Gets / - Pays)";
+  document.getElementById("catTitle").innerText = isSuper() ? "Expenses by Category" : "My Expenses by Category";
+  document.getElementById("mcount").innerText=users.filter(function(u){ return u.active !== false && isMess(u); }).length;
+  var visibleBal=isSuper()?s.st.filter(function(m){return Math.abs(m.net)>=0.005}):s.st.filter(function(m){return m.name===cName});
+  document.getElementById("tb").innerHTML=visibleBal.length===0?"<tr><td colspan='4' style='text-align:center;color:#6b7280;font-style:italic'>All balances are settled.</td></tr>":visibleBal.map(function(m){return "<tr><td><b>"+escHtml(m.name)+"</b></td><td>"+m.pd.toFixed(1)+"</td><td>"+m.sh.toFixed(1)+"</td><td class='"+(m.net>=0?"g":"r")+"'>"+(m.net>=0?"+":"")+m.net.toFixed(2)+"</td></tr>"}).join("");
+
+  var currentYM = todayISO().slice(0, 7);
+  var netPrev = calculatePreviousMonthOverdue(cName, currentYM);
+  var homeOverdueCard = document.getElementById("homeOverdueCard");
+  var homeOverdueAmtEl = document.getElementById("homeOverdueAmt");
+  var homeOverdueTitleEl = document.getElementById("homeOverdueTitle");
+  
+  if(homeOverdueCard && homeOverdueAmtEl && homeOverdueTitleEl) {
+    homeOverdueCard.style.display = "flex";
+    if(netPrev >= -0.005) {
+      homeOverdueTitleEl.innerText = "Previous Balance Receivable";
+      homeOverdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      homeOverdueAmtEl.style.color = "#059669";
+    } else {
+      homeOverdueTitleEl.innerText = "Payment Overdue (Prev Month)";
+      homeOverdueAmtEl.innerText = "AED " + money(Math.abs(netPrev));
+      homeOverdueAmtEl.style.color = "#dc2626";
+    }
+  }
+
+  var nowD = new Date();
+  var monthExps = exps.filter(function(x){
+    return expDate(x).slice(0, 7) === todayISO().slice(0, 7);
+  });
+  var myPurchases = monthExps.reduce(function(t,x){
+    return x.pb == cName ? t + Number(x.amt) : t;
+  }, 0);
+  var forMe = monthExps.reduce(function(t,x){
+    if(x.pb != cName) {
+      if(x.splits && x.splits[cName] !== undefined) return t + Number(x.splits[cName]);
+      if(x.al && x.al.indexOf(cName) > -1) return t + (Number(x.amt) / x.al.length);
+    }
+    return t;
+  }, 0);
+  document.getElementById("dashMonthLabel").innerText = nowD.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById("dashPaid").innerText = "AED " + myPurchases.toFixed(2);
+  document.getElementById("dashShare").innerText = "AED " + forMe.toFixed(2);
+
+  var myShareTotal = monthExps.reduce(function(t,x){
+    if(x.splits && x.splits[cName] !== undefined) return t + Number(x.splits[cName]);
+    if(x.al && x.al.indexOf(cName) > -1) return t + (Number(x.amt) / x.al.length);
+    return t;
+  }, 0);
+  var myNet = myPurchases - myShareTotal;
+  var netEl = document.getElementById("dashNet");
+  var netLabelEl = document.getElementById("dashNetLabel");
+  if(Math.abs(myNet) < 0.005) {
+    netLabelEl.innerText = "Net Settled";
+    netEl.innerText = "AED 0.00";
+    netEl.style.color = "#6b7280";
+  } else if(myNet < 0) {
+    netLabelEl.innerText = "Net Payable (You Owe)";
+    netEl.innerText = "AED " + Math.abs(myNet).toFixed(2);
+    netEl.style.color = "#dc2626";
+  } else {
+    netLabelEl.innerText = "Net Receivable (You Get)";
+    netEl.innerText = "AED " + myNet.toFixed(2);
+    netEl.style.color = "#059669";
+  }
+
+  var catTotals = {};
+  exps.forEach(function(x){
+    var cat = x.desc || "Other";
+    var v = 0;
+    if(isSuper()) {
+      v = Number(x.amt);
+    } else {
+      if(x.splits && x.splits[cName] !== undefined) v = Number(x.splits[cName]);
+      else if(x.al && x.al.indexOf(cName) > -1) v = Number(x.amt) / x.al.length;
+    }
+    if(v > 0) catTotals[cat] = (catTotals[cat] || 0) + v;
+  });
+  var catNames = Object.keys(catTotals).sort(function(a,b){ return catTotals[b] - catTotals[a]; });
+  var catPalette = ['#2563eb','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#f97316','#64748b'];
+  var catHtml = "";
+  catNames.forEach(function(catName, ci){
+    var col = catPalette[ci % catPalette.length];
+    catHtml += '<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;padding:4px 0;border-bottom:1px solid #f3f4f6"><span style="color:#374151"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+col+';margin-right:8px"></span>'+escHtml(catName)+'</span><span style="color:#111;font-weight:700">AED '+catTotals[catName].toFixed(2)+'</span></div>';
+  });
+  document.getElementById("categoryBreakdownList").innerHTML = catHtml || '<div style="font-size:12px;color:#6b7280;font-style:italic">No category data available yet.</div>';
+
+  var catWrap = document.getElementById("catChartWrap");
+  if(catWrap) catWrap.style.display = catNames.length ? "block" : "none";
+  if(window.Chart && catNames.length) {
+    var catVals = catNames.map(function(n){ return catTotals[n]; });
+    var catCols = catNames.map(function(n, ci){ return catPalette[ci % catPalette.length]; });
+    if(categoryChartInstance) {
+      categoryChartInstance.data.labels = catNames;
+      categoryChartInstance.data.datasets[0].data = catVals;
+      categoryChartInstance.data.datasets[0].backgroundColor = catCols;
+      categoryChartInstance.update('none');
+    } else {
+      categoryChartInstance = new Chart(document.getElementById('categoryPieChart').getContext('2d'), {
+        type: 'doughnut',
+        data: { labels: catNames, datasets: [{ data: catVals, backgroundColor: catCols, borderWidth: 0 }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '55%',
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: function(c){ return c.label + ': AED ' + Number(c.parsed).toFixed(2); } } }
+          }
+        }
+      });
+    }
+  }
+
+  var descSelect = document.getElementById("desc");
+  if(descSelect) {
+    var currentSelectedCat = descSelect.value;
+    categories.sort(function(a,b){ return a.localeCompare(b); });
+    setHtmlIfChanged(descSelect, categories.map(function(c){
+      return '<option value="'+escHtml(c)+'" '+(c===currentSelectedCat?'selected':'')+'>'+escHtml(c)+'</option>';
+    }).join(''));
+  }
+
+  var ecContainer = document.getElementById("emergencyContactsListContainer");
+  if(ecContainer) {
+    emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
+    ecContainer.innerHTML = emergencyContacts.map(function(ec){
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid #f3f4f6"><div><div style="font-size:13px;font-weight:700;color:#111">'+escHtml(ec.name)+'</div><div style="font-size:11px;color:#6b7280">'+escHtml(ec.number)+'</div></div><div style="display:flex;gap:6px"><a href="tel:'+escHtml(ec.number)+'" style="width:32px;height:32px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none"><i class="fa-solid fa-phone text-xs"></i></a></div></div>';
+    }).join('') || '<div style="font-size:12px;color:#6b7280;font-style:italic">No emergency contacts.</div>';
+  }
+
+  var bothZero = !(myPurchases > 0) && !(forMe > 0);
+  var chartVals = bothZero ? [1, 0] : [myPurchases, forMe];
+  var chartCols = bothZero ? ['#d1d5db', '#d1d5db'] : ['#10b981', '#f59e0b'];
+  if(window.Chart) {
+    if(monthlyChartInstance) {
+      monthlyChartInstance.data.datasets[0].data = chartVals;
+      monthlyChartInstance.data.datasets[0].backgroundColor = chartCols;
+      monthlyChartInstance.update('none');
+    } else {
+      var ctx = document.getElementById('monthlyDonutChart').getContext('2d');
+      monthlyChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['My Purchases', 'For Me'],
+          datasets: [{ data: chartVals, backgroundColor: chartCols, borderWidth: 0 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          cutout: '70%'
+        }
+      });
+    }
+  }
+
+  var prevPby = document.getElementById("pby").value || cName;
+  var sortedMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
+  
+  var payerOptions = sortedMessUsers.map(function(u){ return memberName(u); });
+  users.forEach(function(u){
+    if (u.r === "landlord" && u.active !== false) {
+      var lName = memberName(u);
+      if (payerOptions.indexOf(lName) === -1) payerOptions.push(lName);
+    }
+  });
+
+  setHtmlIfChanged(document.getElementById("pby"), payerOptions.map(function(uN){ return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"}).join(""));
+  
+  var stypeSel = document.getElementById("stype");
+  var prevSt = stypeSel.value || lastSel.stype || "a";
+  var stOpts = '<option value="a">All Room 110 Members</option>';
+  groups.forEach(function(g){
+    var live = (g.members || []).filter(function(n){ return sortedMessUsers.map(memberName).indexOf(n) > -1; });
+    if(live.length) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
+  });
+  stOpts += '<option value="c">Select Specific Members</option>';
+  stOpts += '<option value="custom">Custom Split (Unequal Amounts)</option>';
+  var stChanged = stypeSel._lastHtml !== stOpts;
+  setHtmlIfChanged(stypeSel, stOpts);
+  if(stChanged || !stypeSel.value) {
+    stypeSel.value = prevSt;
+    if(!stypeSel.value) stypeSel.value = "a";
+  }
+
+  var expDateEl = document.getElementById("expDate");
+  if(expDateEl && !expDateEl.value) expDateEl.value = todayISO();
+  var vSel = document.getElementById("expVendor");
+  var prevVen = vSel.value;
+  vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
+  var vOpts = '<option value="">-- No vendor --</option>' + vendors.map(function(v){ return '<option value="'+escHtml(v.name)+'">'+escHtml(v.name)+'</option>'; }).join('');
+  var vChanged = vSel._lastHtml !== vOpts;
+  setHtmlIfChanged(vSel, vOpts);
+  if(vChanged && prevVen) vSel.value = prevVen;
   renderExpensesTab();
+
+  renderChatContactsList();
+  if(document.getElementById("chatMainPane").className.indexOf("hide") === -1) {
+    renderChatActivePane();
+  }
+
+  if(isSuper()) {
+    document.getElementById("ulist").innerHTML = users.map(function(u){
+      var badge = function(bg, fg, txt){
+        return " <span style='font-size:10px;background:" + bg + ";color:" + fg + ";padding:2px 6px;border-radius:8px;font-weight:700'>" + txt + "</span>";
+      };
+      var tags = "";
+      if(u.active === false) tags += badge("#fee2e2", "#dc2626", "ARCHIVED");
+      if(isUserOnVacationOnDate(u, todayISO())) tags += badge("#fef3c7", "#92400e", "VACATION");
+      if(u.mess === false) tags += badge("#e0e7ff", "#3730a3", "NOT IN MESS");
+      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'>" +
+        "<div><b>" + escHtml((u.firstName || u.name) + " " + (u.lastName || "")) + "</b>" + tags +
+        "<div style='font-size:12px;color:#6b7280'>ID: " + escHtml(u.u) + " | Pass: ******** | Role: " + roleLabel(u.r) + "</div></div>" +
+        "<button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal(" + u.id + ")'><i class='fa-solid fa-pen'></i></button></div>";
+    }).join("");
+  }
 }
 
 if(cur) openDashboard();
