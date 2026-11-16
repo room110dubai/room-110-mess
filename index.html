@@ -493,7 +493,7 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
           <h3 style="color:#111;font-size:18px">DEWA Electricity &amp; Water</h3>
         </div>
         <div id="dewaAdminCard" class="card hide">
-          <h4 style="color:#d97706;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> Post DEWA Bill (Previous Month Arrears)</h4>
+          <h4 style="color:#d97706;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> Post DEWA Bill (Previous Month Only)</h4>
           <label>Select Billing Month</label><select id="dewaBillingMonth" onchange="renderDewaPage()" style="margin-bottom:10px"></select>
           <label>Total DEWA Bill Amount (AED)</label><input id="dewaBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:12px">
           <label>Paid By</label><select id="dewaPaidBy" style="margin-bottom:12px"></select>
@@ -502,7 +502,7 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
         </div>
         <div class="card">
           <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-file-invoice-dollar"></i> DEWA Days Summary</h4>
-          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Active days in the previous month (vacation days removed). The cost appears in Expenses.</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Active days in the selected month (vacation days removed). The cost appears in Expenses.</div>
           <label>Select Period</label><select id="dewaViewMonth" onchange="renderDewaPage()" style="margin-bottom:12px"></select>
           <div id="dewaBreakdownContainer"></div>
         </div>
@@ -523,7 +523,7 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
         </div>
         <div class="card">
           <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-chart-line"></i> Etisalat Days Summary</h4>
-          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Active days from the 1st of the month up to today (vacation days removed). The cost appears in Expenses.</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Daily split: each day's share of the monthly fee is divided between members present that day (vacation days removed), counted up to today.</div>
           <label>Select Period</label><select id="etisalatViewMonth" onchange="renderEtisalatPage()" style="margin-bottom:12px"></select>
           <div id="etisalatBreakdownContainer"></div>
         </div>
@@ -1239,14 +1239,44 @@ function calculateMemberMonthDays(userObj, ym) {
   for(var d = 1; d <= n; d++) if(!isUserOnVacationOnDate(userObj, ym + "-" + pad2(d))) present++;
   return present;
 }
-function utilDays(type, u, ym) { return type === "dewa" ? calculateMemberDewaDays(u, ym) : calculateMemberMonthDays(u, ym); }
-function utilPeriodYM(type, ym) { return type === "dewa" ? getPreviousMonthYM(ym) : ym; }
+function utilDays(type, u, ym) { return calculateMemberMonthDays(u, ym); }
+function utilPeriodYM(type, ym) { return ym; }
 function monthLabel(ym) { return MONTHS[Number(ym.slice(5, 7)) - 1] + " " + ym.slice(0, 4); }
+
+function applyEtisalatAccrual(ex) {
+  var ym = ex.utilYM, n = getMonthDaysCount(ym), today = todayISO(), curYM = today.slice(0, 7);
+  var last = ym < curYM ? n : (ym === curYM ? Number(today.slice(8, 10)) : 0), daily = ex.amt / n;
+  var mess = users.filter(function(u){ return isMess(u); }), cents = {}, days = {};
+  for(var d = 1; d <= last; d++) {
+    var dt = ym + "-" + pad2(d);
+    var present = mess.filter(function(u){ return !isUserOnVacationOnDate(u, dt); });
+    present.forEach(function(u){ var nm = memberName(u); cents[nm] = (cents[nm] || 0) + daily / present.length; days[nm] = (days[nm] || 0) + 1; });
+  }
+  var splits = {};
+  Object.keys(cents).forEach(function(nm){ splits[nm] = Math.round(cents[nm] * 100) / 100; });
+  if(last === n) {
+    var sum = Object.keys(splits).reduce(function(a, k){ return a + splits[k]; }, 0), diff = Math.round((ex.amt - sum) * 100) / 100;
+    if(Math.abs(diff) >= 0.005) splits[ex.pb] = Math.round(((splits[ex.pb] || 0) + diff) * 100) / 100;
+  }
+  ex.splits = splits; ex.al = Object.keys(splits); ex.utilDays = days; ex.splitMode = "custom";
+}
+function refreshEtisalatAccruals() {
+  exps.forEach(function(x){ if(x.util === "etisalat" && !isUtilLocked(x.utilYM)) applyEtisalatAccrual(x); });
+}
 
 function renderUtilityPage(type) {
   var cfg = UTIL_CFG[type], p = type, cName = cur.firstName || cur.name;
   $(p + "AdminCard").className = (isAdminLike() || isLandlord()) ? "card" : "card hide";
   populateUtilityMonthDropdowns(p + "BillingMonth", p + "ViewMonth");
+  if(type === "dewa") {
+    var pm = getPreviousMonthYM(todayISO().slice(0, 7)), vs = $("dewaViewMonth");
+    $("dewaBillingMonth").innerHTML = '<option value="' + pm + '">' + monthLabel(pm) + '</option>';
+    if(vs._pm !== pm) {
+      var o = "", yy = Number(pm.slice(0, 4)), mm = Number(pm.slice(5, 7)) - 1;
+      for(var i = 0; i < 24; i++) { o += '<option value="' + yy + "-" + pad2(mm + 1) + '">' + MONTHS[mm] + ' ' + yy + '</option>'; mm--; if(mm < 0) { mm = 11; yy--; } }
+      vs.innerHTML = o; vs._pm = pm;
+    }
+  }
 
   var ym = $(p + "BillingMonth").value || todayISO().slice(0, 7), ex = findUtilExp(type, ym), locked = isUtilLocked(ym);
   var names = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "landlord"); }).map(memberName);
@@ -1264,15 +1294,19 @@ function renderUtilityPage(type) {
   var v = $(p + "ViewMonth").value || todayISO().slice(0, 7), box = $(p + "BreakdownContainer");
   var perYM = utilPeriodYM(type, v), today = todayISO(), curYM = today.slice(0, 7);
   var nDays = type === "dewa" ? getMonthDaysCount(perYM) : (v === curYM ? Number(today.slice(8, 10)) : (v < curYM ? getMonthDaysCount(v) : 0));
-  function dCount(u) { return type === "dewa" ? calculateMemberDewaDays(u, v) : calculateMemberEtisalatDaysUpToToday(u, v); }
+  function dCount(u) { return type === "dewa" ? calculateMemberMonthDays(u, v) : calculateMemberEtisalatDaysUpToToday(u, v); }
   var row = 'display:flex;justify-content:space-between;font-size:13px;color:#374151;padding:5px 0;border-bottom:1px solid #f3f4f6';
   var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb"><div style="font-weight:700;font-size:14px;color:' + cfg.color + ';margin-bottom:8px">' +
     (type === "dewa" ? "Days in " + monthLabel(perYM) : "Days in " + monthLabel(v) + (v === curYM ? " (1st to today)" : "")) + ' &bull; ' + nDays + ' days</div>';
+  var vex = type === "etisalat" ? findUtilExp(type, v) : null, vsp = (vex && vex.splits) || {};
+  function amtTxt(nm) { return vex ? ' &bull; AED ' + money(vsp[nm] || 0) : ''; }
   if(!isLandlord() && !isSuper()) {
     html += '<div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between"><span>Your Active Days:</span><span>' + dCount(cur) + ' / ' + nDays + '</span></div>';
+    if(vex) html += '<div style="font-size:15px;color:#dc2626;font-weight:800;display:flex;justify-content:space-between;margin-top:6px"><span>Your Consumption (up to today):</span><span>AED ' + money(vsp[cName] || 0) + '</span></div>';
   } else {
+    if(vex) html += '<div style="' + row + '"><span>Bill paid by ' + escHtml(vex.pb) + '</span><strong>AED ' + money(vex.amt) + '</strong></div>';
     users.filter(function(u){ return u.active !== false && isMess(u); }).forEach(function(u){
-      html += '<div style="' + row + '"><span>' + escHtml(memberName(u)) + '</span><strong>' + dCount(u) + ' / ' + nDays + ' days</strong></div>';
+      html += '<div style="' + row + '"><span>' + escHtml(memberName(u)) + '</span><strong>' + dCount(u) + ' / ' + nDays + ' days' + amtTxt(memberName(u)) + '</strong></div>';
     });
   }
   box.innerHTML = html + '</div>';
@@ -1283,6 +1317,7 @@ function renderEtisalatPage() { renderUtilityPage("etisalat"); }
 function saveUtilityBill(type) {
   if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
   var cfg = UTIL_CFG[type], ym = $(type + "BillingMonth").value, amt = parseFloat($(type + "BillAmtInput").value), pb = $(type + "PaidBy").value;
+  if(type === "dewa" && ym !== getPreviousMonthYM(todayISO().slice(0, 7))) return alert("DEWA bills can only be added for the previous month.");
   if(isUtilLocked(ym)) return alert("The statement for this month is already generated. This bill can no longer be edited.");
   if(!(amt > 0)) return alert("Enter a valid amount.");
   if(!pb) return alert("Select who paid.");
@@ -1301,6 +1336,7 @@ function saveUtilityBill(type) {
     exps.unshift({ id: Date.now(), amt: amt, desc: "Utilities", vendor: cfg.label, note: cfg.label + " bill - " + monthLabel(ym), date: ym === todayISO().slice(0, 7) ? todayISO() : periodRange(ym).end, pb: pb, al: al, splits: splits, splitMode: "custom", util: type, utilYM: ym, utilDays: days, dt: new Date().toLocaleDateString() });
     al.forEach(function(n){ if(n !== pb) addNotification(n, "New Expense Added", pb + " added AED " + money(amt) + " for " + cfg.label + ".", "expense", null, false); });
   }
+  if(type === "etisalat") applyEtisalatAccrual(findUtilExp(type, ym));
   save(true); renderUtilityPage(type);
   alert(cfg.label + " bill " + (ex ? "updated" : "saved") + " for " + monthLabel(ym) + "!");
 }
@@ -1571,6 +1607,7 @@ PdfDoc.prototype.build = function() {
 };
 
 function buildStatementPdf(ym) {
+  refreshEtisalatAccruals();
   var cName = cur.firstName || cur.name, pr = periodRange(ym), opening = 0, purchases = 0, expenses = 0, paySum = 0, rows = [];
   exps.forEach(function(x){
     var d = expDate(x), paid = x.pb == cName ? Number(x.amt) : 0, share = getUserShare(x, cName);
@@ -2052,6 +2089,7 @@ function wa(){
 
 function render(){
   if(!cur) return;
+  refreshEtisalatAccruals();
   var freshCur = users.find(function(x){ return x.u === cur.u; }); if(freshCur) cur = freshCur;
   var cName = cur.firstName || cur.name || "Shyam", init = cName.charAt(0).toUpperCase();
 
