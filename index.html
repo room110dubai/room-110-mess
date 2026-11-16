@@ -1233,7 +1233,7 @@ function populateUtilityMonthDropdowns(billingId, viewId) {
 
 var UTIL_CFG = { dewa: { label: "DEWA", color: "#d97706" }, etisalat: { label: "Etisalat", color: "#0284c7" } };
 function findUtilExp(type, ym) { return exps.find(function(x){ return x.util === type && x.utilYM === ym; }); }
-function isUtilLocked(ym) { return !!(generatedStatements && generatedStatements[ym]); }
+function isUtilLocked(ym) { return !!(generatedStatements && generatedStatements[ym]) && ym < todayISO().slice(0, 7); }
 function calculateMemberMonthDays(userObj, ym) {
   var n = getMonthDaysCount(ym), present = 0;
   for(var d = 1; d <= n; d++) if(!isUserOnVacationOnDate(userObj, ym + "-" + pad2(d))) present++;
