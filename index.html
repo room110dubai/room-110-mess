@@ -2153,7 +2153,7 @@ function render(){
   stOpts += '<option value="c">Select Specific Members</option><option value="custom">Custom Split (Unequal Amounts)</option>';
   var stChanged = stypeSel._lastHtml !== stOpts;
   setHtmlIfChanged(stypeSel, stOpts);
-  if(stChanged || !stypeSel.value) stypeSel.value = prevSt || "a";
+  if(stChanged || !stypeSel.value) { stypeSel.value = prevSt; if(!stypeSel.value) stypeSel.value = "a"; }
 
   if($("expDate") && !$("expDate").value) $("expDate").value = todayISO();
   var vSel = $("expVendor"), prevVen = vSel.value;
