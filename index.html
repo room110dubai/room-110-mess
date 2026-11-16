@@ -496,11 +496,13 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
           <h4 style="color:#d97706;margin-bottom:8px"><i class="fa-solid fa-bolt"></i> Post DEWA Bill (Previous Month Arrears)</h4>
           <label>Select Billing Month</label><select id="dewaBillingMonth" onchange="renderDewaPage()" style="margin-bottom:10px"></select>
           <label>Total DEWA Bill Amount (AED)</label><input id="dewaBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:12px">
-          <button class="btn" style="margin-top:0;background:#d97706" onclick="saveDewaBill()"><i class="fa-solid fa-floppy-disk"></i> Save DEWA Bill</button>
+          <label>Paid By</label><select id="dewaPaidBy" style="margin-bottom:12px"></select>
+          <div id="dewaLockNote" style="display:none;font-size:12px;color:#92400e;background:#fef3c7;border:1px solid #fde68a;padding:8px 10px;border-radius:10px;margin-bottom:10px"></div>
+          <button id="dewaSaveBtn" class="btn" style="margin-top:0;background:#d97706" onclick="saveUtilityBill('dewa')"><i class="fa-solid fa-floppy-disk"></i> Save DEWA Bill</button>
         </div>
         <div class="card">
           <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-file-invoice-dollar"></i> DEWA Pro-Rata Summary</h4>
-          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">System-calculated pro-rata split based on previous month's active room occupancy days.</div>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Recorded as a normal expense and split by each member's active days in the previous month.</div>
           <label>Select Period</label><select id="dewaViewMonth" onchange="renderDewaPage()" style="margin-bottom:12px"></select>
           <div id="dewaBreakdownContainer"></div>
         </div>
@@ -515,11 +517,13 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
           <h4 style="color:#0284c7;margin-bottom:8px"><i class="fa-solid fa-wifi"></i> Post Etisalat Subscription (Current Month)</h4>
           <label>Select Subscription Month</label><select id="etisalatBillingMonth" onchange="renderEtisalatPage()" style="margin-bottom:10px"></select>
           <label>Monthly Subscription Amount (AED)</label><input id="etisalatBillAmtInput" type="number" step="0.01" min="0" placeholder="0.00" style="margin-bottom:12px">
-          <button class="btn" style="margin-top:0;background:#0284c7" onclick="saveEtisalatBill()"><i class="fa-solid fa-floppy-disk"></i> Save Etisalat Bill</button>
+          <label>Paid By</label><select id="etisalatPaidBy" style="margin-bottom:12px"></select>
+          <div id="etisalatLockNote" style="display:none;font-size:12px;color:#92400e;background:#fef3c7;border:1px solid #fde68a;padding:8px 10px;border-radius:10px;margin-bottom:10px"></div>
+          <button id="etisalatSaveBtn" class="btn" style="margin-top:0;background:#0284c7" onclick="saveUtilityBill('etisalat')"><i class="fa-solid fa-floppy-disk"></i> Save Etisalat Bill</button>
         </div>
         <div class="card">
-          <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-chart-line"></i> Etisalat Real-Time Pro-Rata</h4>
-          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Real-time expense calculated strictly based on active days lived through <b>up to today</b>.</div>
+          <h4 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-chart-line"></i> Etisalat Summary</h4>
+          <div style="font-size:12px;color:#6b7280;margin-bottom:12px">Recorded as a normal expense and split by each member's active days in the month.</div>
           <label>Select Period</label><select id="etisalatViewMonth" onchange="renderEtisalatPage()" style="margin-bottom:12px"></select>
           <div id="etisalatBreakdownContainer"></div>
         </div>
@@ -1227,72 +1231,78 @@ function populateUtilityMonthDropdowns(billingId, viewId) {
   if($(viewId) && !$(viewId).innerHTML) $(viewId).innerHTML = opts;
 }
 
-function renderDewaPage() {
-  $("dewaAdminCard").className = (isAdminLike() || isLandlord()) ? "card" : "card hide";
-  populateUtilityMonthDropdowns("dewaBillingMonth", "dewaViewMonth");
-  var billingYM = $("dewaBillingMonth").value || todayISO().slice(0, 7);
-  var stored = (utilities && utilities[billingYM]) || { dewa: 0, etisalat: 0 };
-  if($("dewaBillAmtInput") && document.activeElement !== $("dewaBillAmtInput")) $("dewaBillAmtInput").value = stored.dewa || "";
+var UTIL_CFG = { dewa: { label: "DEWA", color: "#d97706" }, etisalat: { label: "Etisalat", color: "#0284c7" } };
+function findUtilExp(type, ym) { return exps.find(function(x){ return x.util === type && x.utilYM === ym; }); }
+function isUtilLocked(ym) { return !!(generatedStatements && generatedStatements[ym]); }
+function calculateMemberMonthDays(userObj, ym) {
+  var n = getMonthDaysCount(ym), present = 0;
+  for(var d = 1; d <= n; d++) if(!isUserOnVacationOnDate(userObj, ym + "-" + pad2(d))) present++;
+  return present;
+}
+function utilDays(type, u, ym) { return type === "dewa" ? calculateMemberDewaDays(u, ym) : calculateMemberMonthDays(u, ym); }
+function utilPeriodYM(type, ym) { return type === "dewa" ? getPreviousMonthYM(ym) : ym; }
+function monthLabel(ym) { return MONTHS[Number(ym.slice(5, 7)) - 1] + " " + ym.slice(0, 4); }
 
-  var viewYM = $("dewaViewMonth").value || todayISO().slice(0, 7);
-  var viewData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
-  var dewaYM = getPreviousMonthYM(viewYM), dewaDaysInMonth = getMonthDaysCount(dewaYM);
-  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
-  var totalRoomDewaDays = 0, memberDaysMap = {};
-  activeMessUsers.forEach(function(u){ var d = calculateMemberDewaDays(u, viewYM); memberDaysMap[memberName(u)] = d; totalRoomDewaDays += d; });
+function renderUtilityPage(type) {
+  var cfg = UTIL_CFG[type], p = type, cName = cur.firstName || cur.name;
+  $(p + "AdminCard").className = (isAdminLike() || isLandlord()) ? "card" : "card hide";
+  populateUtilityMonthDropdowns(p + "BillingMonth", p + "ViewMonth");
 
-  var cName = cur.firstName || cur.name, myDewaDays = memberDaysMap[cName] || 0;
-  var myDewaShare = totalRoomDewaDays > 0 ? (viewData.dewa * (myDewaDays / totalRoomDewaDays)) : 0;
-  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb"><div style="font-weight:700;font-size:14px;color:#d97706;margin-bottom:8px">Consumption Period: ' + dewaYM + '</div><div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total DEWA Bill:</span><strong>AED ' + money(viewData.dewa) + '</strong></div><div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Total Room Occupancy Days:</span><strong>' + totalRoomDewaDays + ' days</strong></div>';
+  var ym = $(p + "BillingMonth").value || todayISO().slice(0, 7), ex = findUtilExp(type, ym), locked = isUtilLocked(ym);
+  var names = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "landlord"); }).map(memberName);
+  var pbEl = $(p + "PaidBy"), amtEl = $(p + "BillAmtInput"), btn = $(p + "SaveBtn"), note = $(p + "LockNote");
+  var sel = ex ? ex.pb : (names.indexOf(pbEl.value) > -1 ? pbEl.value : (names.indexOf(cName) > -1 ? cName : names[0]));
+  pbEl.innerHTML = optList(names, sel);
+  if(document.activeElement !== amtEl) amtEl.value = ex ? ex.amt : "";
+  amtEl.disabled = pbEl.disabled = btn.disabled = locked;
+  btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> ' + (ex ? "Edit " : "Save ") + cfg.label + " Bill";
+  if(locked) note.innerHTML = '<i class="fa-solid fa-lock"></i> Statement for ' + monthLabel(ym) + ' is generated. This bill can no longer be edited.';
+  else if(ex) note.innerHTML = 'Already posted for ' + monthLabel(ym) + '. You can edit it until the statement is generated.';
+  else note.innerHTML = '';
+  note.style.display = note.innerHTML ? "block" : "none";
+
+  var v = $(p + "ViewMonth").value || todayISO().slice(0, 7), vex = findUtilExp(type, v), box = $(p + "BreakdownContainer");
+  if(!vex) { box.innerHTML = '<div style="font-size:13px;color:#6b7280;font-style:italic">No ' + cfg.label + ' bill posted for this month yet.</div>'; return; }
+  var perYM = utilPeriodYM(type, v), nDays = getMonthDaysCount(perYM), days = vex.utilDays || {}, sp = vex.splits || {};
+  var row = 'display:flex;justify-content:space-between;font-size:13px;color:#374151;margin-bottom:4px';
+  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb"><div style="font-weight:700;font-size:14px;color:' + cfg.color + ';margin-bottom:8px">' + (type === "dewa" ? "Consumption Period: " + perYM : "Subscription Month: " + v) + '</div>' +
+    '<div style="' + row + '"><span>Total ' + cfg.label + ' Bill:</span><strong>AED ' + money(vex.amt) + '</strong></div>' +
+    '<div style="' + row + '"><span>Paid By:</span><strong>' + escHtml(vex.pb) + '</strong></div>';
   if(!isLandlord() && !isSuper()) {
-    html += '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:6px"><span>Your Active Days:</span><strong>' + myDewaDays + ' / ' + dewaDaysInMonth + ' days</strong></div><div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #e5e7eb"><span>Your DEWA Share:</span><span>AED ' + money(myDewaShare) + '</span></div>';
+    html += '<div style="' + row + ';margin-bottom:6px"><span>Your Active Days:</span><strong>' + (days[cName] || 0) + ' / ' + nDays + ' days</strong></div><div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #e5e7eb"><span>Your ' + cfg.label + ' Share:</span><span>AED ' + money(sp[cName] || 0) + '</span></div>';
   } else {
     html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb"><strong style="font-size:11px;color:#6b7280;text-transform:uppercase">Roommate Breakdown</strong>';
-    activeMessUsers.forEach(function(u){ var uN = memberName(u), d = memberDaysMap[uN] || 0, sh = totalRoomDewaDays > 0 ? (viewData.dewa * (d / totalRoomDewaDays)) : 0; html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(uN) + ' (' + d + '/' + dewaDaysInMonth + ' days)</span><strong>AED ' + money(sh) + '</strong></div>'; });
+    Object.keys(sp).forEach(function(n){ html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(n) + ' (' + (days[n] || 0) + '/' + nDays + ' days)</span><strong>AED ' + money(sp[n]) + '</strong></div>'; });
     html += '</div>';
   }
-  $("dewaBreakdownContainer").innerHTML = html + '</div>';
+  box.innerHTML = html + '</div>';
 }
-function saveDewaBill() {
+function renderDewaPage() { renderUtilityPage("dewa"); }
+function renderEtisalatPage() { renderUtilityPage("etisalat"); }
+
+function saveUtilityBill(type) {
   if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
-  var ym = $("dewaBillingMonth").value, dewa = parseFloat($("dewaBillAmtInput").value) || 0;
-  if(!utilities) utilities = {}; if(!utilities[ym]) utilities[ym] = { dewa: 0, etisalat: 0 };
-  utilities[ym].dewa = dewa; save(true); renderDewaPage(); alert("DEWA bill updated successfully for " + ym + "!");
-}
-
-function renderEtisalatPage() {
-  $("etisalatAdminCard").className = (isAdminLike() || isLandlord()) ? "card" : "card hide";
-  populateUtilityMonthDropdowns("etisalatBillingMonth", "etisalatViewMonth");
-  var billingYM = $("etisalatBillingMonth").value || todayISO().slice(0, 7);
-  var stored = (utilities && utilities[billingYM]) || { dewa: 0, etisalat: 0 };
-  if($("etisalatBillAmtInput") && document.activeElement !== $("etisalatBillAmtInput")) $("etisalatBillAmtInput").value = stored.etisalat || "";
-
-  var viewYM = $("etisalatViewMonth").value || todayISO().slice(0, 7);
-  var viewData = (utilities && utilities[viewYM]) || { dewa: 0, etisalat: 0 };
-  var totalDaysInMonth = getMonthDaysCount(viewYM), currentYM = todayISO().slice(0, 7);
-  var elapsedDays = viewYM === currentYM ? Number(todayISO().slice(8, 10)) : (viewYM < currentYM ? totalDaysInMonth : 0);
-  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); });
-  var totalRoomEtisalatDays = 0, memberDaysMap = {};
-  activeMessUsers.forEach(function(u){ var d = calculateMemberEtisalatDaysUpToToday(u, viewYM); memberDaysMap[memberName(u)] = d; totalRoomEtisalatDays += d; });
-
-  var accruedTotalBill = totalDaysInMonth > 0 ? (viewData.etisalat * (elapsedDays / totalDaysInMonth)) : 0;
-  var cName = cur.firstName || cur.name, myEtisalatDays = memberDaysMap[cName] || 0;
-  var myEtisalatShare = totalRoomEtisalatDays > 0 ? (accruedTotalBill * (myEtisalatDays / totalRoomEtisalatDays)) : 0;
-  var html = '<div style="background:#f8fafc;padding:14px;border-radius:12px;border:1px solid #e5e7eb"><div style="font-weight:700;font-size:14px;color:#0284c7;margin-bottom:8px">Subscription Month: ' + viewYM + ' (Up to Today: ' + elapsedDays + ' / ' + totalDaysInMonth + ' days)</div><div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Full Monthly Plan:</span><strong>AED ' + money(viewData.etisalat) + '</strong></div><div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px"><span>Accrued Bill Up To Today:</span><strong>AED ' + money(accruedTotalBill) + '</strong></div>';
-  if(!isLandlord() && !isSuper()) {
-    html += '<div style="font-size:13px;color:#374151;display:flex;justify-content:space-between;margin-bottom:6px"><span>Your Active Days (Up to Today):</span><strong>' + myEtisalatDays + ' / ' + elapsedDays + ' days</strong></div><div style="font-size:15px;color:#059669;font-weight:800;display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid #e5e7eb"><span>Your Real-Time Share:</span><span>AED ' + money(myEtisalatShare) + '</span></div>';
-  } else {
-    html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb"><strong style="font-size:11px;color:#6b7280;text-transform:uppercase">Roommate Breakdown (Up to Today)</strong>';
-    activeMessUsers.forEach(function(u){ var uN = memberName(u), d = memberDaysMap[uN] || 0, sh = totalRoomEtisalatDays > 0 ? (accruedTotalBill * (d / totalRoomEtisalatDays)) : 0; html += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f3f4f6"><span>' + escHtml(uN) + ' (' + d + '/' + elapsedDays + ' days)</span><strong>AED ' + money(sh) + '</strong></div>'; });
-    html += '</div>';
+  var cfg = UTIL_CFG[type], ym = $(type + "BillingMonth").value, amt = parseFloat($(type + "BillAmtInput").value), pb = $(type + "PaidBy").value;
+  if(isUtilLocked(ym)) return alert("The statement for this month is already generated. This bill can no longer be edited.");
+  if(!(amt > 0)) return alert("Enter a valid amount.");
+  if(!pb) return alert("Select who paid.");
+  var days = {}, total = 0;
+  users.forEach(function(u){ if(!isMess(u)) return; var d = utilDays(type, u, ym); if(d > 0) { days[memberName(u)] = d; total += d; } });
+  var al = Object.keys(days);
+  if(!total) return alert("No members were present in the billing period.");
+  var splits = {}, run = 0;
+  al.forEach(function(n, i){
+    if(i === al.length - 1) splits[n] = Math.round((amt - run) * 100) / 100;
+    else { splits[n] = Math.floor(amt * days[n] / total * 100) / 100; run += splits[n]; }
+  });
+  var ex = findUtilExp(type, ym);
+  if(ex) { ex.amt = amt; ex.pb = pb; ex.al = al; ex.splits = splits; ex.splitMode = "custom"; ex.utilDays = days; }
+  else {
+    exps.unshift({ id: Date.now(), amt: amt, desc: "Utilities", vendor: cfg.label, note: cfg.label + " bill - " + monthLabel(ym), date: ym === todayISO().slice(0, 7) ? todayISO() : periodRange(ym).end, pb: pb, al: al, splits: splits, splitMode: "custom", util: type, utilYM: ym, utilDays: days, dt: new Date().toLocaleDateString() });
+    al.forEach(function(n){ if(n !== pb) addNotification(n, "New Expense Added", pb + " added AED " + money(amt) + " for " + cfg.label + ".", "expense", null, false); });
   }
-  $("etisalatBreakdownContainer").innerHTML = html + '</div>';
-}
-function saveEtisalatBill() {
-  if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
-  var ym = $("etisalatBillingMonth").value, etisalat = parseFloat($("etisalatBillAmtInput").value) || 0;
-  if(!utilities) utilities = {}; if(!utilities[ym]) utilities[ym] = { dewa: 0, etisalat: 0 };
-  utilities[ym].etisalat = etisalat; save(true); renderEtisalatPage(); alert("Etisalat bill updated successfully for " + ym + "!");
+  save(true); renderUtilityPage(type);
+  alert(cfg.label + " bill " + (ex ? "updated" : "saved") + " for " + monthLabel(ym) + "!");
 }
 
 function getSplitMembers(expenseDate) {
@@ -1928,7 +1938,7 @@ function applyLastSelections(){
 }
 
 function canEditExp(x) {
-  if(!cur || isLandlord()) return false;
+  if(!cur || isLandlord() || x.util) return false;
   if(isSuper()) return true;
   if(cur.r !== "admin") return false;
   var me = cur.firstName || cur.name;
