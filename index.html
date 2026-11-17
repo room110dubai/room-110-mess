@@ -1233,7 +1233,8 @@ function populateUtilityMonthDropdowns(billingId, viewId) {
 
 var UTIL_CFG = { dewa: { label: "DEWA", color: "#d97706" }, etisalat: { label: "Etisalat", color: "#0284c7" } };
 function findUtilExp(type, ym) { return exps.find(function(x){ return x.util === type && x.utilYM === ym; }); }
-function isUtilLocked(ym) { return !!(generatedStatements && generatedStatements[ym]) && ym < todayISO().slice(0, 7); }
+function getNextMonthYM(ym) { var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7)); if(m === 12) { m = 1; y++; } else m++; return y + "-" + pad2(m); }
+function isUtilLocked(ym, type) { var lm = type === "dewa" ? getNextMonthYM(ym) : ym; return !!(generatedStatements && generatedStatements[lm]) && lm < todayISO().slice(0, 7); }
 function calculateMemberMonthDays(userObj, ym) {
   var n = getMonthDaysCount(ym), present = 0;
   for(var d = 1; d <= n; d++) if(!isUserOnVacationOnDate(userObj, ym + "-" + pad2(d))) present++;
@@ -1261,7 +1262,8 @@ function applyEtisalatAccrual(ex) {
   ex.splits = splits; ex.al = Object.keys(splits); ex.utilDays = days; ex.splitMode = "custom";
 }
 function refreshEtisalatAccruals() {
-  exps.forEach(function(x){ if(x.util === "etisalat" && !isUtilLocked(x.utilYM)) applyEtisalatAccrual(x); });
+  exps.forEach(function(x){ if(x.util === "etisalat" && !isUtilLocked(x.utilYM, "etisalat")) applyEtisalatAccrual(x); });
+  exps.forEach(function(x){ if(x.util === "dewa" && x.date.slice(0, 7) <= x.utilYM && getNextMonthYM(x.utilYM) <= todayISO().slice(0, 7) && !isUtilLocked(x.utilYM, "dewa")) x.date = getNextMonthYM(x.utilYM) + "-01"; });
 }
 
 function renderUtilityPage(type) {
@@ -1278,7 +1280,7 @@ function renderUtilityPage(type) {
     }
   }
 
-  var ym = $(p + "BillingMonth").value || todayISO().slice(0, 7), ex = findUtilExp(type, ym), locked = isUtilLocked(ym);
+  var ym = $(p + "BillingMonth").value || todayISO().slice(0, 7), ex = findUtilExp(type, ym), locked = isUtilLocked(ym, type);
   var names = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "landlord"); }).map(memberName);
   var pbEl = $(p + "PaidBy"), amtEl = $(p + "BillAmtInput"), btn = $(p + "SaveBtn"), note = $(p + "LockNote");
   var sel = ex ? ex.pb : (names.indexOf(pbEl.value) > -1 ? pbEl.value : (names.indexOf(cName) > -1 ? cName : names[0]));
@@ -1286,7 +1288,7 @@ function renderUtilityPage(type) {
   if(document.activeElement !== amtEl) amtEl.value = ex ? ex.amt : "";
   amtEl.disabled = pbEl.disabled = btn.disabled = locked;
   btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> ' + (ex ? "Edit " : "Save ") + cfg.label + " Bill";
-  if(locked) note.innerHTML = '<i class="fa-solid fa-lock"></i> Statement for ' + monthLabel(ym) + ' is generated. This bill can no longer be edited.';
+  if(locked) note.innerHTML = '<i class="fa-solid fa-lock"></i> Statement for ' + monthLabel(type === "dewa" ? getNextMonthYM(ym) : ym) + ' is generated. This bill can no longer be edited.';
   else if(ex) note.innerHTML = 'Already posted for ' + monthLabel(ym) + '. You can edit it until the statement is generated.';
   else note.innerHTML = '';
   note.style.display = note.innerHTML ? "block" : "none";
@@ -1318,7 +1320,7 @@ function saveUtilityBill(type) {
   if(!isAdminLike() && !isLandlord()) return alert("Access restricted.");
   var cfg = UTIL_CFG[type], ym = $(type + "BillingMonth").value, amt = parseFloat($(type + "BillAmtInput").value), pb = $(type + "PaidBy").value;
   if(type === "dewa" && ym !== getPreviousMonthYM(todayISO().slice(0, 7))) return alert("DEWA bills can only be added for the previous month.");
-  if(isUtilLocked(ym)) return alert("The statement for this month is already generated. This bill can no longer be edited.");
+  if(isUtilLocked(ym, type)) return alert("The statement for this month is already generated. This bill can no longer be edited.");
   if(!(amt > 0)) return alert("Enter a valid amount.");
   if(!pb) return alert("Select who paid.");
   var days = {}, total = 0;
@@ -1333,7 +1335,7 @@ function saveUtilityBill(type) {
   var ex = findUtilExp(type, ym);
   if(ex) { ex.amt = amt; ex.pb = pb; ex.al = al; ex.splits = splits; ex.splitMode = "custom"; ex.utilDays = days; }
   else {
-    exps.unshift({ id: Date.now(), amt: amt, desc: "Utilities", vendor: cfg.label, note: cfg.label + " bill - " + monthLabel(ym), date: ym === todayISO().slice(0, 7) ? todayISO() : periodRange(ym).end, pb: pb, al: al, splits: splits, splitMode: "custom", util: type, utilYM: ym, utilDays: days, dt: new Date().toLocaleDateString() });
+    exps.unshift({ id: Date.now(), amt: amt, desc: "Utilities", vendor: cfg.label, note: cfg.label + " bill - " + monthLabel(ym), date: type === "dewa" ? todayISO() : (ym === todayISO().slice(0, 7) ? todayISO() : periodRange(ym).end), pb: pb, al: al, splits: splits, splitMode: "custom", util: type, utilYM: ym, utilDays: days, dt: new Date().toLocaleDateString() });
     al.forEach(function(n){ if(n !== pb) addNotification(n, "New Expense Added", pb + " added AED " + money(amt) + " for " + cfg.label + ".", "expense", null, false); });
   }
   if(type === "etisalat") applyEtisalatAccrual(findUtilExp(type, ym));
