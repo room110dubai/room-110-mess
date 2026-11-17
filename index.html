@@ -1380,12 +1380,15 @@ function onSplitTypeChange() {
 function onAmountInput() { if($("stype") && $("stype").value === "custom") validateCustomSplitTotal(); }
 function onExpenseDateChange() {
   var stEl = $("stype");
-  if(stEl && stEl.value !== "custom" && stEl.value !== "c") {
-    var sp = getSplitMembers($("expDate") ? $("expDate").value : todayISO());
-    var h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
-    if(sp.vac.length) h += "<br>🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
-    $("splitHint").innerHTML = h;
-  }
+  if(!stEl || stEl.value === "custom" || stEl.value === "c") return;
+  var sp = getSplitMembers($("expDate") ? $("expDate").value : todayISO()), cbox = $("cbox");
+  if(stEl.value.indexOf("g:") === 0) {
+    cbox.className = "cks";
+    cbox.innerHTML = sp.al.map(function(n){ return '<div class="ck"><span>✅ ' + escHtml(n) + ' &mdash; charged</span></div>'; }).concat(sp.vac.map(function(n){ return '<div class="ck" style="color:#92400e!important"><span>🏖️ ' + escHtml(n) + ' &mdash; on vacation, not charged</span></div>'; })).join('');
+  } else cbox.className = "cks hide";
+  var h = "Split between " + sp.al.length + ": " + (sp.al.map(escHtml).join(", ") || "nobody");
+  if(sp.vac.length) h += "<br>🏖️ On vacation (not charged): " + sp.vac.map(escHtml).join(", ");
+  $("splitHint").innerHTML = h;
 }
 function checkCustomSum(amtId, cls, hintId) {
   var totalAmt = parseFloat($(amtId).value) || 0, sum = 0;
@@ -2216,6 +2219,7 @@ function render(){
 
   renderChatContactsList();
   if($("chatMainPane").className.indexOf("hide") === -1) renderChatActivePane();
+  if($("v3").className.indexOf("hide") === -1) onExpenseDateChange();
 
   if(isSuper()) {
     $("ulist").innerHTML = users.map(function(u){
