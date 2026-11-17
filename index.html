@@ -363,10 +363,10 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
         <label>Amount (AED)</label><input id="amt" type="number" step="0.01" inputmode="decimal" placeholder="0.00" oninput="onAmountInput()" required>
         <label>Date</label><input id="expDate" type="date" required onchange="onExpenseDateChange()" style="height:46px;padding:10px 12px">
         <label>Items / Category</label><select id="desc" required style="margin-bottom:6px"></select>
-        <label>Vendor</label><select id="expVendor"></select>
+        <label style="display:flex;justify-content:space-between;align-items:center">Vendor <button type="button" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openQuickVendor()">+ New vendor</button></label><select id="expVendor"></select>
         <label>Description</label><textarea id="expNote" rows="1" placeholder="Optional note (e.g. weekly vegetables)"></textarea>
         <label>Paid By</label><select id="pby"></select>
-        <label>Split Between</label><select id="stype" onchange="onSplitTypeChange()"></select>
+        <label style="display:flex;justify-content:space-between;align-items:center">Split Between <button type="button" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openQuickGroup()">+ New group</button></label><select id="stype" onchange="onSplitTypeChange()"></select>
         <div id="cbox" class="cks hide"></div>
         <div id="splitHint" style="font-size:12px;color:#6b7280;margin-top:8px;line-height:1.5"></div>
         <button id="saveExpBtn" class="btn">Save Expense</button>
@@ -717,6 +717,27 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
     </div>
   </div>
 
+  <div id="quickVendorModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:12px">New Vendor</h3>
+      <label>Vendor Name</label><input id="qvName" placeholder="e.g. Lulu Hypermarket" style="margin-bottom:10px">
+      <label>Phone (optional)</label><input id="qvPhone" placeholder="e.g. +971501234567" style="margin-bottom:14px">
+      <button class="btn" style="margin-top:0" onclick="saveQuickVendor()">Add Vendor</button>
+    </div>
+  </div>
+
+  <div id="quickGroupModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 style="color:#111;margin-bottom:6px">New Group</h3>
+      <p id="qgNote" style="font-size:12px;color:#6b7280;margin-bottom:12px"></p>
+      <label>Group Name</label><input id="qgName" placeholder="e.g. Weekend Trip" style="margin-bottom:10px">
+      <label>Members</label><div id="qgMembers" class="cks" style="margin-bottom:14px"></div>
+      <button class="btn" style="margin-top:0" onclick="saveQuickGroup()">Create Group</button>
+    </div>
+  </div>
+
   <div id="serviceManagerModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
@@ -785,7 +806,7 @@ var categories = (JSON.parse(localStorage.getItem("r110_cat")||"null") || ["Cine
 
 function normalizeGroups(arr) {
   return (Array.isArray(arr) ? arr : []).map(function(g){
-    return typeof g === "string" ? { name: g, members: [] } : { name: String((g && g.name) || ""), members: Array.isArray(g && g.members) ? g.members : [] };
+    return typeof g === "string" ? { name: g, members: [] } : { name: String((g && g.name) || ""), members: Array.isArray(g && g.members) ? g.members : [], owner: (g && g.owner) || "", ownerRole: (g && g.ownerRole) || "" };
   }).filter(function(g){ return g.name; });
 }
 var groups = normalizeGroups(JSON.parse(localStorage.getItem("r110_grp")||"null"));
@@ -1783,7 +1804,7 @@ function openEditUserModal(id) {
   $("editUserModal").className = "modal-overlay";
 }
 function closeModals() {
-  ["editProfileModal","createUserModal","editUserModal","adminEditVacationModal","serviceManagerModal","paymentModal","statementModal","editExpModal"].forEach(function(id){ $(id).className = "modal-overlay hide"; });
+  ["editProfileModal","createUserModal","editUserModal","adminEditVacationModal","serviceManagerModal","paymentModal","statementModal","editExpModal","quickVendorModal","quickGroupModal"].forEach(function(id){ $(id).className = "modal-overlay hide"; });
 }
 
 function selectChatTarget(target) {
@@ -1947,9 +1968,47 @@ function deleteCategory(name) {
   categories = categories.filter(function(c){ return c !== name; }); save(true); renderCategoryManagerContent();
 }
 
+function canSeeGroup(g) {
+  var me = cur ? (cur.firstName || cur.name) : "";
+  if(!g.owner || g.ownerRole === "superadmin") return true;
+  return g.owner === me || (g.members || []).indexOf(me) > -1;
+}
+function canManageGroup(g) {
+  var me = cur ? (cur.firstName || cur.name) : "";
+  return isSuper() || (g.owner ? g.owner === me : isAdminLike());
+}
+function openQuickVendor() {
+  if(isLandlord()) return;
+  $("qvName").value = ""; $("qvPhone").value = ""; $("quickVendorModal").className = "modal-overlay";
+}
+function saveQuickVendor() {
+  var name = $("qvName").value.trim(), phone = $("qvPhone").value.trim(); if(!name) return alert("Enter vendor name");
+  if(vendors.some(function(v){ return v.name.toLowerCase() === name.toLowerCase(); })) return alert("Vendor already exists");
+  vendors.push({ name: name, phone: phone }); closeModals(); save(true); $("expVendor").value = name;
+}
+function openQuickGroup() {
+  if(isLandlord()) return;
+  $("qgName").value = "";
+  $("qgNote").innerText = isSuper() ? "Everyone will be able to see this group." : "Only the members you select (and you) can see this group.";
+  $("qgMembers").innerHTML = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a, b){ return memberName(a).localeCompare(memberName(b)); }).map(function(u){
+    var n = memberName(u); return '<label class="ck"><input type="checkbox" class="qgck" value="' + escHtml(n) + '"><span>' + escHtml(n) + '</span></label>';
+  }).join('');
+  $("quickGroupModal").className = "modal-overlay";
+}
+function saveQuickGroup() {
+  var name = $("qgName").value.trim(); if(!name) return alert("Enter group name");
+  var members = Array.prototype.map.call(document.querySelectorAll(".qgck:checked"), function(c){ return c.value; });
+  if(!members.length) return alert("Select at least 1 member");
+  if(groups.some(function(g){ return g.name.toLowerCase() === name.toLowerCase(); })) return alert("A group with this name already exists");
+  groups.push({ name: name, members: members, owner: cur.firstName || cur.name, ownerRole: cur.r });
+  closeModals(); save(true);
+  $("stype").value = "g:" + encodeURIComponent(name); onSplitTypeChange();
+}
 function renderGroupManagerContent() {
   $("serviceManagerBody").innerHTML = groups.map(function(g, idx){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+((g.members || []).map(escHtml).join(", ") || "No members")+'</div></div><div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')"><i class="fa-solid fa-trash"></i></button></div></div>';
+    if(!canSeeGroup(g) && !canManageGroup(g)) return '';
+    var btns = canManageGroup(g) ? '<div style="display:flex;gap:6px"><button class="btn btn-s" style="background:#2563eb" onclick="editGroup('+idx+')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626" onclick="deleteGroup('+idx+')"><i class="fa-solid fa-trash"></i></button></div>' : '';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6"><div style="flex:1;padding-right:8px"><div style="font-weight:700;font-size:13px">'+escHtml(g.name)+'</div><div style="font-size:11px;color:#6b7280">'+(g.members || []).length+' members: '+((g.members || []).map(escHtml).join(", ") || "No members")+(g.owner ? ' &bull; by '+escHtml(g.owner) : '')+'</div></div>'+btns+'</div>';
   }).join('') || '<div style="color:#6b7280;font-style:italic">No groups yet. Create one below.</div>';
   var eg = editingGroupIdx > -1 ? groups[editingGroupIdx] : null;
   var checks = users.filter(function(u){ return u.active !== false && isMess(u); }).map(function(u){
@@ -1963,12 +2022,13 @@ function saveGroup() {
   var members = Array.prototype.map.call(document.querySelectorAll(".gmck:checked"), function(c){ return c.value; });
   if(!members.length) return alert("Select at least 1 member");
   if(groups.some(function(g, i){ return g.name.toLowerCase() === name.toLowerCase() && i !== editingGroupIdx; })) return alert("Group already exists");
-  if(editingGroupIdx > -1) groups[editingGroupIdx] = { name: name, members: members }; else groups.push({ name: name, members: members });
+  if(editingGroupIdx > -1) { var og = groups[editingGroupIdx]; if(!canManageGroup(og)) return alert("You can't edit this group."); groups[editingGroupIdx] = { name: name, members: members, owner: og.owner || "", ownerRole: og.ownerRole || "" }; }
+  else groups.push({ name: name, members: members, owner: cur.firstName || cur.name, ownerRole: cur.r });
   editingGroupIdx = -1; save(true); renderGroupManagerContent();
 }
-function editGroup(idx) { editingGroupIdx = idx; renderGroupManagerContent(); }
+function editGroup(idx) { if(!canManageGroup(groups[idx])) return; editingGroupIdx = idx; renderGroupManagerContent(); }
 function cancelGroupEdit() { editingGroupIdx = -1; renderGroupManagerContent(); }
-function deleteGroup(idx) { if(confirm("Delete this group?")) { groups.splice(idx, 1); editingGroupIdx = -1; save(true); renderGroupManagerContent(); } }
+function deleteGroup(idx) { if(canManageGroup(groups[idx]) && confirm("Delete this group?")) { groups.splice(idx, 1); editingGroupIdx = -1; save(true); renderGroupManagerContent(); } }
 
 function renderVendorManagerContent() {
   vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
@@ -2277,7 +2337,7 @@ function render(){
 
   var stypeSel = $("stype"), prevSt = stypeSel.value || lastSel.stype || "a", stOpts = '<option value="a">All Room 110 Members</option>';
   groups.forEach(function(g){
-    if((g.members || []).some(function(n){ return sortedMessUsers.map(memberName).indexOf(n) > -1; })) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
+    if(canSeeGroup(g) && (g.members || []).some(function(n){ return sortedMessUsers.map(memberName).indexOf(n) > -1; })) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
   });
   stOpts += '<option value="c">Select Specific Members</option><option value="custom">Custom Split (Unequal Amounts)</option>';
   var stChanged = stypeSel._lastHtml !== stOpts;
