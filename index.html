@@ -1095,7 +1095,12 @@ function countVacationDays(v) {
 }
 
 var vacMode = "new", vacEditId = null;
-function isStmtClosed(ym) { return !!(generatedStatements && generatedStatements[ym]) && ym < todayISO().slice(0, 7); }
+var STMT_CLOSE_DAY = 4;
+function isStmtClosed(ym) {
+  var today = todayISO();
+  if(ym >= today.slice(0, 7)) return false;
+  return !!(generatedStatements && generatedStatements[ym]) || today >= getNextMonthYM(ym) + "-" + pad2(STMT_CLOSE_DAY);
+}
 function minVacFrom() {
   var latest = "";
   for(var ym in generatedStatements) if(isStmtClosed(ym) && ym > latest) latest = ym;
@@ -1300,7 +1305,7 @@ function populateUtilityMonthDropdowns(billingId, viewId) {
 var UTIL_CFG = { dewa: { label: "DEWA", color: "#d97706" }, etisalat: { label: "Etisalat", color: "#0284c7" } };
 function findUtilExp(type, ym) { return exps.find(function(x){ return x.util === type && x.utilYM === ym; }); }
 function getNextMonthYM(ym) { var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7)); if(m === 12) { m = 1; y++; } else m++; return y + "-" + pad2(m); }
-function isUtilLocked(ym, type) { var lm = type === "dewa" ? getNextMonthYM(ym) : ym; return !!(generatedStatements && generatedStatements[lm]) && lm < todayISO().slice(0, 7); }
+function isUtilLocked(ym, type) { var lm = type === "dewa" ? getNextMonthYM(ym) : ym; return isStmtClosed(lm); }
 function calculateMemberMonthDays(userObj, ym) {
   var n = getMonthDaysCount(ym), present = 0;
   for(var d = 1; d <= n; d++) if(!isUserOnVacationOnDate(userObj, ym + "-" + pad2(d))) present++;
