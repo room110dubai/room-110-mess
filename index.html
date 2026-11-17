@@ -127,6 +127,14 @@ body.dark-page .notif-card.unread{background:rgba(30,58,138,0.25)!important;bord
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
 .modal-content{background:#fff;width:100%;max-width:440px;border-radius:20px;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto}
 .modal-close{position:absolute;top:18px;right:20px;background:#f3f4f6;border:none;width:32px;height:32px;border-radius:50%;font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#4b5563}
+.sw{position:relative;display:inline-block!important;width:64px;height:34px;margin:0!important;flex-shrink:0;cursor:pointer}
+.sw input{position:absolute;inset:0;width:100%!important;height:100%!important;opacity:0;margin:0;padding:0;cursor:pointer;z-index:2}
+.sw span{position:absolute;inset:0;border-radius:34px;background:#e5e7eb;border:1px solid #d1d5db;box-shadow:inset 0 2px 5px rgba(0,0,0,.12);transition:background .25s,border-color .25s}
+.sw span::before{content:"OFF";position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:800;letter-spacing:.5px;color:#9ca3af}
+.sw span::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#e5e7eb);box-shadow:0 2px 5px rgba(0,0,0,.3);transition:left .25s}
+.sw input:checked+span{background:#22c55e;border-color:#16a34a}
+.sw input:checked+span::before{content:"ON";right:auto;left:10px;color:rgba(0,0,0,.3)}
+.sw input:checked+span::after{left:33px}
 .sync-dot-container{display:flex;align-items:center;justify-content:center;cursor:pointer;padding:8px;border-radius:50%;background:rgba(0,0,0,0.03);transition:background .2s}
 .sync-dot-container:hover{background:rgba(0,0,0,0.06)}
 .sync-dot{width:10px;height:10px;border-radius:50%;background-color:#10b981;display:inline-block;box-shadow:0 0 6px rgba(16,185,129,0.6);transition:background-color .3s ease}
@@ -540,12 +548,14 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
               <strong style="font-size:14px;color:#111">Vacation Mode</strong>
               <div id="vacationStatus" style="font-size:11px;color:#6b7280">Off - you are included in mess expenses</div>
             </div>
-            <input type="checkbox" id="vacationToggle" onchange="toggleVacation()" style="width:22px;height:22px;cursor:pointer">
+            <label class="sw"><input type="checkbox" id="vacationToggle" onchange="toggleVacation()"><span></span></label>
           </div>
           <div id="vacationFormContainer" class="hide" style="margin-bottom:14px;padding:12px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb">
+            <label id="vacCurrentRow" class="hide ck" style="margin-bottom:10px"><input type="checkbox" id="vacCurrent" onchange="updateVacationFormView()"><span>I am currently on vacation</span></label>
+            <div id="vacLockNote" class="hide" style="font-size:11px;color:#92400e;background:#fef3c7;border:1px solid #fde68a;padding:6px 8px;border-radius:8px;margin-bottom:8px">🔒 Statement already generated for the From date, so it can't be changed. Untick "I am currently on vacation" to close it with a return date.</div>
             <label>From Date</label><input id="vacFromInput" type="date" style="margin-bottom:10px" oninput="checkVacationFormValidity()">
-            <div id="vacToBox"><label>To Date (Return)</label><input id="vacToInput" type="date" style="margin-bottom:10px" oninput="checkVacationFormValidity()"></div>
-            <label class="ck" style="margin-bottom:10px"><input type="checkbox" id="vacOpenEnded" onchange="toggleVacOpenEnded()"><span>I don't know my return date (open-ended)</span></label>
+            <div id="vacToBox"><label id="vacToLabel">To Date (Return)</label><input id="vacToInput" type="date" style="margin-bottom:10px" oninput="checkVacationFormValidity()"></div>
+            <label id="vacOpenRow" class="ck" style="margin-bottom:10px"><input type="checkbox" id="vacOpenEnded" onchange="toggleVacOpenEnded()"><span>I don't know my return date (open-ended)</span></label>
             <div id="vacPastWarning" class="hide" style="font-size:11px;color:#d97706;margin-bottom:8px">⚠️ Expenses already recorded will not change.</div>
             <div style="display:flex;gap:8px">
               <button id="vacSaveBtn" class="btn btn-s" style="background:#059669;flex:1" onclick="saveNewVacation()" disabled>Save Vacation</button>
@@ -576,7 +586,7 @@ body.dark-page textarea{background:#0f172a!important;border-color:#334155!import
               <strong style="font-size:14px;color:#111">Dark Mode Theme</strong>
               <div style="font-size:11px;color:#6b7280">Switch between light &amp; dark liquid glass</div>
             </div>
-            <input type="checkbox" id="darkModeToggle" onchange="toggleTheme()" style="width:22px;height:22px;cursor:pointer">
+            <label class="sw"><input type="checkbox" id="darkModeToggle" onchange="toggleTheme()"><span></span></label>
           </div>
         </div>
       </div>
@@ -1084,44 +1094,84 @@ function countVacationDays(v) {
   return start > end ? 0 : Math.ceil(Math.abs(new Date(end) - new Date(start)) / 86400000) + 1;
 }
 
+var vacMode = "new", vacEditId = null;
+function getActiveVacation(u) {
+  var t = todayISO();
+  return (u.vacations || []).find(function(v){ return t >= v.from && t <= (v.openEnded ? "9999-12-31" : (v.to || v.from)); });
+}
+function openVacationForm(mode, v) {
+  vacMode = mode; vacEditId = v ? v.id : null;
+  $("vacationFormContainer").className = "";
+  $("vacCurrentRow").className = mode === "edit" ? "ck" : "hide";
+  $("vacCurrent").checked = true;
+  $("vacFromInput").value = v ? v.from : todayISO();
+  var locked = !!(v && generatedStatements && generatedStatements[v.from.slice(0, 7)]);
+  $("vacFromInput").disabled = locked;
+  $("vacLockNote").className = locked ? "" : "hide";
+  $("vacToInput").value = v ? (v.to || "") : "";
+  $("vacOpenEnded").checked = !!(v && v.openEnded);
+  updateVacationFormView();
+}
+function updateVacationFormView() {
+  var current = vacMode !== "edit" || $("vacCurrent").checked, open = current && $("vacOpenEnded").checked;
+  $("vacOpenRow").className = current ? "ck" : "hide";
+  $("vacToBox").className = open ? "hide" : "";
+  $("vacToLabel").innerText = current ? "To Date (Return)" : "Return Date (last day of vacation)";
+  var to = $("vacToInput").value;
+  if(!current && (!to || to > todayISO())) {
+    var y = new Date(); y.setDate(y.getDate() - 1); var ys = toISO(y), f = $("vacFromInput").value;
+    $("vacToInput").value = ys >= f ? ys : f;
+  }
+  checkVacationFormValidity();
+}
 function toggleVacation() {
   if(isSuper()) return;
-  var toggle = $("vacationToggle"), form = $("vacationFormContainer"), activeToday = isUserActiveOnVacation(cur);
-  if(toggle.checked) {
-    if(!activeToday) {
-      form.className = ""; $("vacFromInput").value = todayISO(); $("vacToInput").value = "";
-      $("vacOpenEnded").checked = false; $("vacToBox").className = ""; $("vacPastWarning").className = "hide"; $("vacSaveBtn").disabled = true;
-    } else form.className = "hide";
-  } else {
-    form.className = "hide";
-    if(activeToday) {
-      var today = todayISO();
-      var activeV = cur.vacations.find(function(v){ return today >= v.from && today <= (v.openEnded ? "9999-12-31" : (v.to || v.from)); });
-      if(activeV && confirm(activeV.openEnded ? "I'm back today? (Ends vacation yesterday)" : "End vacation early? (Ends vacation yesterday)")) {
-        var yest = new Date(); yest.setDate(yest.getDate() - 1); var yStr = toISO(yest);
-        if(yStr < activeV.from) cur.vacations = cur.vacations.filter(function(v){ return v.id !== activeV.id; });
-        else { activeV.to = yStr; activeV.openEnded = false; }
-        syncUserVacations();
-      } else toggle.checked = activeToday;
-    } else toggle.checked = activeToday;
-  }
+  var toggle = $("vacationToggle"), activeV = getActiveVacation(cur);
+  if(activeV) {
+    toggle.checked = true;
+    if(activeV.closed) return alert("This vacation is closed and can no longer be edited.");
+    openVacationForm("edit", activeV);
+  } else if(toggle.checked) openVacationForm("new", null);
+  else $("vacationFormContainer").className = "hide";
 }
 function cancelVacationForm() { $("vacationFormContainer").className = "hide"; $("vacationToggle").checked = isUserActiveOnVacation(cur); }
-function toggleVacOpenEnded() { $("vacToBox").className = $("vacOpenEnded").checked ? "hide" : ""; checkVacationFormValidity(); }
+function toggleVacOpenEnded() { updateVacationFormView(); }
 function checkVacationFormValidity() {
-  var from = $("vacFromInput").value, open = $("vacOpenEnded").checked, to = $("vacToInput").value;
-  $("vacPastWarning").className = from < todayISO() ? "" : "hide";
-  $("vacSaveBtn").disabled = !(from && (open || (to && to >= from)));
+  var from = $("vacFromInput").value, open = $("vacOpenEnded").checked, to = $("vacToInput").value, current = vacMode !== "edit" || $("vacCurrent").checked, ok;
+  $("vacPastWarning").className = (vacMode === "new" && from < todayISO()) ? "" : "hide";
+  if(!current) ok = !!(from && to && to >= from && to <= todayISO());
+  else ok = !!(from && (open || (to && to >= from)));
+  $("vacSaveBtn").disabled = !ok;
+}
+function vacOverlaps(from, end, skipId) {
+  return cur.vacations.some(function(v){ return v.id !== skipId && !(end < v.from || from > (v.openEnded ? "9999-12-31" : (v.to || v.from))); });
 }
 function saveNewVacation() {
   if(isSuper()) return;
-  var from = $("vacFromInput").value, open = $("vacOpenEnded").checked, to = $("vacToInput").value;
+  var from = $("vacFromInput").value, open = $("vacOpenEnded").checked, to = $("vacToInput").value, current = vacMode !== "edit" || $("vacCurrent").checked;
   if(!from) return alert("From date is required.");
+  if(vacMode === "edit") {
+    var v = cur.vacations.find(function(x){ return x.id === vacEditId; });
+    if(!v) return;
+    if(v.closed) return alert("This vacation is closed and can no longer be edited.");
+    if(!current) {
+      if(!to || to < v.from) return alert("Return date must be on or after the From date.");
+      if(to > todayISO()) return alert("Return date cannot be in the future.");
+      v.to = to; v.openEnded = false; v.closed = true;
+      syncUserVacations(); $("vacationFormContainer").className = "hide";
+      return alert("Vacation closed. It can no longer be edited.");
+    }
+    if(from > todayISO()) return alert("From date cannot be in the future while you are on vacation.");
+    if(!open && (!to || to < todayISO())) return alert("Return date must be today or later while you are on vacation. To end it, untick \"I am currently on vacation\".");
+    if(vacOverlaps(from, open ? "9999-12-31" : to, v.id)) return alert("This vacation overlaps with another vacation.");
+    v.from = from; v.to = open ? "" : to; v.openEnded = open;
+    syncUserVacations(); $("vacationFormContainer").className = "hide";
+    return alert("Vacation updated.");
+  }
   if(!open && (!to || to < from)) return alert("Return date must be on or after From date.");
-  var newV = { id: Date.now(), from: from, to: open ? "" : to, openEnded: open, created: todayISO() };
-  var nEnd = newV.openEnded ? "9999-12-31" : (newV.to || newV.from);
-  if(cur.vacations.some(function(v){ return !(nEnd < v.from || newV.from > (v.openEnded ? "9999-12-31" : (v.to || v.from))); })) return alert("This vacation overlaps with an existing scheduled vacation.");
-  cur.vacations.push(newV); syncUserVacations(); $("vacationFormContainer").className = "hide"; alert("Vacation scheduled successfully!");
+  if(vacOverlaps(from, open ? "9999-12-31" : to, null)) return alert("This vacation overlaps with an existing scheduled vacation.");
+  cur.vacations.push({ id: Date.now(), from: from, to: open ? "" : to, openEnded: open, created: todayISO() });
+  syncUserVacations(); $("vacationFormContainer").className = "hide"; alert("Vacation scheduled successfully!");
 }
 function syncUserVacations() {
   var idx = users.findIndex(function(x){ return x.u === cur.u; });
@@ -1146,6 +1196,7 @@ function renderVacationSection() {
   $("memberVacationView").className = "card"; $("superAdminVacationView").className = "hide";
   if($("vacationPageTitle")) $("vacationPageTitle").innerText = "Vacation Mode";
   $("vacationToggle").checked = isUserActiveOnVacation(cur);
+  $("vacationStatus").innerText = $("vacationToggle").checked ? "On vacation - you are not charged" : "Off - you are included in mess expenses";
   $("vacationFormContainer").className = "hide";
   if(!Array.isArray(cur.vacations)) cur.vacations = [];
   cur.vacations.sort(function(a, b){ return b.from.localeCompare(a.from); });
@@ -1156,7 +1207,7 @@ function renderVacationSection() {
       : ((v.openEnded || (!v.to || v.to >= today)) ? '<span style="font-size:10px;background:#d1fae5;color:#059669;padding:2px 6px;border-radius:8px;font-weight:700">ACTIVE</span>'
       : '<span style="font-size:10px;background:#f3f4f6;color:#6b7280;padding:2px 6px;border-radius:8px;font-weight:700">COMPLETED</span>');
     var dateStr = fmtDate(v.from) + " – " + (v.openEnded ? "Ongoing" : fmtDate(v.to || v.from));
-    var daysStr = v.openEnded && v.from <= today ? "Ongoing, " + days + " days so far" : days + " days counted";
+    var daysStr = v.openEnded && v.from <= today ? "Ongoing, " + days + " days so far" : days + " days counted"; if(v.closed) daysStr += " • closed";
     var cancelBtn = v.from > today ? '<button class="btn btn-s" style="background:#dc2626;padding:4px 8px;font-size:11px" onclick="cancelUpcomingVacation(' + v.id + ')">Cancel</button>' : '';
     return '<div style="display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:10px;border-radius:10px;border:1px solid #e5e7eb"><div><div style="font-weight:700;font-size:13px;color:#111">' + dateStr + ' ' + badge + '</div><div style="font-size:11px;color:#6b7280;margin-top:2px">' + daysStr + '</div></div>' + cancelBtn + '</div>';
   }).join('') || '<div style="font-size:12px;color:#6b7280;font-style:italic">No vacation history recorded.</div>';
