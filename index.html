@@ -1102,9 +1102,8 @@ function isStmtClosed(ym) {
   return !!(generatedStatements && generatedStatements[ym]) || today >= getNextMonthYM(ym) + "-" + pad2(STMT_CLOSE_DAY);
 }
 function minVacFrom() {
-  var latest = "";
-  for(var ym in generatedStatements) if(isStmtClosed(ym) && ym > latest) latest = ym;
-  return latest ? getNextMonthYM(latest) + "-01" : "";
+  var curYM = todayISO().slice(0, 7), pm = getPreviousMonthYM(curYM);
+  return (isStmtClosed(pm) ? curYM : pm) + "-01";
 }
 function getActiveVacation(u) {
   var t = todayISO();
