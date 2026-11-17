@@ -1095,6 +1095,12 @@ function countVacationDays(v) {
 }
 
 var vacMode = "new", vacEditId = null;
+function isStmtClosed(ym) { return !!(generatedStatements && generatedStatements[ym]) && ym < todayISO().slice(0, 7); }
+function minVacFrom() {
+  var latest = "";
+  for(var ym in generatedStatements) if(isStmtClosed(ym) && ym > latest) latest = ym;
+  return latest ? getNextMonthYM(latest) + "-01" : "";
+}
 function getActiveVacation(u) {
   var t = todayISO();
   return (u.vacations || []).find(function(v){ return t >= v.from && t <= (v.openEnded ? "9999-12-31" : (v.to || v.from)); });
@@ -1105,7 +1111,7 @@ function openVacationForm(mode, v) {
   $("vacCurrentRow").className = mode === "edit" ? "ck" : "hide";
   $("vacCurrent").checked = true;
   $("vacFromInput").value = v ? v.from : todayISO();
-  var locked = !!(v && generatedStatements && generatedStatements[v.from.slice(0, 7)]);
+  var locked = !!(v && isStmtClosed(v.from.slice(0, 7)));
   $("vacFromInput").disabled = locked;
   $("vacLockNote").className = locked ? "" : "hide";
   $("vacToInput").value = v ? (v.to || "") : "";
@@ -1138,10 +1144,17 @@ function cancelVacationForm() { $("vacationFormContainer").className = "hide"; $
 function toggleVacOpenEnded() { updateVacationFormView(); }
 function checkVacationFormValidity() {
   var from = $("vacFromInput").value, open = $("vacOpenEnded").checked, to = $("vacToInput").value, current = vacMode !== "edit" || $("vacCurrent").checked, ok;
-  $("vacPastWarning").className = (vacMode === "new" && from < todayISO()) ? "" : "hide";
+  var min = minVacFrom(), warn = $("vacPastWarning"), blocked = false;
+  $("vacFromInput").min = min;
+  if(current && min && from && from < min && !$("vacFromInput").disabled) {
+    blocked = true; warn.className = ""; warn.style.color = "#dc2626";
+    warn.innerText = "🔒 Statements up to " + monthLabel(getPreviousMonthYM(min.slice(0, 7))) + " are already generated. Earliest start date is " + fmtDate(min) + ".";
+  } else if(vacMode === "new" && from < todayISO()) {
+    warn.className = ""; warn.style.color = "#d97706"; warn.innerText = "⚠️ Expenses already recorded will not change.";
+  } else warn.className = "hide";
   if(!current) ok = !!(from && to && to >= from && to <= todayISO());
   else ok = !!(from && (open || (to && to >= from)));
-  $("vacSaveBtn").disabled = !ok;
+  $("vacSaveBtn").disabled = !ok || blocked;
 }
 function vacOverlaps(from, end, skipId) {
   return cur.vacations.some(function(v){ return v.id !== skipId && !(end < v.from || from > (v.openEnded ? "9999-12-31" : (v.to || v.from))); });
@@ -1162,12 +1175,14 @@ function saveNewVacation() {
       return alert("Vacation closed. It can no longer be edited.");
     }
     if(from > todayISO()) return alert("From date cannot be in the future while you are on vacation.");
+    if(!$("vacFromInput").disabled && minVacFrom() && from < minVacFrom()) return alert("The statement for that month is already generated. Earliest start date is " + fmtDate(minVacFrom()) + ".");
     if(!open && (!to || to < todayISO())) return alert("Return date must be today or later while you are on vacation. To end it, untick \"I am currently on vacation\".");
     if(vacOverlaps(from, open ? "9999-12-31" : to, v.id)) return alert("This vacation overlaps with another vacation.");
     v.from = from; v.to = open ? "" : to; v.openEnded = open;
     syncUserVacations(); $("vacationFormContainer").className = "hide";
     return alert("Vacation updated.");
   }
+  if(minVacFrom() && from < minVacFrom()) return alert("The statement for that month is already generated. Earliest start date is " + fmtDate(minVacFrom()) + ".");
   if(!open && (!to || to < from)) return alert("Return date must be on or after From date.");
   if(vacOverlaps(from, open ? "9999-12-31" : to, null)) return alert("This vacation overlaps with an existing scheduled vacation.");
   cur.vacations.push({ id: Date.now(), from: from, to: open ? "" : to, openEnded: open, created: todayISO() });
@@ -1183,7 +1198,7 @@ function cancelUpcomingVacation(id) {
 }
 function isVacationLockedByStatement(v) {
   var sYM = v.from.slice(0, 7), eYM = v.openEnded ? todayISO().slice(0, 7) : (v.to || v.from).slice(0, 7);
-  for(var ym in generatedStatements) if(generatedStatements[ym] && ym >= sYM && ym <= eYM) return true;
+  for(var ym in generatedStatements) if(isStmtClosed(ym) && ym >= sYM && ym <= eYM) return true;
   return false;
 }
 
