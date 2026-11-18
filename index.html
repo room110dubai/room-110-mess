@@ -360,17 +360,17 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
       <div id="landlordRestrictedBanner" class="hide" style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;padding:12px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:12px">
         <i class="fa-solid fa-lock"></i> Landlords cannot record daily mess expenses. Use the DEWA &amp; Etisalat Utility sections in your Profile to submit utility bills.
       </div>
-      <form id="addExpForm" onsubmit="addEx(event)">
-        <label>Amount (AED)</label><input id="amt" type="number" step="0.01" min="0.01" inputmode="decimal" placeholder="0.00" oninput="onAmountInput()" required>
-        <label>Date</label><input id="expDate" type="date" required onchange="onExpenseDateChange()" style="height:46px;padding:10px 12px">
-        <label>Items / Category</label><select id="desc" required style="margin-bottom:6px"></select>
+      <form id="addExpForm" novalidate onsubmit="addEx(event)">
+        <label>Amount (AED)</label><input id="amt" type="number" step="any" inputmode="decimal" placeholder="0.00" oninput="onAmountInput()">
+        <label>Date</label><input id="expDate" type="date" onchange="onExpenseDateChange()" style="height:46px;padding:10px 12px">
+        <label>Items / Category</label><select id="desc" style="margin-bottom:6px"></select>
         <label style="display:flex;justify-content:space-between;align-items:center">Vendor <button type="button" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openQuickVendor()">+ New vendor</button></label><select id="expVendor"></select>
         <label>Description</label><textarea id="expNote" rows="1" placeholder="Optional note (e.g. weekly vegetables)"></textarea>
         <label>Paid By</label><select id="pby"></select>
         <label style="display:flex;justify-content:space-between;align-items:center">Split Between <button type="button" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openQuickGroup()">+ New group</button></label><select id="stype" onchange="onSplitTypeChange()"></select>
         <div id="cbox" class="cks hide"></div>
         <div id="splitHint" style="font-size:12px;color:#6b7280;margin-top:8px;line-height:1.5"></div>
-        <button id="saveExpBtn" type="submit" class="btn">Save Expense</button>
+        <button id="saveExpBtn" type="button" onclick="addEx(event)" class="btn">Save Expense</button>
       </form>
     </div>
 
@@ -719,10 +719,10 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
       <h3 style="color:#111;margin-bottom:12px">Edit Expense</h3>
-      <form onsubmit="saveEditedExp(event)">
+      <form novalidate onsubmit="saveEditedExp(event)">
         <input type="hidden" id="eeId">
-        <label>Amount (AED)</label><input id="eeAmt" type="number" step="0.01" min="0.01" inputmode="decimal" required style="margin-bottom:10px" oninput="onEditAmtInput()">
-        <label>Date</label><input id="eeDate" type="date" required style="margin-bottom:10px">
+        <label>Amount (AED)</label><input id="eeAmt" type="number" step="any" inputmode="decimal" style="margin-bottom:10px" oninput="onEditAmtInput()">
+        <label>Date</label><input id="eeDate" type="date" style="margin-bottom:10px">
         <label>Category</label><select id="eeDesc" style="margin-bottom:10px"></select>
         <label>Vendor</label><select id="eeVendor" style="margin-bottom:10px"></select>
         <label>Description</label><textarea id="eeNote" rows="1" placeholder="Optional note" style="margin-bottom:10px"></textarea>
@@ -730,7 +730,7 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
         <label>Split / Amounts</label>
         <div id="eeCbox" class="cks" style="margin-bottom:14px"></div>
         <div id="eeSplitHint" style="font-size:12px;color:#6b7280;margin-bottom:10px"></div>
-        <button class="btn" style="margin-top:0">Save Changes</button>
+        <button type="button" onclick="saveEditedExp(event)" class="btn" style="margin-top:0">Save Changes</button>
       </form>
     </div>
   </div>
@@ -927,16 +927,23 @@ function updateDateTime() {
 setInterval(updateDateTime, 1000);
 
 function loadCloudData(isManual){
-  if (!CLOUD_URL || (!isManual && (Date.now() - lastLocalSaveTime < 10000))) return;
+  if (!CLOUD_URL || (!isManual && (Date.now() - lastLocalSaveTime < 15000))) return;
   setCloudStatus('syncing');
   fetch(CLOUD_URL).then(function(res){ return res.json(); }).then(function(data){
-    if (!isManual && (Date.now() - lastLocalSaveTime < 10000)) return;
+    if (!isManual && (Date.now() - lastLocalSaveTime < 15000)) return;
     var addedSuper = false;
     if(data && data.users && data.users.length) {
       users = data.users; users.forEach(migrateUserVacations); addedSuper = ensureSuperAdmin();
       safeSetItem("r110_u", JSON.stringify(users));
     }
-    if(data && Array.isArray(data.exps)) { exps = data.exps; safeSetItem("r110_e", JSON.stringify(exps)); }
+    if(data && Array.isArray(data.exps)) {
+      var cutoff = Date.now() - 120000;
+      var cloudIds = {};
+      data.exps.forEach(function(cx){ cloudIds[String(cx.id)] = true; });
+      var recentLocal = exps.filter(function(lx){ return Number(lx.id) > cutoff && !cloudIds[String(lx.id)]; });
+      exps = recentLocal.concat(data.exps);
+      safeSetItem("r110_e", JSON.stringify(exps));
+    }
     if(data && data.utilities) { utilities = data.utilities; safeSetItem("r110_utils", JSON.stringify(utilities)); }
     if(data && data.generatedStatements) { generatedStatements = data.generatedStatements; safeSetItem("r110_gen_stmts", JSON.stringify(generatedStatements)); }
     if(data && Array.isArray(data.notifications)) {
@@ -1517,7 +1524,7 @@ function onSplitTypeChange() {
     cbox.className = "cks";
     cbox.innerHTML = activeMessUsers.map(function(u){
       var n = memberName(u);
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span><input type="number" step="0.01" min="0" placeholder="0.00" class="custom-split-input" data-name="' + escHtml(n) + '" oninput="validateCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span><input type="number" step="any" min="0" placeholder="0.00" class="custom-split-input" data-name="' + escHtml(n) + '" oninput="validateCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
     }).join('');
     validateCustomSplitTotal();
   } else if(st === "c") {
@@ -2163,13 +2170,15 @@ function addEx(e) {
   try { addExImpl(e); } catch(err) { alert("Could not save the expense: " + (err && err.message ? err.message : err)); }
 }
 function addExImpl(e){
-  e.preventDefault();
+  if(e && e.preventDefault) e.preventDefault();
+  if(!cur) return alert("Session expired. Please log in again.");
   if(isLandlord()) return alert("Landlords are not permitted to add expenses.");
-  var a = parseFloat($("amt").value);
-  if(!(a > 0)) return alert("Enter a valid amount greater than 0.");
+  var rawAmt = ($("amt").value || "").trim().replace(",", ".");
+  var a = parseFloat(rawAmt);
+  if(!rawAmt || isNaN(a) || a <= 0) return alert("Please enter a valid Amount greater than 0.");
   var d = $("desc").value || categories[0] || "Groceries";
   var pb = $("pby").value;
-  if(!pb) return alert("Please select who paid.");
+  if(!pb) return alert("Please select who paid in 'Paid By'.");
   var dateVal = $("expDate").value || todayISO();
   if(dateVal > todayISO()) return alert("Expenses cannot be dated in the future.");
   var vendor = $("expVendor").value || "";
@@ -2253,7 +2262,7 @@ function openEditExp(id) {
   var isCustom = x.splitMode === "custom" || (!x.splitMode && x.splits && Object.values(x.splits).some(function(v, _, arr){ return Math.abs(v - arr[0]) > 0.02; }));
   $("eeCbox").innerHTML = isCustom ? names.map(function(n){
     var val = x.splits && x.splits[n] !== undefined ? x.splits[n] : "";
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span><input type="number" step="0.01" min="0" placeholder="0.00" class="ee-custom-split-input" data-name="' + escHtml(n) + '" value="' + val + '" oninput="validateEditCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span><input type="number" step="any" min="0" placeholder="0.00" class="ee-custom-split-input" data-name="' + escHtml(n) + '" value="' + val + '" oninput="validateEditCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
   }).join('') : names.map(function(n){
     return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (activeList.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
   }).join('');
@@ -2264,13 +2273,15 @@ function openEditExp(id) {
 function onEditAmtInput() { if($("eeCbox") && $("eeCbox").dataset.mode === "custom") validateEditCustomSplitTotal(); }
 
 function saveEditedExp(e) {
-  e.preventDefault(); if(isLandlord()) return;
+  if(e && e.preventDefault) e.preventDefault();
+  if(isLandlord()) return;
   var x = exps.find(function(t){ return t.id == $("eeId").value; }); if(!x || !canEditExp(x)) return;
   var dateVal = $("eeDate").value || expDate(x);
   if(dateVal > todayISO()) return alert("Expenses cannot be dated in the future.");
   if(isStmtGenerated(dateVal.slice(0, 7))) return alert("The statement for that month is already generated. Choose a date in an open month.");
-  var a = parseFloat($("eeAmt").value), pb = $("eePby").value, isCustom = $("eeCbox") && $("eeCbox").dataset.mode === "custom";
-  if(!(a > 0)) return alert("Enter a valid amount greater than 0.");
+  var rawAmt = ($("eeAmt").value || "").trim().replace(",", ".");
+  var a = parseFloat(rawAmt), pb = $("eePby").value, isCustom = $("eeCbox") && $("eeCbox").dataset.mode === "custom";
+  if(!rawAmt || isNaN(a) || a <= 0) return alert("Enter a valid amount greater than 0.");
   var al = [], splits = null;
 
   if(isCustom) {
