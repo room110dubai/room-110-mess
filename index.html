@@ -1156,6 +1156,7 @@ function countVacationDays(v) {
 
 var vacMode = "new", vacEditId = null;
 var STMT_CLOSE_DAY = 4;
+function isStmtGenerated(ym) { return !!(generatedStatements && generatedStatements[ym]) && ym < todayISO().slice(0, 7); }
 function isStmtClosed(ym) {
   var today = todayISO();
   if(ym >= today.slice(0, 7)) return false;
@@ -2180,7 +2181,7 @@ function applyLastSelections(){
 
 function canEditExp(x) {
   if(!cur || isLandlord() || x.util) return false;
-  if(isStmtClosed(expDate(x).slice(0, 7))) return false;
+  if(isStmtGenerated(expDate(x).slice(0, 7))) return false;
   if(isSuper()) return true;
   var me = cur.firstName || cur.name;
   return (x.by || x.pb) == me && (Date.now() - Number(x.id)) <= 86400000;
@@ -2219,7 +2220,7 @@ function saveEditedExp(e) {
   var x = exps.find(function(t){ return t.id == $("eeId").value; }); if(!x || !canEditExp(x)) return;
   var dateVal = $("eeDate").value || expDate(x);
   if(dateVal > todayISO()) return alert("Expenses cannot be dated in the future.");
-  if(isStmtClosed(dateVal.slice(0, 7))) return alert("The statement for that month is already generated. Choose a date in an open month.");
+  if(isStmtGenerated(dateVal.slice(0, 7))) return alert("The statement for that month is already generated. Choose a date in an open month.");
   var a = parseFloat($("eeAmt").value), pb = $("eePby").value, isCustom = $("eeCbox") && $("eeCbox").dataset.mode === "custom";
   var al = [], splits = null;
 
@@ -2389,8 +2390,9 @@ function render(){
     $("memberContactsList").innerHTML = users.filter(function(u){ return u.active !== false; }).slice().sort(function(a, b){ return memberName(a).localeCompare(memberName(b)); }).map(function(u){
       var full = (memberName(u) + " " + (u.lastName || "")).trim(), me = u.u === cur.u;
       var av = u.avatar ? '<img src="' + u.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : escHtml(memberName(u).charAt(0).toUpperCase());
-      var call = (u.phone && !me) ? '<a href="tel:' + escHtml(u.phone) + '" style="width:36px;height:36px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0"><i class="fa-solid fa-phone"></i></a>' : '';
-      return '<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:50%;background:#1e3a8a;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">' + av + '</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#111">' + escHtml(full) + (me ? ' (You)' : '') + ' <span style="font-size:10px;color:#6b7280;font-weight:600">&bull; ' + roleLabel(u.r) + '</span></div><div style="font-size:12px;color:#6b7280">' + (u.phone ? escHtml(fmtPhone(u.phone)) : 'Number not added') + '</div></div>' + call + '</div>';
+      var call = u.phone ? '<span style="width:36px;height:36px;border-radius:50%;background:#d1fae5;color:#059669;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-phone"></i></span>' : '';
+      var rowHtml = '<div style="display:flex;align-items:center;gap:12px"><div style="width:40px;height:40px;border-radius:50%;background:#1e3a8a;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">' + av + '</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#111">' + escHtml(full) + (me ? ' (You)' : '') + ' <span style="font-size:10px;color:#6b7280;font-weight:600">&bull; ' + roleLabel(u.r) + '</span></div><div style="font-size:12px;color:#6b7280">' + (u.phone ? escHtml(fmtPhone(u.phone)) : 'Number not added') + '</div></div>' + call + '</div>';
+      return u.phone ? '<a href="tel:' + escHtml(u.phone) + '" style="display:block;text-decoration:none;color:inherit">' + rowHtml + '</a>' : rowHtml;
     }).join('');
   }
   var bothZero = !(ownShare > 0) && !(forMe > 0), chartVals = bothZero ? [1, 0] : [ownShare, forMe], chartCols = bothZero ? ['#d1d5db', '#d1d5db'] : ['#10b981', '#f59e0b'];
