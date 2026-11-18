@@ -978,8 +978,8 @@ function save(syncToCloud){
   vendors.sort(function(a,b){ return a.name.localeCompare(b.name); });
   emergencyContacts.sort(function(a,b){ return a.name.localeCompare(b.name); });
   var map = { r110_u: users, r110_e: exps, r110_m: msgs, r110_notif: notifications, r110_utils: utilities, r110_gen_stmts: generatedStatements, r110_cat: categories, r110_grp: groups, r110_ven: vendors, r110_pay: payments, r110_ec: emergencyContacts };
-  for(var k in map) localStorage.setItem(k, JSON.stringify(map[k]));
-  render();
+  for(var k in map) { try { localStorage.setItem(k, JSON.stringify(map[k])); } catch(err) { console.error("Local save failed for " + k, err); } }
+  try { render(); } catch(err) { console.error("Render error", err); }
   if(syncToCloud && CLOUD_URL){
     setCloudStatus('syncing');
     fetch(CLOUD_URL, {
@@ -2138,7 +2138,10 @@ function saveEditedUser(e){
   }
 }
 
-function addEx(e){
+function addEx(e) {
+  try { addExImpl(e); } catch(err) { alert("Could not save the expense: " + (err && err.message ? err.message : err)); }
+}
+function addExImpl(e){
   e.preventDefault();
   if(isLandlord()) return alert("Landlords are not permitted to add expenses.");
   var a = parseFloat($("amt").value), d = $("desc").value, pb = $("pby").value, dateVal = $("expDate").value || todayISO();
