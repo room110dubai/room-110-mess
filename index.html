@@ -1758,6 +1758,17 @@ PdfDoc.prototype.addPage = function() { this.pages.push([]); this.p = this.pages
 PdfDoc.prototype.setPage = function(i) { this.p = i; };
 PdfDoc.prototype.width = function(t, size, bold) { var tbl = bold ? PDF_W_BOLD : PDF_W_REG, w = 0; pdfSafe(t).split("").forEach(function(ch){ w += tbl[ch.charCodeAt(0) - 32]; }); return w * size / 1000; };
 PdfDoc.prototype.fit = function(t, maxW, size, bold) { t = pdfSafe(t); if(this.width(t, size, bold) <= maxW) return t; while(t.length > 1 && this.width(t + "...", size, bold) > maxW) t = t.slice(0, -1); return t + "..."; };
+PdfDoc.prototype.wrap = function(t, maxW, size, bold, maxLines) {
+  var words = pdfSafe(t).split(/\s+/).filter(Boolean), lines = [], cur = "", self = this;
+  words.forEach(function(w){
+    while(self.width(w, size, bold) > maxW) { var k = w.length; while(k > 1 && self.width(w.slice(0, k), size, bold) > maxW) k--; if(cur) { lines.push(cur); cur = ""; } lines.push(w.slice(0, k)); w = w.slice(k); }
+    var test = cur ? cur + " " + w : w;
+    if(self.width(test, size, bold) <= maxW) cur = test; else { lines.push(cur); cur = w; }
+  });
+  if(cur) lines.push(cur);
+  if(maxLines && lines.length > maxLines) { lines = lines.slice(0, maxLines); lines[maxLines - 1] = self.fit(lines[maxLines - 1] + " ...", maxW, size, bold); }
+  return lines.length ? lines : [""];
+};
 PdfDoc.prototype.text = function(t, x, y, o) { o = o || {}; var size = o.size || 10, w = this.width(t, size, o.bold); if(o.align === "right") x -= w; else if(o.align === "center") x -= w / 2; this.add("BT /" + (o.bold ? "F2" : "F1") + " " + size + " Tf " + pdfCol(o.color || "#000000") + " rg " + x.toFixed(2) + " " + (this.H - y).toFixed(2) + " Td (" + pdfEsc(t) + ") Tj ET"); };
 PdfDoc.prototype.rect = function(x, y, w, h, fill, stroke) { var ops = ""; if(fill) ops += pdfCol(fill) + " rg "; if(stroke) ops += pdfCol(stroke) + " RG 0.6 w "; ops += x.toFixed(2) + " " + (this.H - y - h).toFixed(2) + " " + w.toFixed(2) + " " + h.toFixed(2) + " re " + (fill && stroke ? "B" : (fill ? "f" : "S")); this.add(ops); };
 PdfDoc.prototype.line = function(x1, y1, x2, y2, color, wid) { this.add(pdfCol(color || "#cccccc") + " RG " + (wid || 0.5) + " w " + x1.toFixed(2) + " " + (this.H - y1).toFixed(2) + " m " + x2.toFixed(2) + " " + (this.H - y2).toFixed(2) + " l S"); };
@@ -1833,7 +1844,7 @@ function buildStatementPdf(ym) {
 
   var ry = Math.max(160, sry + 20);
   doc.text("TRANSACTIONS", 40, ry, { size: 9, bold: true, color: NAVY }); ry += 8;
-  var cols = [56, 150, 58, 60, 60, 56, 75], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"], xs = [], cx = 40;
+  var cols = [50, 178, 52, 54, 54, 54, 73], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"], xs = [], cx = 40;
   cols.forEach(function(w){ xs.push(cx); cx += w; });
 
   function drawHead(y) {
@@ -1841,23 +1852,28 @@ function buildStatementPdf(ym) {
     heads.forEach(function(h, i){ doc.text(h, i < 3 ? xs[i] + 5 : xs[i] + cols[i] - 5, y + 14, { size: 8.5, bold: true, color: "#ffffff", align: i < 3 ? "left" : "right" }); });
     return y + 20;
   }
+  function descLines(c, bold) { return doc.wrap(typeof c === "object" && c ? c.t : (c || ""), cols[1] - 10, 8, bold, 5); }
+  function rowH(cells, opt) { return Math.max(18, descLines(cells[1], opt && opt.bold).length * 10 + 8); }
   function drawRow(y, cells, opt) {
-    opt = opt || {}; if(opt.fill) doc.rect(40, y, 515, 18, opt.fill);
-    doc.line(40, y + 18, 555, y + 18, "#e5e7eb", 0.4);
+    opt = opt || {}; var h = rowH(cells, opt);
+    if(opt.fill) doc.rect(40, y, 515, h, opt.fill);
+    doc.line(40, y + h, 555, y + h, "#e5e7eb", 0.4);
     cells.forEach(function(c, i){
       if(c === null || c === "") return;
       var txt = typeof c === "object" ? c.t : c, col = typeof c === "object" ? c.c : INK;
+      if(i === 1) { descLines(c, opt.bold).forEach(function(ln, k){ doc.text(ln, xs[i] + 5, y + 12.5 + k * 10, { size: 8, bold: opt.bold, color: col }); }); return; }
       doc.text(i < 3 ? doc.fit(txt, cols[i] - 8, 8, opt.bold) : txt, i < 3 ? xs[i] + 5 : xs[i] + cols[i] - 5, y + 12.5, { size: 8, bold: opt.bold, align: i < 3 ? "left" : "right", color: col });
     });
-    return y + 18;
+    return y + h;
   }
-  function ensure(y) { return y + 18 > 790 ? (doc.addPage(), drawHead(40)) : y; }
+  function ensure(y, h) { return y + (h || 18) > 790 ? (doc.addPage(), drawHead(40)) : y; }
 
   ry = drawHead(ry); var run = opening;
   ry = drawRow(ry, [fmtDate(pr.start), "Opening Balance", "", "", "", "", { t: signed(opening), c: sgnCol(opening) }], { fill: "#f8fafc", bold: true });
   rows.forEach(function(r, i){
-    ry = ensure(ry); run += r.eff;
-    ry = drawRow(ry, [fmtDate(r.d), r.desc, r.by, r.purch > 0.004 ? { t: money(r.purch), c: GREEN } : "", r.exp > 0.004 ? { t: money(r.exp), c: RED } : "", Math.abs(r.pay) > 0.004 ? { t: signed(r.pay), c: sgnCol(r.pay) } : "", { t: signed(run), c: sgnCol(run) }], { fill: i % 2 ? "#f8fafc" : null });
+    run += r.eff;
+    var cells = [fmtDate(r.d), r.desc, r.by, r.purch > 0.004 ? { t: money(r.purch), c: GREEN } : "", r.exp > 0.004 ? { t: money(r.exp), c: RED } : "", Math.abs(r.pay) > 0.004 ? { t: signed(r.pay), c: sgnCol(r.pay) } : "", { t: signed(run), c: sgnCol(run) }];
+    ry = ensure(ry, rowH(cells)); ry = drawRow(ry, cells, { fill: i % 2 ? "#f8fafc" : null });
   });
   if(!rows.length) { ry = ensure(ry); ry = drawRow(ry, ["", "No transactions in this period", "", "", "", "", ""]); }
   ry = ensure(ry);
