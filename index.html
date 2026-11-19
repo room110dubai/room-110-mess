@@ -827,6 +827,13 @@ function migrateUserVacations(u) {
 
 var users = safeParse("r110_u", null) || [{id:1,firstName:"Shyam",lastName:"Sathyan",name:"Shyam",u:"shyam",p:"admin123",r:"admin",avatar:"",lastActive:Date.now(),active:true,vacations:[]}];
 users.forEach(migrateUserVacations);
+function ensureMemberIds() {
+  var max = 0, changed = false;
+  users.forEach(function(u){ var m = /^R110-(\d+)$/.exec(u.mid || ""); if(m && Number(m[1]) > max) max = Number(m[1]); });
+  users.forEach(function(u){ if(!/^R110-\d+$/.test(u.mid || "")) { u.mid = "R110-" + ("00" + (++max)).slice(-3); changed = true; } });
+  return changed;
+}
+ensureMemberIds();
 var exps = safeParse("r110_e", []);
 var msgs = safeParse("r110_m", []);
 var notifications = safeParse("r110_notif", []);
@@ -933,7 +940,7 @@ function loadCloudData(isManual){
     if (!isManual && (Date.now() - lastLocalSaveTime < 15000)) return;
     var addedSuper = false;
     if(data && data.users && data.users.length) {
-      users = data.users; users.forEach(migrateUserVacations); addedSuper = ensureSuperAdmin();
+      users = data.users; users.forEach(migrateUserVacations); addedSuper = ensureSuperAdmin(); if(ensureMemberIds()) addedSuper = true;
       safeSetItem("r110_u", JSON.stringify(users));
     }
     if(data && Array.isArray(data.exps)) {
@@ -1820,15 +1827,17 @@ function buildStatementPdf(ym) {
   function sgnCol(n) { return n >= -0.004 ? GREEN : RED; }
   var doc = new PdfDoc();
 
-  doc.rect(0, 0, 595, 80, NAVY);
-  doc.image(34, 15, 190, 50.2);
-  doc.text("Statement of Account", 240, 47, { size: 11, color: "#dbeafe" });
+  doc.rect(0, 0, 595, 92, NAVY);
+  doc.image(34, 10, 190, 50.2);
+  doc.text("Statement of Account", 40, 79, { size: 12, bold: true, color: "#ffffff" });
   doc.text("STATEMENT PERIOD", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
   doc.text(fmtDate(pr.start) + " - " + fmtDate(pr.end), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
   doc.text("Generated " + fmtDate(todayISO()), 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
   doc.text("ACCOUNT HOLDER", 40, 106, { size: 8, bold: true, color: GRAY });
   doc.text(((cur.firstName || cur.name) + " " + (cur.lastName || "")).trim(), 40, 124, { size: 15, bold: true, color: INK });
-  doc.text("Payment due by " + fmtDate(getNextMonthYM(ym) + "-15"), 40, 142, { size: 9, bold: true, color: RED });
+  var me = users.find(function(x){ return x.id === cur.id; }) || cur;
+  doc.text("MEMBER ID: " + (me.mid || "-"), 40, 142, { size: 9.5, bold: true, color: NAVY });
+  doc.text("Payment due by " + fmtDate(getNextMonthYM(ym) + "-15"), 40, 158, { size: 9, bold: true, color: RED });
 
   var sx = 300, sy = 100, sw = 255, sry = sy + 20;
   doc.rect(sx, sy, sw, 20, "#eff6ff", "#bfdbfe");
@@ -1844,7 +1853,7 @@ function buildStatementPdf(ym) {
 
   var ry = Math.max(160, sry + 20);
   doc.text("TRANSACTIONS", 40, ry, { size: 9, bold: true, color: NAVY }); ry += 8;
-  var cols = [50, 178, 52, 54, 54, 54, 73], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"], xs = [], cx = 40;
+  var cols = [62, 164, 52, 54, 54, 54, 75], heads = ["Date", "Description", "Paid By", "Purchases", "My Share", "Payments", "Balance"], xs = [], cx = 40;
   cols.forEach(function(w){ xs.push(cx); cx += w; });
 
   function drawHead(y) {
@@ -2160,9 +2169,10 @@ function addU(e){
   var join = $("nJoin").value, phone = normalizeUaePhone($("nPhone").value);
   if(!join) return alert("Date of joining is required.");
   if(!phone) return alert("Enter a valid UAE number (e.g. 05XXXXXXXX or +9715XXXXXXXX).");
-  users.push({id:Date.now(),firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:$("nMess").checked,active:true,vacations:[],joinDate:join,phone:phone});
+  ensureMemberIds();
+  users.push({id:Date.now(),mid:"",firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:$("nMess").checked,active:true,vacations:[],joinDate:join,phone:phone});
   $("nJoin").value = ""; $("nPhone").value = ""; $("nFname").value = ""; $("nLname").value = ""; $("nid").value = ""; $("npass").value = "";
-  closeModals(); save(true);
+  ensureMemberIds(); closeModals(); save(true);
 }
 
 function saveEditedUser(e){
@@ -2516,7 +2526,7 @@ function render(){
     $("ulist").innerHTML = users.map(function(u){
       var badge = function(bg, fg, txt){ return " <span style='font-size:10px;background:" + bg + ";color:" + fg + ";padding:2px 6px;border-radius:8px;font-weight:700'>" + txt + "</span>"; };
       var tags = (u.active === false ? badge("#fee2e2", "#dc2626", "ARCHIVED") : "") + (isUserOnVacationOnDate(u, todayISO()) ? badge("#fef3c7", "#92400e", "VACATION") : "") + (u.mess === false ? badge("#e0e7ff", "#3730a3", "NOT IN MESS") : "");
-      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>" + escHtml((u.firstName || u.name) + " " + (u.lastName || "")) + "</b>" + tags + "<div style='font-size:12px;color:#6b7280'>ID: " + escHtml(u.u) + " | Pass: ******** | Role: " + roleLabel(u.r) + "</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal(" + u.id + ")'><i class='fa-solid fa-pen'></i></button></div>";
+      return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center'><div><b>" + escHtml((u.firstName || u.name) + " " + (u.lastName || "")) + "</b>" + tags + "<div style='font-size:12px;color:#6b7280'>Member ID: <b>" + escHtml(u.mid || "-") + "</b> | Login ID: " + escHtml(u.u) + " | Pass: ******** | Role: " + roleLabel(u.r) + "</div></div><button class='btn btn-s' style='background:#2563eb' onclick='openEditUserModal(" + u.id + ")'><i class='fa-solid fa-pen'></i></button></div>";
     }).join("");
   }
 }
