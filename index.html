@@ -338,6 +338,7 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
           <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(selectedExpYM)"><i class="fa-solid fa-file-pdf"></i> Statement</button>
+          <button id="expSumBtn" class="btn btn-s hide" style="flex:1;margin:0;background:#1e3a8a" onclick="openSummaryReport()"><i class="fa-solid fa-scale-balanced"></i> Summary Report</button>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
           <button style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openStatementModal()">Older statements</button>
@@ -1668,7 +1669,7 @@ function renderExpensesTab() {
   $("expShareCnt").innerText = shareCnt + (shareCnt === 1 ? " share" : " shares");
 
   if(expView === "all" && !isSuper()) { expView = "mine"; return renderExpensesTab(); }
-  $("expAllBtn").className = isSuper() ? "" : "hide";
+  $("expAllBtn").className = isSuper() ? "" : "hide"; $("expSumBtn").className = isSuper() ? "btn btn-s" : "btn btn-s hide";
   $("tilePurch").className = "exp-tile" + (expView === "purchases" ? " active" : "");
   $("tileExp").className = "exp-tile" + (expView === "expenses" ? " active" : "");
   var titles = { mine: "Your activity (" + MONTHS[Number(ym.slice(5,7))-1] + " " + ym.slice(0,4) + ")", purchases: "Purchases only", expenses: "Expenses only", all: "Everyone's expenses (Super Admin)" };
@@ -1892,6 +1893,80 @@ function buildStatementPdf(ym) {
   for(var pg = 0; pg < total; pg++) {
     doc.setPage(pg); doc.line(40, 810, 555, 810, "#d1d5db", 0.5);
     doc.text("Room 110 Mess - Statement for " + cName + " - " + ym, 40, 824, { size: 8, color: GRAY });
+    doc.text("Page " + (pg + 1) + " of " + total, 555, 824, { size: 8, color: GRAY, align: "right" });
+  }
+  return doc.build();
+}
+
+function openSummaryReport() {
+  if(!isSuper()) return;
+  var url = URL.createObjectURL(buildSummaryPdf()), w = window.open(url, "_blank");
+  if(!w) window.location.href = url;
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 300000);
+}
+function buildSummaryPdf() {
+  refreshEtisalatAccruals();
+  var GREEN = "#059669", RED = "#dc2626", NAVY = "#1e3a8a", GRAY = "#6b7280", INK = "#111827";
+  function signed(n) { return (n >= -0.004 ? "+" : "-") + money(Math.abs(n)); }
+  function sgnCol(n) { return Math.abs(n) < 0.005 ? GRAY : (n > 0 ? GREEN : RED); }
+  var st = stats().st, byName = {};
+  st.forEach(function(r){ byName[r.name] = r; });
+  var list = users.map(function(u){
+    var r = byName[u.firstName || u.name] || { pd: 0, sh: 0, adj: 0, net: 0 };
+    return { mid: u.mid || "-", name: ((u.firstName || u.name) + " " + (u.lastName || "")).trim(), role: roleLabel(u.r), active: u.active !== false, pd: r.pd, sh: r.sh, adj: r.adj, net: r.net };
+  }).filter(function(r){ return r.active || Math.abs(r.pd) + Math.abs(r.sh) + Math.abs(r.adj) > 0.004; })
+    .sort(function(a, b){ return String(a.mid).localeCompare(String(b.mid)); });
+  var tPd = 0, tSh = 0, tAdj = 0, tNet = 0, tRec = 0, tPay = 0;
+  list.forEach(function(r){ tPd += r.pd; tSh += r.sh; tAdj += r.adj; tNet += r.net; if(r.net > 0.004) tRec += r.net; else if(r.net < -0.004) tPay += r.net; });
+  var matched = Math.abs(tNet) < 0.01;
+  var doc = new PdfDoc();
+  doc.rect(0, 0, 595, 92, NAVY);
+  doc.image(34, 10, 190, 50.2);
+  doc.text("Summary of Outstanding Balances", 40, 79, { size: 12, bold: true, color: "#ffffff" });
+  doc.text("AS ON", 555, 30, { size: 8, align: "right", color: "#bfdbfe", bold: true });
+  doc.text(fmtDate(todayISO()), 555, 47, { size: 12, align: "right", bold: true, color: "#ffffff" });
+  doc.text("Members: " + list.length, 555, 63, { size: 9, align: "right", color: "#bfdbfe" });
+
+  var by = 108;
+  doc.rect(40, by, 515, 46, matched ? "#ecfdf5" : "#fef2f2", matched ? "#a7f3d0" : "#fecaca");
+  doc.text("NET BALANCE CHECK: " + (matched ? "MATCHED" : "NOT MATCHED"), 50, by + 16, { size: 10, bold: true, color: matched ? GREEN : RED });
+  doc.text("Total Receivable: +" + money(tRec) + "     Total Payable: " + (tPay < 0 ? "-" : "") + money(Math.abs(tPay)) + "     Net: " + signed(tNet), 50, by + 32, { size: 9, bold: true, color: INK });
+  var ry = by + 66;
+  doc.text("MEMBER-WISE OUTSTANDING", 40, ry, { size: 9, bold: true, color: NAVY }); ry += 8;
+  var cols = [58, 112, 66, 66, 66, 66, 81], heads = ["Member ID", "Member", "Purchases", "My Share", "Payments", "Balance", "Status"], xs = [], cx = 40;
+  cols.forEach(function(w){ xs.push(cx); cx += w; });
+  function drawHead(y) {
+    doc.rect(40, y, 515, 20, NAVY);
+    heads.forEach(function(h, i){ doc.text(h, i < 2 || i === 6 ? xs[i] + 5 : xs[i] + cols[i] - 5, y + 14, { size: 8.5, bold: true, color: "#ffffff", align: i < 2 || i === 6 ? "left" : "right" }); });
+    return y + 20;
+  }
+  function drawRow(y, c, opt) {
+    opt = opt || {};
+    if(opt.fill) doc.rect(40, y, 515, 18, opt.fill);
+    doc.line(40, y + 18, 555, y + 18, "#e5e7eb", 0.4);
+    c.forEach(function(v, i){
+      if(v === null || v === "") return;
+      var txt = typeof v === "object" ? v.t : v, col = typeof v === "object" ? v.c : INK, left = i < 2 || i === 6;
+      doc.text(left ? doc.fit(txt, cols[i] - 8, 8, opt.bold) : txt, left ? xs[i] + 5 : xs[i] + cols[i] - 5, y + 12.5, { size: 8, bold: opt.bold, align: left ? "left" : "right", color: col });
+    });
+    return y + 18;
+  }
+  function ensure(y) { return y + 18 > 790 ? (doc.addPage(), drawHead(40)) : y; }
+  ry = drawHead(ry);
+  list.forEach(function(r, i){
+    ry = ensure(ry);
+    var status = Math.abs(r.net) < 0.005 ? "Settled" : (r.net > 0 ? "Receivable" : "Payable");
+    ry = drawRow(ry, [r.mid, r.name + (r.active ? "" : " (archived)"), r.pd > 0.004 ? { t: money(r.pd), c: GREEN } : "", r.sh > 0.004 ? { t: money(r.sh), c: RED } : "", Math.abs(r.adj) > 0.004 ? { t: signed(r.adj), c: sgnCol(r.adj) } : "", { t: signed(r.net), c: sgnCol(r.net) }, { t: status, c: sgnCol(r.net) }], { fill: i % 2 ? "#f8fafc" : null });
+  });
+  if(!list.length) { ry = ensure(ry); ry = drawRow(ry, ["", "No members", "", "", "", "", ""]); }
+  ry = ensure(ry);
+  ry = drawRow(ry, ["", "TOTAL", { t: money(tPd), c: GREEN }, { t: money(tSh), c: RED }, { t: signed(tAdj), c: sgnCol(tAdj) }, { t: signed(tNet), c: matched ? GRAY : RED }, matched ? "Matched" : "Check"], { fill: "#eff6ff", bold: true });
+  ry = ensure(ry + 10);
+  doc.text("Balance = Purchases paid - My Share + verified payments. Positive = to receive, negative = to pay. Pending (unverified) payments are excluded.", 40, ry + 8, { size: 7.5, color: GRAY });
+  var total = doc.pages.length;
+  for(var pg = 0; pg < total; pg++) {
+    doc.setPage(pg); doc.line(40, 810, 555, 810, "#d1d5db", 0.5);
+    doc.text("Room 110 Mess - Summary of Outstanding Balances - " + todayISO(), 40, 824, { size: 8, color: GRAY });
     doc.text("Page " + (pg + 1) + " of " + total, 555, 824, { size: 8, color: GRAY, align: "right" });
   }
   return doc.build();
