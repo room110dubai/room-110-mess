@@ -337,11 +337,13 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(selectedExpYM)"><i class="fa-solid fa-file-pdf"></i> Statement</button>
+          <button class="btn btn-s" style="flex:1;margin:0;background:#dc2626" onclick="openStatement(selectedExpYM)"><i class="fa-solid fa-file-pdf"></i> Generate Statement</button>
+          <button class="btn btn-s" style="flex:1;margin:0;background:#2563eb" onclick="openStatementModal()"><i class="fa-solid fa-folder-open"></i> Statements</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
           <button id="expSumBtn" class="btn btn-s hide" style="flex:1;margin:0;background:#1e3a8a" onclick="openSummaryReport()"><i class="fa-solid fa-scale-balanced"></i> Summary Report</button>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-          <button style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openStatementModal()">Older statements</button>
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:10px">
           <button id="expAllBtn" class="hide" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="setExpView('all')">Super Admin: everyone's expenses</button>
         </div>
       </div>
@@ -709,10 +711,9 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
   <div id="statementModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
-      <h3 style="color:#111;margin-bottom:6px">Generate Statement</h3>
-      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Opens your PDF statement for the selected month.</p>
-      <label>Statement Month</label><select id="stmtMonth" style="margin-bottom:16px"></select>
-      <button class="btn" style="margin-top:0;background:#dc2626" onclick="generateStatement()"><i class="fa-solid fa-file-pdf"></i> Open Statement</button>
+      <h3 style="color:#111;margin-bottom:6px">Statements</h3>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">Monthly statements are generated automatically once the month closes (after the 4th of the next month).</p>
+      <div id="stmtList" style="max-height:55vh;overflow-y:auto"></div>
     </div>
   </div>
 
@@ -1736,15 +1737,20 @@ function openStatementModal() {
   var earliest = todayISO().slice(0, 7);
   exps.forEach(function(x){ var m = expDate(x).slice(0, 7); if(m < earliest) earliest = m; });
   payments.forEach(function(p){ if(p.verified && p.date.slice(0, 7) < earliest) earliest = p.date.slice(0, 7); });
-  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), opts = "";
+  var now = new Date(), y = now.getFullYear(), m = now.getMonth(), curYM = todayISO().slice(0, 7), html = "";
   for(var i = 0; i < 36; i++) {
     var ym = y + "-" + pad2(m + 1); if(ym < earliest) break;
-    opts += '<option value="' + ym + '">' + MONTHS[m] + ' ' + y + (i === 0 ? ' (current)' : '') + '</option>';
+    var closed = isStmtClosed(ym), tag, col;
+    if(ym === curYM) { tag = "Current month (in progress)"; col = "#2563eb"; }
+    else if(closed) { tag = "Auto-generated"; col = "#059669"; }
+    else { tag = "Ready on " + getNextMonthYM(ym).slice(5) + "/" + pad2(STMT_CLOSE_DAY) + " (tap to generate now)"; col = "#d97706"; }
+    html += '<div class="exp-row" style="align-items:center"><div><div class="exp-row-title">' + MONTHS[m] + ' ' + y + '</div><div style="font-size:11px;font-weight:700;color:' + col + '">' + tag + '</div></div>' +
+      '<button class="btn btn-s" style="margin:0;background:#dc2626;width:auto;padding:8px 14px" onclick="closeModals();openStatement(\'' + ym + '\')"><i class="fa-solid fa-file-pdf"></i> Open</button></div>';
     m--; if(m < 0) { m = 11; y--; }
   }
-  $("stmtMonth").innerHTML = opts; $("statementModal").className = "modal-overlay";
+  $("stmtList").innerHTML = html || '<div style="font-size:13px;color:#6b7280">No statements yet.</div>';
+  $("statementModal").className = "modal-overlay";
 }
-function generateStatement() { var ym = $("stmtMonth").value; closeModals(); openStatement(ym); }
 function openStatement(ym) {
   if(!generatedStatements) generatedStatements = {};
   if(!generatedStatements[ym]) { generatedStatements[ym] = true; save(true); }
