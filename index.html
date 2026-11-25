@@ -639,6 +639,20 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
     </div>
   </div>
 
+  <div id="forcePassModal" class="modal-overlay hide">
+    <div class="modal-content">
+      <h3 style="color:#111;margin-bottom:6px"><i class="fa-solid fa-lock"></i> Set a new password</h3>
+      <p style="font-size:12px;color:#6b7280;margin-bottom:12px">For your security, please choose your own password before continuing.</p>
+      <p id="fpErr" style="color:#dc2626;font-size:12px;margin-bottom:6px"></p>
+      <form onsubmit="saveForcedPassword(event)">
+        <label>New Password</label><input id="fpNew" type="password" placeholder="At least 6 characters" style="margin-bottom:10px">
+        <label>Confirm New Password</label><input id="fpConfirm" type="password" placeholder="Re-enter password" style="margin-bottom:14px">
+        <button class="btn" style="margin-top:0">Save &amp; Continue</button>
+        <button type="button" class="btn" style="margin-top:8px;background:#6b7280" onclick="cancelForcePassword()">Log out</button>
+      </form>
+    </div>
+  </div>
+
   <div id="createUserModal" class="modal-overlay hide">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModals()">&times;</button>
@@ -798,6 +812,55 @@ function safeParse(k, fallback) {
   } catch(e) { return fallback; }
 }
 
+
+var SHA_K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+function sha256Hex(msg) {
+  var utf8 = unescape(encodeURIComponent(msg)), l = utf8.length, i, j, words = [], K = SHA_K;
+  var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19], w = new Array(64);
+  for(i = 0; i < l; i++) words[i >> 2] |= utf8.charCodeAt(i) << (24 - (i % 4) * 8);
+  words[l >> 2] |= 0x80 << (24 - (l % 4) * 8);
+  words[(((l + 8) >> 6) + 1) * 16 - 1] = l * 8;
+  for(var off = 0; off < words.length; off += 16) {
+    var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+    for(j = 0; j < 64; j++) {
+      if(j < 16) w[j] = words[off + j] | 0;
+      else {
+        var g0 = w[j - 15], g1 = w[j - 2];
+        var s0 = ((g0 >>> 7) | (g0 << 25)) ^ ((g0 >>> 18) | (g0 << 14)) ^ (g0 >>> 3);
+        var s1 = ((g1 >>> 17) | (g1 << 15)) ^ ((g1 >>> 19) | (g1 << 13)) ^ (g1 >>> 10);
+        w[j] = (w[j - 16] + s0 + w[j - 7] + s1) | 0;
+      }
+      var S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7));
+      var t1 = (h + S1 + ((e & f) ^ (~e & g)) + K[j] + w[j]) | 0;
+      var S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10));
+      var t2 = (S0 + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    H[0] = (H[0] + a) | 0; H[1] = (H[1] + b) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0;
+    H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
+  }
+  var out = "";
+  for(i = 0; i < 8; i++) out += ("00000000" + (H[i] >>> 0).toString(16)).slice(-8);
+  return out;
+}
+function hashPw(pw, salt) { var h = sha256Hex(salt + ":" + pw), n = 4000; while(n--) h = sha256Hex(h + salt + pw); return h; }
+function newSalt() {
+  try { var a = new Uint32Array(4); (window.crypto || window.msCrypto).getRandomValues(a); return Array.prototype.map.call(a, function(n){ return n.toString(16); }).join(""); }
+  catch(err) { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+}
+function setPassword(u, pw, must) { u.ps = newSalt(); u.ph = hashPw(String(pw), u.ps); u.mustChange = !!must; delete u.p; }
+function checkPassword(u, pw) {
+  if(u.ph) return hashPw(String(pw), u.ps || "") === u.ph;
+  return u.p !== undefined && String(u.p) === String(pw);
+}
+function migratePasswords() {
+  var changed = false;
+  users.forEach(function(u){
+    if(!u.ph && u.p !== undefined && String(u.p) !== "") { var plain = String(u.p); setPassword(u, plain, plain === "admin123"); changed = true; }
+  });
+  return changed;
+}
+
 var megaBackgrounds = [
   'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=75',
   'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=75',
@@ -836,6 +899,7 @@ function ensureMemberIds() {
   return changed;
 }
 ensureMemberIds();
+migratePasswords();
 var exps = safeParse("r110_e", []);
 var msgs = safeParse("r110_m", []);
 var notifications = safeParse("r110_notif", []);
@@ -940,9 +1004,9 @@ function loadCloudData(isManual){
   setCloudStatus('syncing');
   fetch(CLOUD_URL).then(function(res){ return res.json(); }).then(function(data){
     if (!isManual && (Date.now() - lastLocalSaveTime < 15000)) return;
-    var addedSuper = false;
+    var addedSuper = false, pwMig = false;
     if(data && data.users && data.users.length) {
-      users = data.users; users.forEach(migrateUserVacations); addedSuper = ensureSuperAdmin(); if(ensureMemberIds()) addedSuper = true;
+      users = data.users; users.forEach(migrateUserVacations); addedSuper = ensureSuperAdmin(); if(ensureMemberIds()) addedSuper = true; if(migratePasswords()) { addedSuper = true; pwMig = true; }
       safeSetItem("r110_u", JSON.stringify(users));
     }
     if(data && Array.isArray(data.exps)) {
@@ -979,7 +1043,7 @@ function loadCloudData(isManual){
       if(fresh) { if(fresh.active === false) logout(); else { cur = fresh; cur.lastActive = Date.now(); } }
     }
     setCloudStatus('live'); applyTheme(); checkSuperAdminWelcome(); render();
-    if(addedSuper && Date.now() - lastSuperSave > 15000) { lastSuperSave = Date.now(); save(false); }
+    if(addedSuper && Date.now() - lastSuperSave > 15000) { lastSuperSave = Date.now(); save(pwMig); }
   }).catch(function(){ setCloudStatus('error'); });
 }
 
@@ -1031,8 +1095,10 @@ function togglePw() {
 function login(e){
   e.preventDefault();
   var u = $("uid").value.trim().toLowerCase(), p = $("upass").value.trim();
-  var found = users.find(function(x){ return String(x.u).toLowerCase() == u && x.p == p; });
+  var cand = users.find(function(x){ return String(x.u).toLowerCase() == u; });
+  var found = (cand && checkPassword(cand, p)) ? cand : null;
   if(found){
+    if(!found.ph) setPassword(found, p, p === "admin123");
     if(found.active === false) return $("err").innerText = "This account has been archived.";
     cur = found;
     if(!cur.firstName) { cur.firstName = cur.name || "Shyam"; cur.lastName = cur.lastName || "Sathyan"; }
@@ -1046,6 +1112,7 @@ function openDashboard(){
   $("loginBox").className = "hide"; $("loginFooter").className = "hide"; $("appBox").className = "";
   document.body.style.background = "#f8fafc"; document.body.style.justifyContent = "flex-start"; document.body.style.padding = "0";
   applyTheme(); updateDateTime(); checkSuperAdminWelcome(); pingUserActivity(false); tab(1); applyLastSelections();
+  if(cur && cur.mustChange) openForcePasswordModal();
 }
 
 function logout(){
@@ -1153,7 +1220,8 @@ function isMess(u) { return u.active !== false && u.mess !== false && u.r !== "s
 function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : (r === "landlord" ? "Landlord" : "Member")); }
 function ensureSuperAdmin() {
   if(users.some(function(x){ return String(x.u).toLowerCase() === "admin"; })) return false;
-  users.unshift({ id: Date.now(), firstName: "Super", lastName: "Admin", name: "Super", u: "admin", p: "admin123", r: "superadmin", avatar: "", lastActive: 0, mess: false, active: true, vacations: [] });
+  var sa = { id: Date.now(), firstName: "Super", lastName: "Admin", name: "Super", u: "admin", r: "superadmin", avatar: "", lastActive: 0, mess: false, active: true, vacations: [] };
+  setPassword(sa, "admin123", true); users.unshift(sa);
   return true;
 }
 function escHtml(t) { return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
@@ -1978,6 +2046,19 @@ function buildSummaryPdf() {
   return doc.build();
 }
 
+function openForcePasswordModal() { $("fpNew").value = ""; $("fpConfirm").value = ""; $("fpErr").innerText = ""; $("forcePassModal").className = "modal-overlay"; }
+function cancelForcePassword() { $("forcePassModal").className = "modal-overlay hide"; logout(); }
+function saveForcedPassword(e) {
+  e.preventDefault();
+  var a = $("fpNew").value.trim(), b = $("fpConfirm").value.trim();
+  if(a.length < 6) return $("fpErr").innerText = "Password must be at least 6 characters.";
+  if(a === "admin123") return $("fpErr").innerText = "Please choose a different password from the default.";
+  if(a !== b) return $("fpErr").innerText = "Passwords do not match.";
+  var target = users.find(function(x){ return x.u === cur.u; }) || cur;
+  setPassword(target, a, false); cur = target;
+  $("forcePassModal").className = "modal-overlay hide"; save(true); alert("Password updated successfully!");
+}
+
 function openEditProfileModal() { $("editProfileModal").className = "modal-overlay"; }
 function openCreateUserModal() { $("createUserModal").className = "modal-overlay"; }
 function openEditUserModal(id) {
@@ -2251,7 +2332,8 @@ function addU(e){
   if(!join) return alert("Date of joining is required.");
   if(!phone) return alert("Enter a valid UAE number (e.g. 05XXXXXXXX or +9715XXXXXXXX).");
   ensureMemberIds();
-  users.push({id:Date.now(),mid:"",firstName:fn,lastName:ln,name:fn,u:u,p:p,r:r,avatar:"",lastActive:0,mess:$("nMess").checked,active:true,vacations:[],joinDate:join,phone:phone});
+  var nu = {id:Date.now(),mid:"",firstName:fn,lastName:ln,name:fn,u:u,r:r,avatar:"",lastActive:0,mess:$("nMess").checked,active:true,vacations:[],joinDate:join,phone:phone};
+  setPassword(nu, p, true); users.push(nu);
   $("nJoin").value = ""; $("nPhone").value = ""; $("nFname").value = ""; $("nLname").value = ""; $("nid").value = ""; $("npass").value = "";
   ensureMemberIds(); closeModals(); save(true);
 }
@@ -2267,7 +2349,7 @@ function saveEditedUser(e){
     var rawPh = $("eUPhone").value.trim(), ph = rawPh ? normalizeUaePhone(rawPh) : "";
     if(ph === null) return alert("Enter a valid UAE number (e.g. 05XXXXXXXX or +9715XXXXXXXX).");
     user.joinDate = $("eUJoin").value || ""; user.phone = ph;
-    user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; if(p) user.p = p; user.r = r; user.mess = $("eUMess").checked; user.active = targetActive;
+    user.firstName = fn; user.lastName = ln; user.name = fn; user.u = u; if(p) setPassword(user, p, user.id !== cur.id); user.r = r; user.mess = $("eUMess").checked; user.active = targetActive;
     closeModals(); save(true);
   }
 }
@@ -2417,11 +2499,12 @@ function updateProfile(e){
   e.preventDefault();
   var newFn = $("editFirstName").value.trim(), newLn = $("editLastName").value.trim(), newPass = $("editPass").value.trim(), fileInput = $("editAvatarFile");
   if(!newFn) return alert("First name cannot be empty!");
+  if(newPass && (newPass.length < 6 || newPass === "admin123")) return alert("New password must be at least 6 characters and different from the default.");
   if(users.some(function(x){ return (x.firstName || x.name || "").toLowerCase() === newFn.toLowerCase() && x.id !== cur.id; })) return alert("A user with this first name already exists!");
   var myPh = normalizeUaePhone($("editPhone").value);
   if(!myPh) return alert("Enter a valid UAE number (e.g. 05XXXXXXXX or +9715XXXXXXXX).");
   cur.phone = myPh;
-  cur.firstName = newFn; cur.lastName = newLn; cur.name = newFn; if(newPass) cur.p = newPass;
+  cur.firstName = newFn; cur.lastName = newLn; cur.name = newFn; if(newPass) setPassword(cur, newPass, false);
 
   if(fileInput.files && fileInput.files[0]){
     var reader = new FileReader();
