@@ -163,6 +163,30 @@ textarea{width:100%;background:#fff;border:1px solid #d1d5db;color:#111;padding:
 textarea:focus{border-color:#1e3a8a;outline:none}
 body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!important;color:#f8fafc!important}
 .welcome-profile-card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:16px 20px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:space-between}
+.chips{flex-direction:row!important;flex-wrap:wrap;gap:8px!important;align-items:center}
+.chip{position:relative;display:inline-flex;align-items:center;padding:8px 14px;border:1.5px solid #d1d5db;border-radius:20px;font-size:13px;font-weight:600;color:#374151;background:#fff;cursor:pointer;user-select:none;margin:0;width:auto}
+.chip input{position:absolute;opacity:0;width:0!important;height:0!important;pointer-events:none;margin:0}
+.chip.on{background:#1e3a8a;border-color:#1e3a8a;color:#fff}
+.linkbtn{background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:2px 6px}
+body.dark-page .chip{background:#0a0a0a;border-color:#2a2a2a;color:#d4d4d4}
+body.dark-page .chip.on{background:#93c5fd;border-color:#93c5fd;color:#0f172a}
+.attbox{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;margin-bottom:4px}
+body.dark-page .attbox{background:#0a0a0a;border-color:#2a2a2a}
+.natday{position:relative;overflow:hidden;border-radius:18px;margin-bottom:12px;padding:16px 16px 16px 22px;color:#fff;display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#00732f 0%,#0b3d2e 55%,#111827 100%);box-shadow:0 8px 24px rgba(0,115,47,.25)}
+.natday::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:#ef3340}
+.natday .t1{font-size:17px;font-weight:900;line-height:1.2}
+.natday .t2{font-size:12px;font-weight:700;color:#fde68a;margin-top:3px}
+.natday .t3{font-size:11px;opacity:.85;margin-top:2px}
+.natflag{width:62px;height:42px;border-radius:6px;overflow:hidden;display:flex;box-shadow:0 2px 8px rgba(0,0,0,.35);flex-shrink:0;border:1px solid rgba(255,255,255,.6);position:relative;z-index:2}
+.natflag .r{width:25%;background:#ef3340}
+.natflag .s{flex:1;display:flex;flex-direction:column}
+.natflag .s i{flex:1;display:block}
+.natflag .g{background:#00732f}.natflag .w{background:#fff}.natflag .b{background:#000}
+.nattxt{position:relative;z-index:2;min-width:0}
+.natconf{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.natconf i{position:absolute;top:-12px;width:6px;height:10px;border-radius:2px;opacity:0;animation:natfall 4.5s linear infinite}
+@keyframes natfall{0%{transform:translateY(-12px) rotate(0);opacity:0}10%{opacity:.95}100%{transform:translateY(110px) rotate(260deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.natconf{display:none}}
 </style>
 </head>
 <body>
@@ -235,6 +259,7 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
   <div id="mainWrap" class="wrap">
     <!-- TAB 1: HOME -->
     <div id="v1">
+      <div id="natDayBanner" class="hide"></div>
       <div class="welcome-profile-card">
         <div style="display:flex;align-items:center;gap:12px">
           <div style="position:relative">
@@ -369,7 +394,15 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
         <label>Items / Category</label><select id="desc" style="margin-bottom:6px"></select>
         <label style="display:flex;justify-content:space-between;align-items:center">Vendor <button type="button" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openQuickVendor()">+ New vendor</button></label><select id="expVendor"></select>
         <label>Description</label><textarea id="expNote" rows="1" placeholder="Optional note (e.g. weekly vegetables)"></textarea>
-        <label>Paid By</label><select id="pby"></select>
+        <label>Receipt / Bill (optional)</label>
+        <div class="attbox">
+          <input type="file" id="attFile" accept="image/*" class="hide" onchange="onAttPicked('add', this)">
+          <button type="button" id="attPickBtn" class="btn btn-s" style="background:#2563eb" onclick="$('attFile').click()"><i class="fa-solid fa-paperclip"></i> Attach receipt / bill</button>
+          <span id="attStatus" style="font-size:12px;color:#6b7280;margin-left:8px"></span>
+          <div id="attPreview"></div>
+          <div style="font-size:11px;color:#6b7280;margin-top:6px">Photo or screenshot. It is compressed automatically.</div>
+        </div>
+                <label>Paid By</label><select id="pby"></select>
         <label style="display:flex;justify-content:space-between;align-items:center">Split Between <button type="button" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:700;cursor:pointer;padding:0" onclick="openQuickGroup()">+ New group</button></label><select id="stype" onchange="onSplitTypeChange()"></select>
         <div id="cbox" class="cks hide"></div>
         <div id="splitHint" style="font-size:12px;color:#6b7280;margin-top:8px;line-height:1.5"></div>
@@ -742,7 +775,15 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
         <label>Category</label><select id="eeDesc" style="margin-bottom:10px"></select>
         <label>Vendor</label><select id="eeVendor" style="margin-bottom:10px"></select>
         <label>Description</label><textarea id="eeNote" rows="1" placeholder="Optional note" style="margin-bottom:10px"></textarea>
-        <label>Paid By</label><select id="eePby" style="margin-bottom:10px"></select>
+        <label>Receipt / Bill (optional)</label>
+        <div class="attbox">
+          <input type="file" id="eeAttFile" accept="image/*" class="hide" onchange="onAttPicked('edit', this)">
+          <button type="button" id="eeAttPickBtn" class="btn btn-s" style="background:#2563eb" onclick="$('eeAttFile').click()"><i class="fa-solid fa-paperclip"></i> Attach receipt / bill</button>
+          <span id="eeAttStatus" style="font-size:12px;color:#6b7280;margin-left:8px"></span>
+          <div id="eeAttPreview"></div>
+          <div style="font-size:11px;color:#6b7280;margin-top:6px">Photo or screenshot. It is compressed automatically.</div>
+        </div>
+                <label>Paid By</label><select id="eePby" style="margin-bottom:10px"></select>
         <label>Split / Amounts</label>
         <div id="eeCbox" class="cks" style="margin-bottom:14px"></div>
         <div id="eeSplitHint" style="font-size:12px;color:#6b7280;margin-bottom:10px"></div>
@@ -778,6 +819,15 @@ body.dark-page textarea{background:#0a0a0a!important;border-color:#2a2a2a!import
       <h3 id="serviceManagerTitle" style="color:#111;margin-bottom:16px">Manage</h3>
       <div id="serviceManagerBody" style="margin-bottom:16px;max-height:50vh;overflow-y:auto"></div>
       <div id="serviceManagerFormContainer"></div>
+    </div>
+  </div>
+
+  <div id="receiptModal" class="modal-overlay hide">
+    <div class="modal-content" style="padding:16px">
+      <button class="modal-close" onclick="closeModals()">&times;</button>
+      <h3 id="receiptTitle" style="color:#111;margin-bottom:4px;padding-right:36px;font-size:16px">Receipt</h3>
+      <div id="receiptSub" style="font-size:12px;color:#6b7280;margin-bottom:10px"></div>
+      <div style="text-align:center"><img id="receiptImg" alt="Receipt" style="max-width:100%;border-radius:10px;border:1px solid #e5e7eb"></div>
     </div>
   </div>
 
@@ -925,7 +975,7 @@ payments.forEach(function(p){ if(p.verified === undefined) p.verified = true; })
 
 var expView = "mine", selectedExpYM = todayISO().slice(0, 7);
 var lastSel = safeParse("r110_last", {});
-var lastSuperSave = 0, lastLocalSaveTime = 0;
+var lastSuperSave = 0, lastLocalSaveTime = 0, lastCloudChars = 0, lastCloudFetch = 0;
 ensureSuperAdmin();
 
 var sid = localStorage.getItem("r110_saved_uid");
@@ -1004,7 +1054,9 @@ setInterval(updateDateTime, 1000);
 function loadCloudData(isManual){
   if (!CLOUD_URL || (!isManual && (Date.now() - lastLocalSaveTime < 15000))) return;
   setCloudStatus('syncing');
-  fetch(CLOUD_URL).then(function(res){ return res.json(); }).then(function(data){
+  if(!isManual && lastCloudChars > 1500000 && Date.now() - lastCloudFetch < 20000) return;
+  fetch(CLOUD_URL).then(function(res){ return res.text(); }).then(function(txt){
+    lastCloudChars = txt.length; lastCloudFetch = Date.now(); var data = JSON.parse(txt);
     if (!isManual && (Date.now() - lastLocalSaveTime < 15000)) return;
     var addedSuper = false, pwMig = false, readLost = false;
     if(data && data.users && data.users.length) {
@@ -1017,7 +1069,7 @@ function loadCloudData(isManual){
       data.exps.forEach(function(cx){ cloudIds[String(cx.id)] = true; });
       var recentLocal = exps.filter(function(lx){ return Number(lx.id) > cutoff && !cloudIds[String(lx.id)]; });
       exps = recentLocal.concat(data.exps);
-      safeSetItem("r110_e", JSON.stringify(exps));
+      safeSetItem("r110_e", JSON.stringify(expsForLocal()));
     }
     if(data && data.utilities) { utilities = data.utilities; safeSetItem("r110_utils", JSON.stringify(utilities)); }
     if(data && data.generatedStatements) { generatedStatements = data.generatedStatements; safeSetItem("r110_gen_stmts", JSON.stringify(generatedStatements)); }
@@ -1081,7 +1133,7 @@ function save(syncToCloud){
   categories = categories.filter(Boolean).sort(function(a,b){ return String(a).localeCompare(String(b)); });
   vendors = vendors.filter(function(v){ return v && v.name; }).sort(function(a,b){ return String(a.name).localeCompare(String(b.name)); });
   emergencyContacts = emergencyContacts.filter(function(ec){ return ec && ec.name; }).sort(function(a,b){ return String(a.name).localeCompare(String(b.name)); });
-  var map = { r110_u: users, r110_e: exps, r110_m: msgs, r110_notif: notifications, r110_utils: utilities, r110_gen_stmts: generatedStatements, r110_cat: categories, r110_grp: groups, r110_ven: vendors, r110_pay: payments, r110_ec: emergencyContacts };
+  var map = { r110_u: users, r110_e: expsForLocal(), r110_m: msgs, r110_notif: notifications, r110_utils: utilities, r110_gen_stmts: generatedStatements, r110_cat: categories, r110_grp: groups, r110_ven: vendors, r110_pay: payments, r110_ec: emergencyContacts };
   for(var k in map) { safeSetItem(k, JSON.stringify(map[k])); }
   try { render(); } catch(err) { console.error("Render error", err); }
   if(syncToCloud && CLOUD_URL){
@@ -1603,6 +1655,86 @@ function getSplitMembers(expenseDate) {
   return { al: pool.filter(function(n){ return onVacNames.indexOf(n) === -1; }), vac: pool.filter(function(n){ return onVacNames.indexOf(n) > -1; }) };
 }
 
+var attState = { add: null, edit: undefined };
+var ATT_MAX_CHARS = 80000, ATT_TOTAL_CAP = 2500000;
+function totalAttChars() { return exps.reduce(function(t, x){ return t + (x.att ? x.att.length : 0); }, 0); }
+function expsForLocal() { return exps.map(function(x){ if(!x.att) return x; var c = {}; for(var k in x) if(k !== "att") c[k] = x[k]; return c; }); }
+function compressReceipt(file, done) {
+  var reader = new FileReader();
+  reader.onerror = function(){ done(null); };
+  reader.onload = function(ev) {
+    var img = new Image();
+    img.onerror = function(){ done(null); };
+    img.onload = function() {
+      var steps = [[1280, 0.6], [1100, 0.55], [960, 0.5], [800, 0.5], [700, 0.45], [600, 0.4]], out = null;
+      for(var i = 0; i < steps.length; i++) {
+        var sc = Math.min(1, steps[i][0] / Math.max(img.width, img.height)), cw = Math.max(1, Math.round(img.width * sc)), ch = Math.max(1, Math.round(img.height * sc));
+        var cv = document.createElement("canvas"); cv.width = cw; cv.height = ch;
+        var cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cw, ch); cx.drawImage(img, 0, 0, cw, ch);
+        out = cv.toDataURL("image/jpeg", steps[i][1]);
+        if(out.length <= ATT_MAX_CHARS) break;
+      }
+      done(out && out.length <= ATT_MAX_CHARS * 1.4 ? out : null);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function renderAtt(w) {
+  var box = $(w === "add" ? "attPreview" : "eeAttPreview"), pick = $(w === "add" ? "attPickBtn" : "eeAttPickBtn"), val = attState[w];
+  if(!box || !pick) return;
+  if(w === "edit" && val === undefined) { var ex = exps.find(function(e){ return e.id == $("eeId").value; }); val = ex && ex.att ? ex.att : null; }
+  box.innerHTML = val ? '<div style="display:flex;align-items:center;gap:10px;margin-top:10px"><img src="' + val + '" onclick="showReceiptData(this.src, \'Receipt\', \'\')" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;cursor:pointer"><div style="flex:1;font-size:12px;color:#6b7280"><b style="color:#059669">Receipt attached</b><br>' + Math.max(1, Math.round(val.length * 0.75 / 1024)) + ' KB after compression</div><button type="button" class="btn btn-s" style="background:#dc2626" onclick="removeAtt(\'' + w + '\')"><i class="fa-solid fa-trash"></i></button></div>' : '';
+  pick.innerHTML = val ? '<i class="fa-solid fa-rotate"></i> Replace receipt' : '<i class="fa-solid fa-paperclip"></i> Attach receipt / bill';
+}
+function onAttPicked(w, input) {
+  var f = input.files && input.files[0]; input.value = ""; if(!f) return;
+  if(!/^image\//.test(f.type || "") && !/\.(jpe?g|png|heic|heif|webp)$/i.test(f.name || "")) return alert("Please choose a photo or screenshot. PDF files are not supported.");
+  if(totalAttChars() > ATT_TOTAL_CAP) return alert("Receipt storage is full. Please remove some old receipts (open an expense, tap edit, then remove the receipt) and try again.");
+  var st = $(w === "add" ? "attStatus" : "eeAttStatus"); st.innerText = "Compressing...";
+  compressReceipt(f, function(out){
+    st.innerText = "";
+    if(!out) return alert("Could not read or shrink this image. Please try a different photo.");
+    attState[w] = out; renderAtt(w);
+  });
+}
+function removeAtt(w) { attState[w] = null; renderAtt(w); }
+function showReceiptData(src, title, sub) {
+  $("receiptImg").src = src; $("receiptTitle").innerText = title || "Receipt"; $("receiptSub").innerText = sub || "";
+  $("receiptModal").className = "modal-overlay";
+}
+function viewReceipt(id) {
+  var x = exps.find(function(e){ return e.id == id; }); if(!x || !x.att) return;
+  showReceiptData(x.att, x.desc + (x.vendor ? " - " + x.vendor : ""), fmtDate(expDate(x)) + " | AED " + money(x.amt) + " | paid by " + x.pb);
+}
+function chipHtml(cls, name, checked, extra) {
+  return '<label class="chip' + (checked ? ' on' : '') + '"><input type="checkbox" class="' + cls + '" value="' + escHtml(name) + '"' + (checked ? ' checked' : '') + ' onchange="this.parentNode.classList.toggle(\'on\', this.checked);' + (extra || '') + '"><span>' + escHtml(name) + '</span></label>';
+}
+function updateSpecificHint() {
+  var names = Array.prototype.map.call(document.querySelectorAll(".mck:checked"), function(c){ return c.value; });
+  $("splitHint").innerHTML = names.length ? "Split between " + names.length + ": " + names.map(escHtml).join(", ") : "Select at least 1 member.";
+}
+function selectAllMembers(flag) {
+  document.querySelectorAll(".mck").forEach(function(c){ c.checked = flag; c.parentNode.classList.toggle("on", flag); });
+  updateSpecificHint();
+}
+
+function natDayInfo() {
+  var t = todayISO(), y = Number(t.slice(0, 4));
+  if(t < y + "-11-24" || t > y + "-12-04") return null;
+  return { nth: y - 1971, diff: Math.round((new Date(y + "-12-02") - new Date(t)) / 86400000) };
+}
+function renderNatDay() {
+  var el = $("natDayBanner"); if(!el) return;
+  var info = natDayInfo();
+  if(!info) { el.className = "hide"; return; }
+  var sub = info.diff > 1 ? info.diff + " days to go &bull; 2 Dec" : (info.diff === 1 ? "Tomorrow &bull; 2 Dec" : (info.diff === 0 ? "Today is the day! &#127881;" : "Celebrations continue &#127881;"));
+  var cols = ["#ef3340", "#ffffff", "#00a94f", "#fde68a"], conf = "";
+  for(var i = 0; i < 14; i++) conf += '<i style="left:' + (4 + i * 7) + '%;background:' + cols[i % 4] + ';animation-delay:' + ((i * 0.37) % 4).toFixed(2) + 's;animation-duration:' + (3.6 + (i % 4) * 0.5) + 's"></i>';
+  setHtmlIfChanged(el, '<div class="natconf">' + conf + '</div><div class="natflag"><span class="r"></span><span class="s"><i class="g"></i><i class="w"></i><i class="b"></i></span></div><div class="nattxt"><div class="t1">Happy UAE National Day! &#127462;&#127466;</div><div class="t2">' + info.nth + 'th Eid Al Etihad &bull; ' + sub + '</div><div class="t3">Wishing everyone in Room 110 a joyful celebration</div></div>');
+  el.className = "natday";
+}
+
 function onSplitTypeChange() {
   var stEl = $("stype"); if(!stEl) return;
   if(!stEl.value) stEl.value = "a";
@@ -1616,9 +1748,9 @@ function onSplitTypeChange() {
     }).join('');
     validateCustomSplitTotal();
   } else if(st === "c") {
-    cbox.className = "cks";
-    cbox.innerHTML = activeMessUsers.map(function(u){ var n = memberName(u); return '<label class="ck"><input type="checkbox" class="mck" value="' + escHtml(n) + '" checked><span>' + escHtml(n) + '</span></label>'; }).join('');
-    hint.innerHTML = "";
+    cbox.className = "cks chips";
+    cbox.innerHTML = '<div style="width:100%;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:#6b7280;font-weight:600">Tap to select members</span><span><button type="button" class="linkbtn" onclick="selectAllMembers(true)">Select all</button><button type="button" class="linkbtn" onclick="selectAllMembers(false)">Clear</button></span></div>' + activeMessUsers.map(function(u){ return chipHtml("mck", memberName(u), false, "updateSpecificHint()"); }).join('');
+    hint.innerHTML = "Select at least 1 member.";
   } else {
     cbox.className = "cks hide";
     onExpenseDateChange();
@@ -1764,6 +1896,7 @@ function renderExpensesTab() {
     var splitCount = x.splits ? Object.keys(x.splits).length : (x.al ? x.al.length : 0);
     var sub = en.kind === "purchase" ? "Purchase &bull; paid by me &bull; split " + splitCount : (en.kind === "expense" ? "Expense &bull; paid by " + escHtml(x.pb) + " &bull; bill AED " + money(x.amt) : "Paid by " + escHtml(x.pb) + " &bull; split " + splitCount);
     if(x.note) sub += '<br><i>' + escHtml(x.note) + '</i>';
+    if(x.att) sub += '<br><a onclick="viewReceipt(' + x.id + ')" style="color:#7c3aed;font-weight:700;cursor:pointer"><i class="fa-solid fa-paperclip"></i> View receipt</a>';
     var canEdit = canEditExp(x);
     html += '<div class="exp-row"><div style="display:flex;align-items:center;gap:12px;min-width:0"><div class="exp-ic" style="background:' + st.bg + ';color:' + st.fg + '"><i class="fa-solid ' + st.ic + '"></i></div><div style="min-width:0"><div class="exp-row-title">' + escHtml(x.desc) + (x.vendor ? ' &bull; ' + escHtml(x.vendor) : '') + '</div><div class="exp-row-sub">' + sub + '</div></div></div><div style="display:flex;align-items:center;gap:5px"><div class="exp-row-amt" style="color:' + st.fg + '">' + st.sign + 'AED ' + money(en.amt) + '</div>' + (canEdit ? '<button class="btn btn-s" style="background:#2563eb;padding:5px 8px" onclick="openEditExp(' + x.id + ')"><i class="fa-solid fa-pen"></i></button><button class="btn btn-s" style="background:#dc2626;padding:5px 9px" onclick="delEx(' + x.id + ')"><i class="fa-solid fa-trash"></i></button>' : '') + '</div></div>';
   });
@@ -2081,7 +2214,7 @@ function openEditUserModal(id) {
   $("editUserModal").className = "modal-overlay";
 }
 function closeModals() {
-  ["editProfileModal","createUserModal","editUserModal","adminEditVacationModal","serviceManagerModal","paymentModal","statementModal","editExpModal","quickVendorModal","quickGroupModal"].forEach(function(id){ $(id).className = "modal-overlay hide"; });
+  ["editProfileModal","createUserModal","editUserModal","adminEditVacationModal","serviceManagerModal","paymentModal","statementModal","editExpModal","quickVendorModal","quickGroupModal","receiptModal"].forEach(function(id){ $(id).className = "modal-overlay hide"; });
 }
 
 var readSyncTimer = null;
@@ -2442,6 +2575,8 @@ function addExImpl(e){
     }
   });
 
+  if(attState.add) exps[0].att = attState.add;
+  attState.add = null; renderAtt("add");
   lastSel = {desc:d, vendor:vendor, pby:pb, stype:st};
   safeSetItem("r110_last", JSON.stringify(lastSel));
   $("amt").value = ""; $("expNote").value = ""; $("expDate").value = todayISO();
@@ -2484,9 +2619,10 @@ function openEditExp(id) {
     var val = x.splits && x.splits[n] !== undefined ? x.splits[n] : "";
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span><input type="number" step="any" min="0" placeholder="0.00" class="ee-custom-split-input" data-name="' + escHtml(n) + '" value="' + val + '" oninput="validateEditCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
   }).join('') : names.map(function(n){
-    return '<label class="ck"><input type="checkbox" class="eck" value="' + escHtml(n) + '"' + (activeList.indexOf(n) > -1 ? ' checked' : '') + '><span>' + escHtml(n) + '</span></label>';
+    return chipHtml("eck", n, activeList.indexOf(n) > -1);
   }).join('');
-  $("eeCbox").dataset.mode = isCustom ? "custom" : "equal";
+  $("eeCbox").dataset.mode = isCustom ? "custom" : "equal"; $("eeCbox").className = isCustom ? "cks" : "cks chips";
+  attState.edit = undefined; renderAtt("edit");
   if(isCustom) validateEditCustomSplitTotal(); else $("eeSplitHint").innerText = "";
   $("editExpModal").className = "modal-overlay";
 }
@@ -2518,6 +2654,7 @@ function saveEditedExp(e) {
     splits = buildEqualSplits(a, al, pb);
   }
   x.amt = a; x.date = dateVal; x.desc = $("eeDesc").value; x.vendor = $("eeVendor").value; x.note = $("eeNote").value.trim(); x.pb = pb; x.al = al; x.splits = splits; x.splitMode = isCustom ? "custom" : "equal";
+  if(attState.edit !== undefined) { if(attState.edit) x.att = attState.edit; else delete x.att; attState.edit = undefined; }
   closeModals(); save(true);
 }
 
@@ -2592,7 +2729,7 @@ function render(){
     $("cardAvatar").innerHTML = init; $("profAvatar").innerHTML = init;
   }
 
-  updateDateTime(); updateDockBadges();
+  updateDateTime(); updateDockBadges(); renderNatDay();
   $("profName").innerText = (cur.firstName || cur.name) + " " + (cur.lastName || "");
   $("profRole").innerText = roleLabel(cur.r);
   $("membersRow").classList.toggle("hide", !isSuper());
