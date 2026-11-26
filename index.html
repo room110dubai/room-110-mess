@@ -948,7 +948,7 @@ function getOnlineStatusInfo(userObj) {
   if(!userObj || !userObj.lastActive) return { isOnline: false, text: "Offline" };
   if(Date.now() - Number(userObj.lastActive) <= 300000) return { isOnline: true, text: "Online" };
   var d = new Date(Number(userObj.lastActive)), today = new Date();
-  var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  var timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   return { isOnline: false, text: (d.toDateString() === today.toDateString() ? "Last seen today at " : "Last seen " + d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + " at ") + timeStr };
 }
 
@@ -986,6 +986,8 @@ function checkSuperAdminWelcome() {
   if(changed) safeSetItem("r110_m", JSON.stringify(msgs));
 }
 
+function get12HourShort(now) { return get12HourTime(now).replace(/:\d{2}(?= [AP]M)/, ""); }
+function stripSeconds(t) { return String(t).replace(/^(\d{1,2}:\d{2}):\d{2}(?= ?[AaPp][Mm])/, "$1"); }
 function get12HourTime(now) {
   var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds(), ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12 || 12;
@@ -1004,7 +1006,7 @@ function loadCloudData(isManual){
   setCloudStatus('syncing');
   fetch(CLOUD_URL).then(function(res){ return res.json(); }).then(function(data){
     if (!isManual && (Date.now() - lastLocalSaveTime < 15000)) return;
-    var addedSuper = false, pwMig = false;
+    var addedSuper = false, pwMig = false, readLost = false;
     if(data && data.users && data.users.length) {
       users = data.users; users.forEach(migrateUserVacations); addedSuper = ensureSuperAdmin(); if(ensureMemberIds()) addedSuper = true; if(migratePasswords()) { addedSuper = true; pwMig = true; }
       safeSetItem("r110_u", JSON.stringify(users));
@@ -1027,11 +1029,19 @@ function loadCloudData(isManual){
       notifications = data.notifications; safeSetItem("r110_notif", JSON.stringify(notifications));
     }
     if(data && data.msgs && data.msgs.length) {
+      var localById = {}, cloudById = {}, cutoffM = Date.now() - 120000;
+      msgs.forEach(function(lm){ localById[String(lm.id)] = lm; });
       data.msgs.forEach(function(inM){
-        var loc = msgs.find(function(lm){ return lm.id === inM.id; });
-        if(loc) inM.isRead = inM.isRead || loc.isRead;
+        cloudById[String(inM.id)] = true;
+        var loc = localById[String(inM.id)]; if(!loc) return;
+        if(loc.isRead && !inM.isRead) { inM.isRead = true; readLost = true; }
+        if(loc.readBy) {
+          if(!inM.readBy) inM.readBy = {};
+          Object.keys(loc.readBy).forEach(function(k){ if(loc.readBy[k] && !inM.readBy[k]) { inM.readBy[k] = true; readLost = true; } });
+        }
       });
-      msgs = data.msgs; safeSetItem("r110_m", JSON.stringify(msgs));
+      var keepM = msgs.filter(function(lm){ return !cloudById[String(lm.id)] && (Number(lm.timeEpoch) || 0) > cutoffM; });
+      msgs = data.msgs.concat(keepM); safeSetItem("r110_m", JSON.stringify(msgs));
     }
     if(data && Array.isArray(data.categories) && data.categories.length) { categories = data.categories.filter(Boolean).sort(function(a,b){ return String(a).localeCompare(String(b)); }); safeSetItem("r110_cat", JSON.stringify(categories)); }
     if(data && Array.isArray(data.vendors)) { vendors = data.vendors.filter(function(v){ return v && v.name; }).sort(function(a,b){ return String(a.name).localeCompare(String(b.name)); }); safeSetItem("r110_ven", JSON.stringify(vendors)); }
@@ -1044,6 +1054,7 @@ function loadCloudData(isManual){
     }
     setCloudStatus('live'); applyTheme(); checkSuperAdminWelcome(); render();
     if(addedSuper && Date.now() - lastSuperSave > 15000) { lastSuperSave = Date.now(); save(pwMig); }
+    if(readLost) scheduleReadSync();
   }).catch(function(){ setCloudStatus('error'); });
 }
 
@@ -1191,7 +1202,7 @@ function renderNotificationsList() {
 function updateDockBadges() {
   if(!cur) return;
   var cName = cur.firstName || cur.name;
-  var unreadChats = msgs.filter(function(m){ return (m.target===cName || m.target==='group_room110' || m.target==='superadmin_channel' || !m.target) && !m.isRead && m.sender!==cName; }).length;
+  var unreadChats = msgs.filter(function(m){ return (m.target===cName || m.target==='group_room110' || m.target==='superadmin_channel' || !m.target) && !isReadByMe(m, cName) && m.sender!==cName; }).length;
   if($("chatUnreadDot")) $("chatUnreadDot").className = unreadChats > 0 ? "dock-dot" : "dock-dot hide";
   var unreadNotifs = notifications.filter(function(n){ return (n.targetUser === "all" || n.targetUser === cName) && !n.read; }).length;
   if($("notifBadge")) $("notifBadge").className = unreadNotifs > 0 ? "dock-dot" : "dock-dot hide";
@@ -1679,7 +1690,7 @@ function broadcastStatementReminder() {
     else if(m.net > 0) reminderText += "• " + m.name + ": To receive +AED " + m.net.toFixed(2) + "\n";
   });
   reminderText += "Kindly clear dues promptly!";
-  msgs.push({ id: Date.now(), sender: "Super Admin", target: activeChatTarget, text: escHtml(reminderText).replace(/\n/g, "<br>"), timestamp: get12HourTime(new Date()), timeEpoch: Date.now(), isSystem: true, delivered: true, isRead: false, reactions: {} });
+  msgs.push({ id: Date.now(), sender: "Super Admin", target: activeChatTarget, text: escHtml(reminderText).replace(/\n/g, "<br>"), timestamp: get12HourShort(new Date()), timeEpoch: Date.now(), isSystem: true, delivered: true, isRead: false, reactions: {} });
   save(true); renderChatMessages();
 }
 
@@ -2073,15 +2084,33 @@ function closeModals() {
   ["editProfileModal","createUserModal","editUserModal","adminEditVacationModal","serviceManagerModal","paymentModal","statementModal","editExpModal","quickVendorModal","quickGroupModal"].forEach(function(id){ $(id).className = "modal-overlay hide"; });
 }
 
+var readSyncTimer = null;
+function scheduleReadSync() { if(readSyncTimer) return; readSyncTimer = setTimeout(function(){ readSyncTimer = null; save(true); }, 1500); }
+function isDirectMsg(m) { return !!m.target && m.target !== "group_room110" && m.target !== "superadmin_channel"; }
+function isReadByMe(m, me) { return m.readBy ? (!!m.readBy[me] || (isDirectMsg(m) && !!m.isRead)) : !!m.isRead; }
+function markMsgRead(m, me) {
+  if(isReadByMe(m, me)) return false;
+  if(!m.readBy) m.readBy = {};
+  m.readBy[me] = true;
+  if(isDirectMsg(m) && m.target === me) m.isRead = true;
+  return true;
+}
+function msgSeen(m) {
+  if(isDirectMsg(m)) return !!m.isRead || !!(m.readBy && m.readBy[m.target]);
+  if(!m.readBy) return !!m.isRead;
+  var others = users.filter(function(u){ return u.active !== false && memberName(u) !== m.sender; });
+  return others.length > 0 && others.every(function(u){ return !!m.readBy[memberName(u)]; });
+}
+
 function selectChatTarget(target) {
   activeChatTarget = target; forceChatScroll = true;
   $("chatSidebar").style.display = "none"; $("chatMainPane").className = "chat-main-pane";
   var cName = cur.firstName || cur.name, updated = false;
   msgs.forEach(function(m){
     var inChat = (activeChatTarget === 'superadmin_channel' && m.target === 'superadmin_channel') || (activeChatTarget === 'group_room110' && (m.target === 'group_room110' || !m.target)) || (m.target === cName && m.sender === activeChatTarget);
-    if(inChat && !m.isRead && m.sender !== cName) { m.isRead = true; updated = true; }
+    if(inChat && m.sender !== cName && markMsgRead(m, cName)) updated = true;
   });
-  if(updated) save(false);
+  if(updated) save(true);
   renderChatActivePane();
 }
 function backToChatList() { $("chatSidebar").style.display = "flex"; $("chatMainPane").className = "chat-main-pane hide"; renderChatContactsList(); }
@@ -2141,12 +2170,15 @@ function renderChatMessages() {
     if(activeChatTarget === 'group_room110') return m.target === 'group_room110' || !m.target;
     return (m.target === activeChatTarget && m.sender === cName) || (m.target === cName && m.sender === activeChatTarget);
   });
+  var chatVisible = $("v4").className.indexOf("hide") === -1 && !document.hidden, readChanged = false;
+  if(chatVisible) targetMsgs.forEach(function(m){ if(m.sender !== cName && markMsgRead(m, cName)) readChanged = true; });
+  if(readChanged) scheduleReadSync();
   sc.innerHTML = targetMsgs.map(function(m){
     var isMe = m.sender === cName, bubbleClass = m.isSystem ? 'msg-system' : (isMe ? 'msg-me' : 'msg-other'), reactionsHtml = '';
     if(m.reactions) for(var em in m.reactions) reactionsHtml += '<span class="reaction-pill" onclick="reactToMessage(\''+escHtml(m.id)+'\', \''+escHtml(em)+'\')">'+em+' '+m.reactions[em].length+'</span>';
     var senderHeader = m.isSystem ? '<div style="font-size:10px;font-weight:800;color:#b45309;margin-bottom:3px"><i class="fa-solid fa-shield-halved"></i> Super Admin</div>' : (activeChatTarget === 'group_room110' && !isMe ? '<div style="font-size:10px;font-weight:700;color:#1e3a8a;margin-bottom:2px">'+escHtml(m.sender)+'</div>' : '');
-    var ticksHtml = (isMe && !m.isSystem) ? (m.isRead ? '<span style="color:#53bdeb;font-size:12px;font-weight:bold;margin-left:3px" title="Read">✓✓</span>' : '<span style="color:#667781;font-size:12px;margin-left:3px">'+(m.delivered?'✓✓':'✓')+'</span>') : '';
-    return '<div class="msg-bubble '+bubbleClass+'" oncontextmenu="openMsgMenu(event, \''+escHtml(m.id)+'\', '+isMe+')" ontouchstart="startMsgLongPress(event, \''+escHtml(m.id)+'\', '+isMe+')" ontouchend="cancelMsgLongPress()" ontouchmove="cancelMsgLongPress()">' + senderHeader + '<div>'+m.text+'</div><div class="msg-meta"><span>'+(m.edited ? '(edited) ' : '')+m.timestamp+'</span>'+ticksHtml+'</div>' + (reactionsHtml ? '<div class="msg-reactions">'+reactionsHtml+'</div>' : '') + '</div>';
+    var ticksHtml = (isMe && !m.isSystem) ? (msgSeen(m) ? '<span style="color:#53bdeb;font-size:12px;font-weight:bold;margin-left:3px" title="Read">✓✓</span>' : '<span style="color:#667781;font-size:12px;margin-left:3px">'+(m.delivered?'✓✓':'✓')+'</span>') : '';
+    return '<div class="msg-bubble '+bubbleClass+'" oncontextmenu="openMsgMenu(event, \''+escHtml(m.id)+'\', '+isMe+')" ontouchstart="startMsgLongPress(event, \''+escHtml(m.id)+'\', '+isMe+')" ontouchend="cancelMsgLongPress()" ontouchmove="cancelMsgLongPress()">' + senderHeader + '<div>'+m.text+'</div><div class="msg-meta"><span>'+(m.edited ? '(edited) ' : '')+stripSeconds(m.timestamp)+'</span>'+ticksHtml+'</div>' + (reactionsHtml ? '<div class="msg-reactions">'+reactionsHtml+'</div>' : '') + '</div>';
   }).join('') || '<div style="text-align:center;color:#667781;font-size:12px;margin-top:20px">No messages yet. Say hello!</div>';
   if(wasAtBottom || forceChatScroll) sc.scrollTop = sc.scrollHeight;
   forceChatScroll = false; updateDockBadges();
@@ -2163,7 +2195,7 @@ function sendActiveChatMsg(e) {
   if(activeChatTarget === 'superadmin_channel' && !isSuper()) return alert("Only Super Admin can send messages here.");
   var input = $("activeChatInput"), txt = input.value.trim(); if(!txt) return;
   var isSuperPost = (activeChatTarget === 'superadmin_channel' && isSuper());
-  msgs.push({ id: Date.now(), sender: isSuperPost ? "Super Admin" : (cur.firstName || cur.name), target: activeChatTarget, text: escHtml(txt), timestamp: get12HourTime(new Date()), timeEpoch: Date.now(), isSystem: isSuperPost, delivered: true, isRead: false, reactions: {} });
+  msgs.push({ id: Date.now(), sender: isSuperPost ? "Super Admin" : (cur.firstName || cur.name), target: activeChatTarget, text: escHtml(txt), timestamp: get12HourShort(new Date()), timeEpoch: Date.now(), isSystem: isSuperPost, delivered: true, isRead: false, reactions: {} });
   forceChatScroll = true; input.value = ""; save(true); renderChatMessages();
 }
 
