@@ -210,11 +210,12 @@ body.dark-page .attbox{background:#0a0a0a;border-color:#2a2a2a}
   <p style="font-size:15px;font-weight:600;color:#1f2937;margin-top:2px">Welcome back,</p>
   <p style="font-size:13px;color:#4b5563;margin-bottom:20px">Please sign in to your account below.</p>
   <p id="err" style="color:#dc2626;font-size:13px;margin-bottom:8px"></p>
-  <form onsubmit="login(event)" style="text-align:left">
-    <label>User ID</label><input id="uid" required placeholder="Enter User ID">
-    <label>Password</label><div style="position:relative"><input id="upass" type="password" required placeholder="Enter Password" style="padding-right:46px"><button type="button" id="pwEye" onclick="togglePw()" aria-label="Show password" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;padding:10px;cursor:pointer;color:#6b7280;font-size:16px"><i class="fa-solid fa-eye"></i></button></div>
+  <iframe name="loginFrame" id="loginFrame" title="login" tabindex="-1" style="display:none;width:0;height:0;border:0"></iframe>
+  <form id="loginForm" method="post" action="about:blank" target="loginFrame" autocomplete="on" onsubmit="login(event)" style="text-align:left">
+    <label>User ID</label><input id="uid" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required placeholder="Enter User ID">
+    <label>Password</label><div style="position:relative"><input id="upass" name="password" autocomplete="current-password" type="password" required placeholder="Enter Password" style="padding-right:46px"><button type="button" id="pwEye" onclick="togglePw()" aria-label="Show password" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;padding:10px;cursor:pointer;color:#6b7280;font-size:16px"><i class="fa-solid fa-eye"></i></button></div>
     <div style="display:flex;align-items:center;gap:8px;margin:14px 0">
-      <input type="checkbox" id="keepMe" style="width:16px;height:16px;cursor:pointer">
+      <input type="checkbox" id="keepMe" checked style="width:16px;height:16px;cursor:pointer">
       <label for="keepMe" style="margin:0;cursor:pointer;font-weight:500;color:#374151">Keep me logged in</label>
     </div>
     <button class="btn">Login to Dashboard</button>
@@ -666,7 +667,7 @@ body.dark-page .attbox{background:#0a0a0a;border-color:#2a2a2a}
         <label>Last Name</label><input id="editLastName" type="text" required style="margin-bottom:12px" placeholder="Last Name">
         <label>Profile Picture (Upload Image)</label><input id="editAvatarFile" type="file" accept="image/*" style="margin-bottom:12px;padding:8px">
         <label>UAE Mobile Number</label><input id="editPhone" type="tel" inputmode="tel" required placeholder="05XXXXXXXX or +9715XXXXXXXX" style="margin-bottom:12px">
-        <label>New Password (Leave blank to keep current)</label><input id="editPass" type="password" placeholder="New password" style="margin-bottom:16px">
+        <label>New Password (Leave blank to keep current)</label><input id="editPass" name="new-password" autocomplete="new-password" type="password" placeholder="New password" style="margin-bottom:16px">
         <button class="btn" style="margin-top:0">Save Changes</button>
       </form>
     </div>
@@ -678,8 +679,8 @@ body.dark-page .attbox{background:#0a0a0a;border-color:#2a2a2a}
       <p style="font-size:12px;color:#6b7280;margin-bottom:12px">For your security, please choose your own password before continuing.</p>
       <p id="fpErr" style="color:#dc2626;font-size:12px;margin-bottom:6px"></p>
       <form onsubmit="saveForcedPassword(event)">
-        <label>New Password</label><input id="fpNew" type="password" placeholder="At least 6 characters" style="margin-bottom:10px">
-        <label>Confirm New Password</label><input id="fpConfirm" type="password" placeholder="Re-enter password" style="margin-bottom:14px">
+        <label>New Password</label><input id="fpNew" name="new-password" autocomplete="new-password" type="password" placeholder="At least 6 characters" style="margin-bottom:10px">
+        <label>Confirm New Password</label><input id="fpConfirm" name="confirm-password" autocomplete="new-password" type="password" placeholder="Re-enter password" style="margin-bottom:14px">
         <button class="btn" style="margin-top:0">Save &amp; Continue</button>
         <button type="button" class="btn" style="margin-top:8px;background:#6b7280" onclick="cancelForcePassword()">Log out</button>
       </form>
@@ -978,7 +979,7 @@ var lastSel = safeParse("r110_last", {});
 var lastSuperSave = 0, lastLocalSaveTime = 0, lastCloudChars = 0, lastCloudFetch = 0;
 ensureSuperAdmin();
 
-var sid = localStorage.getItem("r110_saved_uid");
+var sid = localStorage.getItem("r110_saved_uid"); try { sid = sid || sessionStorage.getItem("r110_sess_uid"); } catch(err) {}
 var cur = sid ? (users.find(function(x){ return x.u===sid && x.active!==false; }) || null) : null;
 var isDarkPage = localStorage.getItem("r110_theme") === "dark";
 var monthlyChartInstance = null, categoryChartInstance = null, editingGroupIdx = -1;
@@ -1156,19 +1157,20 @@ function togglePw() {
   $("pwEye").innerHTML = '<i class="fa-solid ' + (show ? "fa-eye-slash" : "fa-eye") + '"></i>';
 }
 function login(e){
-  e.preventDefault();
   var u = $("uid").value.trim().toLowerCase(), p = $("upass").value.trim();
   var cand = users.find(function(x){ return String(x.u).toLowerCase() == u; });
   var found = (cand && checkPassword(cand, p)) ? cand : null;
   if(found){
     if(!found.ph) setPassword(found, p, p === "admin123");
-    if(found.active === false) return $("err").innerText = "This account has been archived.";
+    if(found.active === false) { e.preventDefault(); return $("err").innerText = "This account has been archived."; }
+    $("err").innerText = "";
     cur = found;
     if(!cur.firstName) { cur.firstName = cur.name || "Shyam"; cur.lastName = cur.lastName || "Sathyan"; }
     cur.lastActive = Date.now();
-    if($("keepMe").checked) safeSetItem("r110_saved_uid", cur.u);
-    openDashboard(); save(false);
-  } else $("err").innerText = "Invalid User ID or Password";
+    if($("keepMe").checked) { safeSetItem("r110_saved_uid", cur.u); try { sessionStorage.removeItem("r110_sess_uid"); } catch(err) {} }
+    else { try { sessionStorage.setItem("r110_sess_uid", cur.u); } catch(err) {} localStorage.removeItem("r110_saved_uid"); }
+    setTimeout(function(){ openDashboard(); save(false); }, 250);
+  } else { e.preventDefault(); $("err").innerText = "Invalid User ID or Password"; }
 }
 
 function openDashboard(){
@@ -1179,7 +1181,7 @@ function openDashboard(){
 }
 
 function logout(){
-  cur = null; localStorage.removeItem("r110_saved_uid");
+  cur = null; localStorage.removeItem("r110_saved_uid"); try { sessionStorage.removeItem("r110_sess_uid"); } catch(err) {}
   document.body.classList.remove("dark-page");
   $("appBox").className = "hide"; $("loginBox").className = "login-box"; $("loginFooter").className = "footer-text";
   document.body.style.padding = "20px"; setRandomBackground(); document.body.style.justifyContent = "center";
