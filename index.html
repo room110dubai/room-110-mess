@@ -483,15 +483,15 @@ body.dark-page .attbox{background:#0a0a0a;border-color:#2a2a2a}
               <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
             </div>
           </div>
-          <div class="prof-menu-row" onclick="openProfPage('dewa')">
+          <div id="dewaRow" class="prof-menu-row" onclick="openProfPage('dewa')">
             <div class="prof-row-left"><span class="prof-row-icon" style="background:#fef3c7;color:#d97706"><i class="fa-solid fa-bolt"></i></span>DEWA Electricity &amp; Water</div>
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
-          <div class="prof-menu-row" onclick="openProfPage('etisalat')">
+          <div id="etisalatRow" class="prof-menu-row" onclick="openProfPage('etisalat')">
             <div class="prof-row-left"><span class="prof-row-icon" style="background:#e0f2fe;color:#0284c7"><i class="fa-solid fa-wifi"></i></span>Etisalat Wi-Fi</div>
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
-          <div class="prof-menu-row" onclick="openProfPage('vacation')">
+          <div id="vacationRow" class="prof-menu-row" onclick="openProfPage('vacation')">
             <div class="prof-row-left"><span class="prof-row-icon" style="background:#cffafe;color:#0891b2"><i class="fa-solid fa-umbrella-beach"></i></span><span id="vacationMenuLabel">Vacation Mode</span></div>
             <i class="fa-solid fa-chevron-right prof-row-arrow"></i>
           </div>
@@ -699,7 +699,7 @@ body.dark-page .attbox{background:#0a0a0a;border-color:#2a2a2a}
         <label>User ID</label><input id="nid" required style="margin-bottom:12px" placeholder="user_id">
         <label>Password</label><input id="npass" type="password" required style="margin-bottom:12px" placeholder="Password">
         <label>Role</label>
-        <select id="nrole" style="margin-bottom:12px"><option value="user">Member</option><option value="admin">Admin</option><option value="superadmin">Super Admin</option><option value="landlord">Landlord</option></select>
+        <select id="nrole" style="margin-bottom:12px"><option value="user">Member</option><option value="admin">Admin</option><option value="superadmin">Super Admin</option><option value="landlord">Landlord</option><option value="guest">Guest</option></select>
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="nMess" checked><span>Mess member (shares expenses)</span></label>
         <button class="btn" style="margin-top:0">Save Member</button>
       </form>
@@ -719,7 +719,7 @@ body.dark-page .attbox{background:#0a0a0a;border-color:#2a2a2a}
         <label>User ID</label><input id="eUId" required style="margin-bottom:12px">
         <label>Password (Leave blank to keep)</label><input id="eUPass" type="password" placeholder="New password" style="margin-bottom:12px">
         <label>Role</label>
-        <select id="eURole" style="margin-bottom:12px"><option value="user">Member</option><option value="admin">Admin</option><option value="superadmin">Super Admin</option><option value="landlord">Landlord</option></select>
+        <select id="eURole" style="margin-bottom:12px"><option value="user">Member</option><option value="admin">Admin</option><option value="superadmin">Super Admin</option><option value="landlord">Landlord</option><option value="guest">Guest</option></select>
         <label class="ck" style="margin-bottom:8px"><input type="checkbox" id="eUMess"><span>Mess member (shares expenses)</span></label>
         <label class="ck" style="margin-bottom:16px"><input type="checkbox" id="eUActive"><span>Active account (can log in)</span></label>
         <div style="display:flex;gap:10px"><button type="submit" class="btn" style="margin-top:0;background:#2563eb;flex:1">Save Changes</button></div>
@@ -1260,6 +1260,7 @@ function updateDockBadges() {
 
 var PROF_PAGES = ["ec","contacts","members","services","dewa","etisalat","vacation","appearance"];
 function openProfPage(name) {
+  if(isGuest() && (name === 'dewa' || name === 'etisalat' || name === 'vacation')) return;
   $("profMenu").className = "hide";
   PROF_PAGES.forEach(function(k){ $("profPage_" + k).className = (k === name) ? "" : "hide"; });
   if(name === 'vacation') renderVacationSection();
@@ -1276,8 +1277,9 @@ function showProfMenu() {
 function isSuper() { return !!cur && cur.r === "superadmin"; }
 function isAdminLike() { return !!cur && (cur.r === "admin" || cur.r === "superadmin"); }
 function isLandlord() { return !!cur && cur.r === "landlord"; }
-function isMess(u) { return u.active !== false && u.mess !== false && u.r !== "superadmin" && u.r !== "landlord"; }
-function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : (r === "landlord" ? "Landlord" : "Member")); }
+function isGuest() { return !!cur && cur.r === "guest"; }
+function isMess(u) { return u.active !== false && u.mess !== false && u.r !== "superadmin" && u.r !== "landlord" && u.r !== "guest"; }
+function roleLabel(r) { return r === "superadmin" ? "Super Admin" : (r === "admin" ? "Admin" : (r === "landlord" ? "Landlord" : (r === "guest" ? "Guest" : "Member"))); }
 function ensureSuperAdmin() {
   if(users.some(function(x){ return String(x.u).toLowerCase() === "admin"; })) return false;
   var sa = { id: Date.now(), firstName: "Super", lastName: "Admin", name: "Super", u: "admin", r: "superadmin", avatar: "", lastActive: 0, mess: false, active: true, vacations: [] };
@@ -1359,7 +1361,7 @@ function updateVacationFormView() {
   checkVacationFormValidity();
 }
 function toggleVacation() {
-  if(isSuper()) return;
+  if(isSuper() || isGuest()) return;
   var toggle = $("vacationToggle"), activeV = getActiveVacation(cur);
   if(activeV) {
     toggle.checked = true;
@@ -1388,7 +1390,7 @@ function vacOverlaps(from, end, skipId) {
   return cur.vacations.some(function(v){ return v.id !== skipId && !(end < v.from || from > (v.openEnded ? "9999-12-31" : (v.to || v.from))); });
 }
 function saveNewVacation() {
-  if(isSuper()) return;
+  if(isSuper() || isGuest()) return;
   var from = $("vacFromInput").value, open = $("vacOpenEnded").checked, to = $("vacToInput").value, current = vacMode !== "edit" || $("vacCurrent").checked;
   if(!from) return alert("From date is required.");
   if(vacMode === "edit") {
@@ -1459,7 +1461,7 @@ function renderVacationSection() {
 
 function renderSuperAdminVacationsList() {
   var allVacs = [];
-  users.forEach(function(u){ if(u.r !== "superadmin" && Array.isArray(u.vacations)) u.vacations.forEach(function(v){ allVacs.push({ user: u, vac: v }); }); });
+  users.forEach(function(u){ if(u.r !== "superadmin" && u.r !== "guest" && Array.isArray(u.vacations)) u.vacations.forEach(function(v){ allVacs.push({ user: u, vac: v }); }); });
   allVacs.sort(function(a, b){ return b.vac.from.localeCompare(a.vac.from); });
   $("superAdminVacationsList").innerHTML = allVacs.map(function(item){
     var u = item.user, v = item.vac, locked = isVacationLockedByStatement(v);
@@ -1704,8 +1706,8 @@ function viewReceipt(id) {
   var x = exps.find(function(e){ return e.id == id; }); if(!x || !x.att) return;
   showReceiptData(x.att, x.desc + (x.vendor ? " - " + x.vendor : ""), fmtDate(expDate(x)) + " | AED " + money(x.amt) + " | paid by " + x.pb);
 }
-function chipHtml(cls, name, checked, extra) {
-  return '<label class="chip' + (checked ? ' on' : '') + '"><input type="checkbox" class="' + cls + '" value="' + escHtml(name) + '"' + (checked ? ' checked' : '') + ' onchange="this.parentNode.classList.toggle(\'on\', this.checked);' + (extra || '') + '"><span>' + escHtml(name) + '</span></label>';
+function chipHtml(cls, name, checked, extra, label) {
+  return '<label class="chip' + (checked ? ' on' : '') + '"><input type="checkbox" class="' + cls + '" value="' + escHtml(name) + '"' + (checked ? ' checked' : '') + ' onchange="this.parentNode.classList.toggle(\'on\', this.checked);' + (extra || '') + '"><span>' + escHtml(label || name) + '</span></label>';
 }
 function updateSpecificHint() {
   var names = Array.prototype.map.call(document.querySelectorAll(".mck:checked"), function(c){ return c.value; });
@@ -1736,17 +1738,17 @@ function onSplitTypeChange() {
   var stEl = $("stype"); if(!stEl) return;
   if(!stEl.value) stEl.value = "a";
   var st = stEl.value, cbox = $("cbox"), hint = $("splitHint");
-  var activeMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a, b){ return memberName(a).localeCompare(memberName(b)); });
+  var splitUsers = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).slice().sort(function(a, b){ return memberName(a).localeCompare(memberName(b)); });
   if(st === "custom") {
     cbox.className = "cks";
-    cbox.innerHTML = activeMessUsers.map(function(u){
+    cbox.innerHTML = splitUsers.map(function(u){
       var n = memberName(u);
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span><input type="number" step="any" min="0" placeholder="0.00" class="custom-split-input" data-name="' + escHtml(n) + '" oninput="validateCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + (u.r === "guest" ? ' <span style="font-size:10px;color:#6b7280;font-weight:700">(Guest)</span>' : '') + '</span><input type="number" step="any" min="0" placeholder="0.00" class="custom-split-input" data-name="' + escHtml(n) + '" oninput="validateCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
     }).join('');
     validateCustomSplitTotal();
   } else if(st === "c") {
     cbox.className = "cks chips";
-    cbox.innerHTML = '<div style="width:100%;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:#6b7280;font-weight:600">Tap to select members</span><span><button type="button" class="linkbtn" onclick="selectAllMembers(true)">Select all</button><button type="button" class="linkbtn" onclick="selectAllMembers(false)">Clear</button></span></div>' + activeMessUsers.map(function(u){ return chipHtml("mck", memberName(u), false, "updateSpecificHint()"); }).join('');
+    cbox.innerHTML = '<div style="width:100%;display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:#6b7280;font-weight:600">Tap to select members</span><span><button type="button" class="linkbtn" onclick="selectAllMembers(true)">Select all</button><button type="button" class="linkbtn" onclick="selectAllMembers(false)">Clear</button></span></div>' + splitUsers.map(function(u){ return chipHtml("mck", memberName(u), false, "updateSpecificHint()", u.r === "guest" ? memberName(u) + " (Guest)" : null); }).join('');
     hint.innerHTML = "Select at least 1 member.";
   } else {
     cbox.className = "cks hide";
@@ -2607,16 +2609,17 @@ function openEditExp(id) {
   $("eeVendor").innerHTML = '<option value="">-- No vendor --</option>' + optList(vendors.map(function(v){ return v.name; }), x.vendor || "");
   $("eeNote").value = x.note || "";
   $("eePby").innerHTML = optList(users.filter(function(u){ return u.active !== false; }).map(memberName), x.pb);
-  var names = users.filter(function(u){ return u.active !== false && isMess(u); }).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
+  var names = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
   var activeList = x.al || Object.keys(x.splits || {});
   activeList.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
+  function isGuestName(n) { var u = users.find(function(t){ return memberName(t) === n; }); return !!(u && u.r === "guest"); }
 
   var isCustom = x.splitMode === "custom" || (!x.splitMode && x.splits && Object.values(x.splits).some(function(v, _, arr){ return Math.abs(v - arr[0]) > 0.02; }));
   $("eeCbox").innerHTML = isCustom ? names.map(function(n){
     var val = x.splits && x.splits[n] !== undefined ? x.splits[n] : "";
-    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + '</span><input type="number" step="any" min="0" placeholder="0.00" class="ee-custom-split-input" data-name="' + escHtml(n) + '" value="' + val + '" oninput="validateEditCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;width:100%"><span style="font-size:13px;font-weight:600;color:#374151">' + escHtml(n) + (isGuestName(n) ? ' <span style="font-size:10px;color:#6b7280;font-weight:700">(Guest)</span>' : '') + '</span><input type="number" step="any" min="0" placeholder="0.00" class="ee-custom-split-input" data-name="' + escHtml(n) + '" value="' + val + '" oninput="validateEditCustomSplitTotal()" style="width:100px;height:34px;padding:4px 8px;font-size:13px"></div>';
   }).join('') : names.map(function(n){
-    return chipHtml("eck", n, activeList.indexOf(n) > -1);
+    return chipHtml("eck", n, activeList.indexOf(n) > -1, "", isGuestName(n) ? n + " (Guest)" : null);
   }).join('');
   $("eeCbox").dataset.mode = isCustom ? "custom" : "equal"; $("eeCbox").className = isCustom ? "cks" : "cks chips";
   attState.edit = undefined; renderAtt("edit");
@@ -2731,6 +2734,9 @@ function render(){
   $("profRole").innerText = roleLabel(cur.r);
   $("membersRow").classList.toggle("hide", !isSuper());
   $("servicesRow").classList.toggle("hide", !isAdminLike());
+  if($("dewaRow")) $("dewaRow").classList.toggle("hide", isGuest());
+  if($("etisalatRow")) $("etisalatRow").classList.toggle("hide", isGuest());
+  if($("vacationRow")) $("vacationRow").classList.toggle("hide", isGuest());
   if($("vacationMenuLabel")) $("vacationMenuLabel").innerText = isSuper() ? "Manage Member Vacations" : "Vacation Mode";
   if($("d3")) $("d3").style.opacity = isLandlord() ? "0.35" : "1";
 
@@ -2826,7 +2832,7 @@ function render(){
   var prevPby = $("pby").value || cName;
   var sortedMessUsers = users.filter(function(u){ return u.active !== false && isMess(u); }).slice().sort(function(a,b){ return memberName(a).localeCompare(memberName(b)); });
   var payerOptions = sortedMessUsers.map(memberName);
-  users.forEach(function(u){ if(u.r === "landlord" && u.active !== false && payerOptions.indexOf(memberName(u)) === -1) payerOptions.push(memberName(u)); });
+  users.forEach(function(u){ if((u.r === "landlord" || u.r === "guest") && u.active !== false && payerOptions.indexOf(memberName(u)) === -1) payerOptions.push(memberName(u)); });
   setHtmlIfChanged($("pby"), payerOptions.map(function(uN){ return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"; }).join(""));
   if(!$("pby").value && payerOptions.length) $("pby").value = payerOptions[0];
 
