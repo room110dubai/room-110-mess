@@ -1202,9 +1202,9 @@ function tab(n){
   if(n==3) {
     setupAddExpenseTabRestrictions();
     if($("stype")) {
-      var targetSt = lastSel.stype || "a";
+      var targetSt = lastSel.stype || (isGuest() ? "c" : "a");
       $("stype").value = targetSt;
-      if(!$("stype").value) $("stype").value = "a";
+      if(!$("stype").value) $("stype").value = isGuest() ? "c" : "a";
       onSplitTypeChange();
     }
   }
@@ -1648,8 +1648,9 @@ function getSplitMembers(expenseDate) {
   if(st === "custom") return { al: Array.prototype.map.call(document.querySelectorAll(".custom-split-input"), function(inp){ return parseFloat(inp.value) > 0 ? inp.getAttribute("data-name") : null; }).filter(Boolean), vac: onVacNames };
   var pool = activeMessUsers.map(memberName);
   if(st && st.indexOf("g:") === 0) {
+    var activeSplitPool = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).map(memberName);
     var g = groups.find(function(x){ return x.name === decodeURIComponent(st.slice(2)); });
-    pool = ((g && g.members) || []).filter(function(n){ return pool.indexOf(n) > -1; });
+    pool = ((g && g.members) || []).filter(function(n){ return activeSplitPool.indexOf(n) > -1; });
   }
   return { al: pool.filter(function(n){ return onVacNames.indexOf(n) === -1; }), vac: pool.filter(function(n){ return onVacNames.indexOf(n) > -1; }) };
 }
@@ -1736,9 +1737,12 @@ function renderNatDay() {
 
 function onSplitTypeChange() {
   var stEl = $("stype"); if(!stEl) return;
-  if(!stEl.value) stEl.value = "a";
+  if(!stEl.value) stEl.value = isGuest() ? "c" : "a";
   var st = stEl.value, cbox = $("cbox"), hint = $("splitHint");
-  var splitUsers = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).slice().sort(function(a, b){ return memberName(a).localeCompare(memberName(b)); });
+  var splitUsers = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).slice().sort(function(a, b){
+    var ag = a.r === "guest" ? 1 : 0, bg = b.r === "guest" ? 1 : 0;
+    return ag !== bg ? ag - bg : memberName(a).localeCompare(memberName(b));
+  });
   if(st === "custom") {
     cbox.className = "cks";
     cbox.innerHTML = splitUsers.map(function(u){
@@ -2535,7 +2539,7 @@ function addExImpl(e){
   if(dateVal > todayISO()) return alert("Expenses cannot be dated in the future.");
   var vendor = $("expVendor").value || "";
   var note = $("expNote").value.trim();
-  var st = ($("stype") && $("stype").value) ? $("stype").value : "a";
+  var st = ($("stype") && $("stype").value) ? $("stype").value : (isGuest() ? "c" : "a");
   var al = [], splits = null, splitMode = "equal";
 
   if(st === "custom") {
@@ -2609,10 +2613,14 @@ function openEditExp(id) {
   $("eeVendor").innerHTML = '<option value="">-- No vendor --</option>' + optList(vendors.map(function(v){ return v.name; }), x.vendor || "");
   $("eeNote").value = x.note || "";
   $("eePby").innerHTML = optList(users.filter(function(u){ return u.active !== false; }).map(memberName), x.pb);
-  var names = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).map(memberName).sort(function(a,b){ return a.localeCompare(b); });
+  var names = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).map(memberName);
   var activeList = x.al || Object.keys(x.splits || {});
   activeList.forEach(function(n){ if(names.indexOf(n) === -1) names.push(n); });
   function isGuestName(n) { var u = users.find(function(t){ return memberName(t) === n; }); return !!(u && u.r === "guest"); }
+  names.sort(function(a, b){
+    var ag = isGuestName(a) ? 1 : 0, bg = isGuestName(b) ? 1 : 0;
+    return ag !== bg ? ag - bg : a.localeCompare(b);
+  });
 
   var isCustom = x.splitMode === "custom" || (!x.splitMode && x.splits && Object.values(x.splits).some(function(v, _, arr){ return Math.abs(v - arr[0]) > 0.02; }));
   $("eeCbox").innerHTML = isCustom ? names.map(function(n){
@@ -2836,14 +2844,16 @@ function render(){
   setHtmlIfChanged($("pby"), payerOptions.map(function(uN){ return "<option value='"+escHtml(uN)+"' "+(uN==prevPby?"selected":"")+">"+escHtml(uN)+"</option>"; }).join(""));
   if(!$("pby").value && payerOptions.length) $("pby").value = payerOptions[0];
 
-  var stypeSel = $("stype"), prevSt = stypeSel.value || lastSel.stype || "a", stOpts = '<option value="a">All Room 110 Members</option>';
+  var stypeSel = $("stype"), prevSt = stypeSel.value || lastSel.stype || (isGuest() ? "c" : "a"), stOpts = isGuest() ? '' : '<option value="a">All Room 110 Members</option>';
+  var activeSplitNames = users.filter(function(u){ return u.active !== false && (isMess(u) || u.r === "guest"); }).map(memberName);
   groups.forEach(function(g){
-    if(canSeeGroup(g) && (g.members || []).some(function(n){ return sortedMessUsers.map(memberName).indexOf(n) > -1; })) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
+    var inGroup = isGuest() ? ((g.members || []).indexOf(cName) > -1) : (canSeeGroup(g) && (g.members || []).some(function(n){ return activeSplitNames.indexOf(n) > -1; }));
+    if(inGroup) stOpts += '<option value="g:'+encodeURIComponent(g.name)+'">'+escHtml(g.name)+' (Group)</option>';
   });
   stOpts += '<option value="c">Select Specific Members</option><option value="custom">Custom Split (Unequal Amounts)</option>';
   var stChanged = stypeSel._lastHtml !== stOpts;
   setHtmlIfChanged(stypeSel, stOpts);
-  if(stChanged || !stypeSel.value) { stypeSel.value = prevSt; if(!stypeSel.value) stypeSel.value = "a"; }
+  if(stChanged || !stypeSel.value) { stypeSel.value = prevSt; if(!stypeSel.value) stypeSel.value = isGuest() ? "c" : "a"; }
 
   if($("expDate") && !$("expDate").value) $("expDate").value = todayISO();
   var vSel = $("expVendor"), prevVen = vSel.value;
