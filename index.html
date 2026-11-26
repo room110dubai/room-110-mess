@@ -1189,28 +1189,23 @@ function tab(n){
   $("mainWrap").className = n == 4 ? "wrap chat-fullscreen-wrap" : "wrap";
   for(var i=1; i<=5; i++){
     $("d"+i).className = "dock-item" + (i==n ? " active" : "");
-    var v = $("v"+i);
-    if(i==n){
-      v.className = (i==3) ? "card" : "";
-      if(i==3) {
-        render();
-        setupAddExpenseTabRestrictions();
-        if($("stype")) {
-          var targetSt = lastSel.stype || "a";
-          $("stype").value = targetSt;
-          if(!$("stype").value) $("stype").value = "a";
-          onSplitTypeChange();
-        }
-        return;
-      }
-      if(i==5) {
-        $("editFirstName").value = cur.firstName || cur.name || "";
-        $("editLastName").value = cur.lastName || ""; $("editPhone").value = cur.phone || "";
-        renderVacationSection(); showProfMenu();
-      }
-    } else v.className = "hide";
+    $("v"+i).className = i==n ? (i==3 ? "card" : "") : "hide";
+  }
+  if(n==5) {
+    $("editFirstName").value = cur.firstName || cur.name || "";
+    $("editLastName").value = cur.lastName || ""; $("editPhone").value = cur.phone || "";
+    renderVacationSection(); showProfMenu();
   }
   $("vNotif").className = "hide"; render();
+  if(n==3) {
+    setupAddExpenseTabRestrictions();
+    if($("stype")) {
+      var targetSt = lastSel.stype || "a";
+      $("stype").value = targetSt;
+      if(!$("stype").value) $("stype").value = "a";
+      onSplitTypeChange();
+    }
+  }
 }
 
 function setupAddExpenseTabRestrictions() {
